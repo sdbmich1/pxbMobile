@@ -1,0 +1,97 @@
+/* custom colors */
+$grayMediumLight: #eaeaea;
+$pixiOrange: #F95700;
+$pixiBlue: #026FB7;
+
+//$pixiBlue: #0C6FCB;
+//$pixiOrange: #F15A25;
+
+.pixi-color { 
+  color: $pixiOrange; 
+}
+.pixi-bkgnd { background-color: $pixiOrange }
+.pixi-lt-bkgnd { background-color: #fde9d9 }
+.pixi-blue-bkgnd { background-color: $pixiBlue }
+.pixi-blk-bkgnd { background-color: black }
+.pixi-grey-bkgnd { background-color: $grayMediumLight }
+
+/* posts */
+
+.posts {
+  list-style: none;
+  font-size: 10px!important;
+  margin: 5px 0 0 0;
+
+  li {
+     padding: 10px 0;
+     border-top: 1px solid #e8e8e8;
+  }
+
+  a {
+    &:hover { background:none; text-decoration: underline; }
+  }  
+}
+
+.sender {
+  font-weight: bold;
+  display: inline;
+  vertical-align: middle;
+  line-height: 20px;
+  margin-right: 5px;
+}
+
+.content, #fcontent {
+  display: block;
+  margin-top: -5px!important;
+}
+
+.gray-content {
+  @extend .content;
+  color: $grayLight;
+  float: left;
+}
+
+.timestamp {
+  color: $grayLight;
+  margin-top: 5px!important;
+  margin-bottom: 10px;
+}
+
+form {margin-bottom: 5px!important;}
+
+.clear-all { clear:both }
+.clear-right { clear:right }
+.price { text-align: right }
+.order-total { font-weight: bolder; font-size: medium }
+.v-align { vertical-align: middle }
+
+.mleft10 {
+  margin-left: 10px!important;
+}
+
+.mleft15 {
+  margin-left: 15px!important;
+}
+
+/* submit button */
+.submit-btn { color: white!important; font-weight: bold; background: $pixiOrange!important; border: $pixiOrange!important; }
+.basic-btn { color: white!important; font-weight: normal;}
+.stnd-btn { color: black!important; background:#CCCCCC!important; border:1px gray!important; font-weight: normal;}
+.fb-btn { 
+  background: #2A528E!important; color: white!important; border: #2A528E!important;
+}
+
+.div-border {  
+  border: 1px solid #eaeaea; padding: 10px; margin-bottom: 10px; }
+
+.sm-bot { margin-bottom: 5px!important }  
+.sm-top { margin-top: 8px!important }  
+.neg-top { margin-top: -10px!important }  
+.ng-top { margin-top: -5px!important }  
+.mright { margin-right: 10px!important }
+.med-top {margin-top: 10px!important;}
+.no-mtop {margin-top: 0!important}
+
+.no-btop {
+  border-top: none; 
+}
