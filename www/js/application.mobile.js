@@ -1,14 +1,18 @@
-$(document).on('pageshow', '#app, #formapp', function() {
-  if ($('.fld').length > 0){ 
-    $(".fld").css('background-color', '#FFF');
-  }
-
-  // repaint file fields
-  if( $('.cabinet').length > 0 ) {
-    SI.Files.stylizeAll();
-  }
+// ajax setup
+$(function(){
+  $.ajaxSetup({
+    type: 'POST',
+    headers: { 'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content') },
+    dataType: 'json'
+  });
 });
 
+$(document).on("pageinit","#loginPage",function() {
+  console.log("pageinit run");
+  checkPreAuth();
+});
+
+// reset board images to align properly
 $(document).on('pagebeforeshow', '#list', function() {
 
   // load board on doc ready
@@ -17,10 +21,12 @@ $(document).on('pagebeforeshow', '#list', function() {
   }
 });
 
+// change page
 function goToUrl(url, rFlg) {
   $.mobile.changePage( url, { transition: "none", reverse: false, reloadPage: rFlg, changeHash: false });
 }
 
+// load initial board
 $(document).on('pageinit', '#listapp', function() {
 
   // initialize infinite scroll
@@ -128,36 +134,56 @@ $(document).on("submit", "#loginForm", function(e) {
   //prevent the default submission of the form
   e.preventDefault();
 
+  // process login
+  handleLogin();
+});
+
+function handleLogin() {
+
   //disable the button so we can't resubmit while we wait
   $("#signin-btn").attr("disabled","disabled");
 
-  var $this = $(this);
-  var u = $("#email").val();
-  var p = $("#password").val();
-  var url = "http://10.0.0.2:3000"; // site url
-  var loginUrl = url + '/users/sign_in';
-  var fdata = $this.serialize();
+  uiLoading(true);
 
-  $.ajax({
-    type:  'POST',
-    url:   loginUrl,
-    dataType: 'jsonp',
-    data:  fdata,
-    jsonpCallback: callback,
-    jsonp: false,
-    success: function(response, textStatus, jqXHR){
-      if(response.exists){
-	console.log(response.access_token);
-	//window.localStorage.setItem("user", JSON.stringify({"name": response.name, "id": response.id, "token":response.access_token}, null));
-      }
-    },
-    error: function (xhr, ajaxOptions, thrownError) {
-      console.log("Error: " + xhr.status + "\n" +
-            "Message: " + xhr.statusText + "\n" +
-	    "Response: " + xhr.responseText + "\n" + thrownError);
+  var $form = $("#loginForm");
+  var fdata = $form.serialize();
+  var email = $("#email").val();
+  var pwd = $("#password").val();
+  //var url = 'http://localhost:3000';
+  var url = 'http://10.0.0.2:3000';
+  var loginUrl = url + '/api/v1/sessions.json'; // + '?' + fdata;
+
+  $.post(loginUrl, fdata, function(res) {
+    if(res.token.length > 0) {
+      console.log('login success');
+      alert("Your login succeeded");  //, function() {}, 'Login', 'Done');
+
+      //store credentials on device
+      window.localStorage["email"] = email;
+      window.localStorage["password"] = pwd;
+      window.localStorage["token"] = res.token;
+      goToUrl("./html/listings.html", false);
     }
-  });
-});
+    else {
+      console.log('login failed');
+      alert("Your login failed");  //, function() {}, 'Login', 'Done');
+      goToUrl("./html/signup.html", false);
+    }
 
-function callback() {
+    $("#signin-btn").removeAttr("disabled");
+    uiLoading(false);
+  },"json");
+}
+
+function checkPreAuth() {
+  console.log("checkPreAuth");
+
+  var $form = $("#loginForm");
+
+  if(window.localStorage["email"] != undefined && window.localStorage["password"] != undefined) {
+    $form("#email").val(window.localStorage["email"]);
+    $form("#password").val(window.localStorage["password"]);
+
+    handleLogin();
+  }
 }

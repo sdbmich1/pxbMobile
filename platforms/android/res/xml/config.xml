@@ -29,6 +29,7 @@
     <feature name="NetworkStatus">
         <param name="android-package" value="org.apache.cordova.networkinformation.NetworkManager" />
     </feature>
+    <access origin="*" />
     <access origin="http://127.0.0.1*" />
     <access origin="http://10.0.2.2*" />
     <preference name="useBrowserHistory" value="true" />

@@ -24,10 +24,10 @@
     <preference name="android-minSdkVersion" value="7" />
     <preference name="android-installLocation" value="auto" />
     <icon src="icon.png" />
-    <icon gap:density="ldpi" gap:platform="android" src="res/icon/android/icon-36-ldpi.png" />
-    <icon gap:density="mdpi" gap:platform="android" src="res/icon/android/icon-48-mdpi.png" />
-    <icon gap:density="hdpi" gap:platform="android" src="res/icon/android/icon-72-hdpi.png" />
-    <icon gap:density="xhdpi" gap:platform="android" src="res/icon/android/icon-96-xhdpi.png" />
+    <icon gap:density="ldpi" gap:platform="android" src="res/icon/android/pixi_wings_blue_36x36.png" />
+    <icon gap:density="mdpi" gap:platform="android" src="res/icon/android/pixi_wings_blue_48x48.png" />
+    <icon gap:density="hdpi" gap:platform="android" src="res/icon/android/pixi_wings_blue_72x72.png" />
+    <icon gap:density="xhdpi" gap:platform="android" src="res/icon/android/pixi_wings_blue_96x96.png" />
     <icon gap:platform="blackberry" src="res/icon/blackberry/icon-80.png" />
     <icon gap:platform="blackberry" gap:state="hover" src="res/icon/blackberry/icon-80.png" />
     <icon gap:platform="ios" height="57" src="res/icon/ios/icon-57.png" width="57" />
@@ -47,6 +47,7 @@
     <gap:splash gap:platform="ios" height="1024" src="res/screen/ios/screen-ipad-portrait.png" width="768" />
     <gap:splash gap:platform="ios" height="768" src="res/screen/ios/screen-ipad-landscape.png" width="1024" />
     <gap:splash gap:platform="winphone" src="res/screen/windows-phone/screen-portrait.jpg" />
+    <access uri="*" subdomains="true" />
     <access origin="http://127.0.0.1*" />
     <access origin="http://10.0.2.2*" />
     <content src="index.html" />
