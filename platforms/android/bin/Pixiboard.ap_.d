@@ -16,6 +16,7 @@ c:\RoRDev\pxbMobile\platforms\android\assets\www\config.xml \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\cordova.js \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\cordova_plugins.js \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\css \
+c:\RoRDev\pxbMobile\platforms\android\assets\www\html \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\icon.png \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\img \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\index.html \
@@ -34,6 +35,9 @@ c:\RoRDev\pxbMobile\platforms\android\assets\www\css\jquery.mobile.structure-1.3
 c:\RoRDev\pxbMobile\platforms\android\assets\www\css\mobile.css \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\css\pixi-theme.min.css \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\css\images\ajax-loader.gif \
+c:\RoRDev\pxbMobile\platforms\android\assets\www\html\listings.html \
+c:\RoRDev\pxbMobile\platforms\android\assets\www\html\login.html \
+c:\RoRDev\pxbMobile\platforms\android\assets\www\html\signup.html \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\img\icon_facebook.png \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\img\logo.png \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\img\rsz_camera-icon_blue.png \
@@ -99,9 +103,13 @@ c:\RoRDev\pxbMobile\platforms\android\assets\www\res\icon\tizen \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\res\icon\webos \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\res\icon\windows-phone \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\res\icon\android\icon-36-ldpi.png \
+c:\RoRDev\pxbMobile\platforms\android\assets\www\res\icon\android\icon-36-ldpi_old.png \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\res\icon\android\icon-48-mdpi.png \
+c:\RoRDev\pxbMobile\platforms\android\assets\www\res\icon\android\icon-48-mdpi_old.png \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\res\icon\android\icon-72-hdpi.png \
+c:\RoRDev\pxbMobile\platforms\android\assets\www\res\icon\android\icon-72-hdpi_old.png \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\res\icon\android\icon-96-xhdpi.png \
+c:\RoRDev\pxbMobile\platforms\android\assets\www\res\icon\android\icon-96-xhdpi_old.png \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\res\icon\bada\icon-128.png \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\res\icon\bada-wac\icon-48-type5.png \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\res\icon\bada-wac\icon-50-type3.png \

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+    <head>
+      <title>Register</title>
+      <a href='login.html' data-iconpos='notext' class='ui-btn-right'>Sign in</a>
+    </head>
+    <body>
+      <div id='app' data-role="page" class='home-pg'>    
+        <div class='app-content listpg' data-theme="d" data-role="content">    
+	  <div class='mtop center-wrapper'>
+	    <img class='px-logo' src='img/rsz_px_word_logo.png'>
+	  </div>
+	  <form id="regForm" class='mtop' data-ajax="false">
+	    <div data-role="fieldcontain" class="ui-hide-label">
+	      <label for="first_name">First Name:</label>
+	      <input type="text" name="first_name" id="first_name" value="" placeholder="First Name" data-theme='a' />
+	    </div>
+	    <div data-role="fieldcontain" class="ui-hide-label">
+	      <label for="last_name">Last Name:</label>
+	      <input type="text" name="last_name" id="last_name" value="" placeholder="Last Name" data-theme='a' />
+	    </div>
+	    <div data-role="fieldcontain" class="ui-hide-label">
+	      <label for="email">Email:</label>
+	      <input type="text" name="email" id="email" value="" placeholder="Email" data-theme='a' />
+	    </div>
+	    <div data-role="fieldcontain" class="ui-hide-label">
+	      <label for="password">Password:</label>
+              <input type="password" name="password" id="password" value="" placeholder="Password" data-theme='a' />
+	    </div>
+	    <div data-role="fieldcontain" class="ui-hide-label">
+	      <label for="password_confirmation">Password Confirmation:</label>
+              <input type="password" name="password_confirmation" id="confirm_password" value="" placeholder="Re-enter Password" data-theme='a' />
+	    </div>
+	    <table>
+	      <tr><td>Gender</td>
+	        <td><%= f.select :gender, options_for_select( ['Male', 'Female'], :selected=>@user.gender ), {}, {'data-mini'=>'true'} %></td>
+	      </tr>
+	      <tr><td>Birth Date</td>
+		<td><div data-role="fieldcontain">
+		      <fieldset data-role="controlgroup" data-type="horizontal">
+			<%= f.date_select :birth_date, {:as => :date, :start_year => Date.today.year - 13, :end_year => Date.today.year - 90,
+			:order => [:month, :day, :year], :use_short_month => true, :required => true, :prompt => true}, {'data-mini'=>'true'} %>
+		      </fieldset>
+		    </div></td>
+		</td>
+	      </tr>
+	    </table>
+	    <div class='mtop'>
+	      <input type="submit" value="Register" id="signup-btn">
+	    </div>
+	    <div class='sdescr'>By registering, I accept <%= link_to "Pixiboard's Terms of Service and Privacy Policy", '#' %>.</div>
+	  </form>
+        </div>    
+      </div>
+    </body>
+</html>
+

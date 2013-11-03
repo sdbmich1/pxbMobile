@@ -18,6 +18,7 @@
 	      $.mobile.defaultPageTransition = "none";
 	      $.mobile.defaultDialogTransition = "none";
 	      $.mobile.allowCrossDomainPages = true;
+	      $.mobile.phonegapNavigationEnabled = true;
 	      $.support.cors = true;
 	    });
 
@@ -27,10 +28,10 @@
 
 	    function onBodyLoad() {
 	      document.addEventListener("deviceready", onDeviceReady, false);
-	      //window.location.href = url;
 	    }
 
 	    function onDeviceReady() { 
+	      alert('in device ready');
 	      pictureSource=navigator.camera.PictureSourceType;
 	      destinationType=navigator.camera.DestinationType;
 	    }
@@ -42,9 +43,8 @@
         <title>Pixiboard</title>
     </head>
     <body onload="onBodyLoad();">
-      <div id='app' data-role="page" class='home-pg'>    
+      <div id='loginPage' data-role="page" class='home-pg'>    
         <div class='app-content listpg' data-theme="d" data-role="content">    
-
 	  <div class='mtop center-wrapper'>
 	    <img class='px-logo' src='img/rsz_px_word_logo.png'>
 	  </div>
@@ -65,7 +65,7 @@
 	      </a>
 	    </div>
 	    <div class='mtop center-wrapper'>
-	      <a href='#' id='signup'>Sign up for free!</a>
+	      <a href='signup.html' id='signup'>Sign up for free!</a>
 	    </div>
 	  </form>
         </div>    
