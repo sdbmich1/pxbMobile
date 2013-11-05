@@ -36,6 +36,9 @@ function capturePhoto() {
 
 // Retrieve image file location from specified source
 function getPhoto(source) {
+  var pictureSource = navigator.camera.PictureSourceType;   // picture source
+  var destinationType = navigator.camera.DestinationType; // sets the format of returned value 
+
   navigator.camera.getPicture(uploadPhoto, fail, { quality: 50, 
   destinationType: destinationType.FILE_URI,
   sourceType: source });

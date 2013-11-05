@@ -7,9 +7,9 @@ $(function(){
   });
 });
 
-$(document).on("pageinit","#loginPage",function() {
-  console.log("pageinit run");
-  checkPreAuth();
+$(document).on("pageshow","#loginPage",function() {
+  console.log("pageshow run");
+  //checkPreAuth();
 });
 
 // reset board images to align properly
@@ -132,10 +132,13 @@ $(document).on('click', "#comment-btn, #contact-btn", function (e) {
 $(document).on("submit", "#loginForm", function(e) {
 
   //prevent the default submission of the form
-  e.preventDefault();
+  //e.preventDefault();
+  PGproxy.navigator.notification.alert("submit login", function() {}, 'Submit', 'Done');
 
   // process login
   handleLogin();
+
+  return false;
 });
 
 function handleLogin() {
@@ -149,40 +152,47 @@ function handleLogin() {
   var fdata = $form.serialize();
   var email = $("#email").val();
   var pwd = $("#password").val();
-  var url = 'http://localhost:3000';
-  //var url = 'http://10.0.0.2:3000';
-  var loginUrl = url + '/api/v1/sessions.json'; // + '?' + fdata;
+  //var url = 'http://localhost:3000';
+  var url = 'http://10.0.2.2:3000';
+  var loginUrl = url + '/api/v1/sessions.json';
 
   $.post(loginUrl, fdata, function(res) {
+    PGproxy.navigator.notification.alert("fdata = " + fdata, function() {}, 'Login', 'Done');
+  
     if(res.token.length > 0) {
       console.log('login success');
-      alert("Your login succeeded");  //, function() {}, 'Login', 'Done');
+      PGproxy.navigator.notification.alert("Your login succeeded", function() {}, 'Login', 'Done');
 
       //store credentials on device
       window.localStorage["email"] = email;
       window.localStorage["password"] = pwd;
       window.localStorage["token"] = res.token;
-      goToUrl("./html/listings.html", false);
+      //goToUrl("./html/listings.html", false);
+      window.location.href = './html/listings.html';
     }
     else {
       console.log('login failed');
-      alert("Your login failed");  //, function() {}, 'Login', 'Done');
+      PGproxy.navigator.notification.alert("Your login failed", function() {}, 'Login', 'Done');
       goToUrl("./html/signup.html", false);
     }
 
     $("#signin-btn").removeAttr("disabled");
     uiLoading(false);
-  },"json");
+  },"json").fail(function (a, b, c) {
+        PGproxy.navigator.notification.alert(b + '|' + c, function() {}, 'Login', 'Done');
+        console.log(b + '|' + c);
+      });
 }
 
 function checkPreAuth() {
   console.log("checkPreAuth");
-
+  PGproxy.navigator.notification.alert("checkPreAuth", function() {}, 'Login', 'Done');
   var $form = $("#loginForm");
 
   if(window.localStorage["email"] != undefined && window.localStorage["password"] != undefined) {
-    $form("#email").val(window.localStorage["email"]);
-    $form("#password").val(window.localStorage["password"]);
+    PGproxy.navigator.notification.alert("inLocalStorage", function() {}, 'Storage', 'Done');
+    $("#email").val(window.localStorage["email"]);
+    $("#password").val(window.localStorage["password"]);
 
     handleLogin();
   }

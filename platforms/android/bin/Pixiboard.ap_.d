@@ -50,6 +50,7 @@ c:\RoRDev\pxbMobile\platforms\android\assets\www\js\index.js \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\js\jquery-1.9.1.min.js \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\js\jquery-ui.min.js \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\js\jquery.mobile-1.3.2.min.js \
+c:\RoRDev\pxbMobile\platforms\android\assets\www\js\pginit.js \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\plugins\org.apache.cordova.camera \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\plugins\org.apache.cordova.file \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\plugins\org.apache.cordova.file-transfer \

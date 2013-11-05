@@ -4,8 +4,37 @@
     </head>
     <body>
       <div id="list" data-role="page" data-iscroll="enable" data-theme="a" data-cache="never" class='pixiPg'>
+        <div data-role="header" data-theme="d" id="app-header">
+	  <div class="center-wrapper">
+	    <a href='#' id='home-link'><img class='px-logo' src='img/sm_px_word_logo.png'></a>
+	  </div>
+	  <a href="#navpanel" id='list' data-theme="app-bar"><img src='img/rsz_list-view_blue.png'></a>
+	  <a href='#popupPix' data-theme="app-loc" data-rel="popup" data-position-to="window" data-transition="pop">
+	    <img src='img/rsz_camera-icon_blue.png'></a>
+
+          <div id='home-nav' data-role='navbar' data-theme='c'>
+  	    <ul>
+    	      <li><a href='#' data-mini='true' id='home-link'><img src='img/home_button_blue.png'></a></li>
+    	      <li><a href='#' data-mini='true' id='loc-nav'><img src='img/blue-white-globe.png'></a></li>
+    	      <li><a href='#' data-mini='true' id='cat-nav'><img src='img/grid_categories.png'></a></li>
+    	      <li><a href='#popupSearch' data-mini='true' data-rel="popup" data-position-to="window" data-transition="pop">
+	        <img src='img/rsz_search_icon1_blue.png'></a></li>
+  	    </ul>
+	  </div>
+        </div>    
+
+	<div data-role="panel" id="navpanel" data-theme="d" data-display="overlay" data-position="left">
+  	  <div data-role="controlgroup" data-corners="false">
+    	    <ul data-role='listview' data-icon="false" data-theme='e'>
+      	      <li data-mini='true'><a href='./html/posts.html'><img class='ui-li-icon' src='img/09-chat-2.png'>My Posts</a></li> 
+  	    </ul>
+	  </div>
+        </div>    
+
         <div class='app-content listpg' data-theme="d" data-role="content">    
-	  Got here!
+	  <div data-iscroll="scroller" class="nearby-top" id="px-container">
+	    Got here!
+	  </div>
         </div>    
       </div>
     </body>
