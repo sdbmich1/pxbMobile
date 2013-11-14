@@ -65,6 +65,7 @@ a.signup-btn {
 .cal-size { width: 80%!important; }
 #inv_amt, #inv_tax_total, #inv_total {background: $grayMediumLight;}
 #home-nav { margin-left: 1px!important; width: 110%!important; }
+.ui-body-d { border: none!important; }
 
 .icon-gray > i {
   opacity: 0.25;
@@ -121,7 +122,7 @@ textarea { width: 99%!important; height: 32px!important; }
 
 /* page settings */
 #mxboard, .posts { margin-top: -14px; }
-.board-top { top: 75px; height: auto; }
+.board-top, .cat-top { top: 82px; height: auto; width: 95%!important; margin-left: 5px!important; }
 
 .subhead, .listpg, .pixiPg {top: 10%; height: auto; }
 .form-top {top: 15%; height: auto; }
@@ -131,14 +132,14 @@ textarea { width: 99%!important; height: 32px!important; }
 }
 
 .neg-top { margin-top: -5px!important; }
-
 .reg-top {top: 5px; height: auto; min-height: 150%;}
+
 .scroller {top: 44px; height: auto; min-height: 175%;}
 .evscroller {top:0; height: auto; min-height: 175%;}
-.scrollable {bottom: 50px; height: auto; min-height: 175%;}
+.scrollable {bottom: 50px; height: auto; min-height: 175%; top: 43px!important;}
+
 .channel-pg, .channelList {top:65px!important;} 
 .nearby-pg {top:200px;}
-.scrollable {top: 43px!important;}
 .px-search, .evsearch {margin: 0 0 3px 0; height: 30px!important; border: none!important;}
 
 .ui-br { border-bottom-style:none; }
@@ -161,6 +162,7 @@ a[data-theme="app-bar"], a[data-theme="app-loc"], a[data-theme="app-search"] {
   }
 }
 
+/*
 a[data-theme="app-bar"].ui-btn-left {
   left: -7px!important;
   .ui-btn-corner-all {
@@ -182,6 +184,7 @@ a[data-theme="app-search"].ui-btn-right {
     padding-right: 5px !important;
   }
 }
+*/
 
 #pixi-loc {
   margin-top: 1px;

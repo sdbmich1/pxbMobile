@@ -60,7 +60,7 @@
 .pixi-photo img {
   max-height: 125px!important;
   width: 125px;
-  @extend .pic-item;
+  border: 1px solid #AAAAAA; box-shadow: 1px 1px 1px 1px #ccc; padding: 3px; 
   margin: 10px 5px 10px 0;
 }
 
@@ -73,7 +73,7 @@
 .sm-thumb {
   height: 60px;
   width: 60px!important;
-  @extend .pic-item;
+  border: 1px solid #AAAAAA; box-shadow: 1px 1px 1px 1px #ccc; padding: 3px; 
   margin: 5px 10px 0 5px;
 }
 
@@ -96,7 +96,7 @@
 .usr-med-photo img {
   max-height: 80px!important;
   width: 80px!important;
-  @extend .pic-item;
+  border: 1px solid #AAAAAA; box-shadow: 1px 1px 1px 1px #ccc; padding: 3px; 
   margin: 10px 5px 10px 0;
 }
 

@@ -1,0 +1,10 @@
+# Ignore all logfiles and tempfiles.
+/log
+/tmp
+*.swp
+*.swo
+*~
+
+# Ignore platform specific files
+/platforms/android/bin
+

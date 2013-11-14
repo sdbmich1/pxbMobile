@@ -32,7 +32,7 @@ public class Pixiboard extends CordovaActivity
 	super.setIntegerProperty("loadUrlTimeoutValue", 70000);
         // Set by <content src="index.html" /> in config.xml
         super.loadUrl(Config.getStartUrl());
-        //super.loadUrl("file:///android_asset/www/index.html")
+        //super.loadUrl("file:///android_asset/www/index.html");
     }
 }
 

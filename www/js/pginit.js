@@ -9,7 +9,7 @@ var App = {
     	}
  
     	$(document).ready(function () {
-          console.log("JQM finished loading");
+          console.log("Document finished loading");
 
 	  var deviceReadyDeferred = $.Deferred();
     	  var jqmReadyDeferred    = $.Deferred();
@@ -24,27 +24,24 @@ var App = {
                 _onDeviceReady();
 		deviceReadyDeferred.resolve();
             }, false);
-            PGproxy.navigator.notification.alert("PhoneGap finished loading", function() {}, 'Device', 'Done');
           }
  
           $(document).on("pageinit", function () {
             console.log("JQMMobile finished loading");
 	    jqmReadyDeferred.resolve();
-            PGproxy.navigator.notification.alert("JQM finished loading", function() {}, 'Device', 'Done');
           });
  
 	  $.when(deviceReadyDeferred, jqmReadyDeferred).then(function () {
             console.log("PhoneGap & JQMobile finished loading");
             initPages();
             console.log("App finished loading");
-            PGproxy.navigator.notification.alert("App finished loading", function() {}, 'Device', 'Done');
             App.app_loaded = true;
+            //PGproxy.navigator.notification.alert("App finished loading", function() {}, 'App', 'Done');
 	  });
         });
  
  	function _onDeviceReady () {
 	  PGproxy.navigator.splashscreen.hide();
-          initPages();
     	}
 
         function initPages () {
@@ -53,7 +50,8 @@ var App = {
         }
     },
     "servers": {
-       "query": function (url, type, data, callback) { console.log("[query "+url+"]");
+       "query": function (url, type, data, callback) { 
+         console.log("[query "+url+"]");
          $.ajax(url, {
             "type": type,
             "dataType": "json",
@@ -65,14 +63,16 @@ var App = {
        "local": {
          "URL":  "http://10.0.2.2:3000/",
          // perform unauthenticated query
-         "query": function (action, method, data, callback) { console.log("[local.query]");
-            App.servers.query(App.servers.public.URL+action, method, {"data": data}, callback); }
+         "query": function (action, method, data, callback) { 
+	   console.log("[local.query]");
+           App.servers.query(App.servers.public.URL+action, method, {"data": data}, callback); }
        },
        "public": {
          "URL":  "http://localhost:3000/",
          // perform unauthenticated query
-         "query": function (action, method, data, callback) { console.log("[public.query]");
-            App.servers.query(App.servers.public.URL+action, method, {"data": data}, callback); }
+         "query": function (action, method, data, callback) { 
+	   console.log("[public.query]");
+           App.servers.query(App.servers.public.URL+action, method, {"data": data}, callback); }
        }
     }
 };

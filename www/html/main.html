@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="format-detection" content="telephone=no" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+        <link rel="stylesheet" type="text/css" href="css/index.css" />
+        <link rel="stylesheet" type="text/css" href="css/pixi-theme.min.css" />
+        <link rel="stylesheet" type="text/css" href="css/jquery-ui.css" />
+	<link rel="stylesheet" type="text/css" href="css/jquery.mobile.structure-1.3.2.min.css" />
+        <link rel="stylesheet" type="text/css" href="css/form.css" />
+        <link rel="stylesheet" type="text/css" href="css/image.css" />
+        <link rel="stylesheet" type="text/css" href="css/mobile.css" />
+        <script type="text/javascript" src="js/jquery-1.9.1.min.js"></script>
+        <script type="text/javascript" src="phonegap.js"></script>
+        <script type="text/javascript" src="js/pginit.js"></script>
+	<script type="text/javascript">
+	    $(document).on("mobileinit", function () {
+	      $.mobile.defaultPageTransition = "none";
+	      $.mobile.defaultDialogTransition = "none";
+	      $.mobile.allowCrossDomainPages = true;
+	      $.mobile.phonegapNavigationEnabled = true;
+	      $.support.cors = true;
+	    });
+
+	    // initialize app
+	    function onBodyLoad() {
+	      App.init();
+	    }
+	</script>
+	<script type="text/javascript" src="js/jquery.mobile-1.3.2.min.js"></script>
+        <script type="text/javascript" src="js/application.mobile.js"></script>
+        <script type="text/javascript" src="js/index.js"></script>
+        <script type="text/javascript" src="js/camera.js"></script>
+        <title>Pixiboard</title>
+    </head>
+    <body onload="onBodyLoad();">
+      <div id='loginPage' data-role="page" class='home-pg'>    
+        <div class='app-content listpg' data-theme="d" data-role="content">    
+	  <div class='mtop center-wrapper'>
+	    <img class='px-logo' src='img/rsz_px_word_logo.png'>
+	  </div>
+	  <form id="loginForm" class='mtop' data-ajax="false">
+	    <div data-role="fieldcontain" class="ui-hide-label">
+	      <label for="email">Email:</label>
+	      <input type="text" name="email" id="email" value="" placeholder="Email" data-theme='a' />
+	    </div>
+
+	    <div data-role="fieldcontain" class="ui-hide-label">
+	      <label for="password">Password:</label>
+              <input type="password" name="password" id="password" value="" placeholder="Password" data-theme='a' />
+	    </div>
+	    <div class='mtop'>
+	      <input type="submit" value="Sign In" id="signin-btn">
+	      <a href='#' data-role='button' data-theme="a" id='fb-btn' rel="external"> 
+	          Sign in via <img class='sm-fb-icon' src='img/icon_facebook.png'> 
+	      </a>
+	    </div>
+	    <div class='mtop center-wrapper'>
+	      <a href='signup.html' id='signup'>Sign up for free!</a>
+	    </div>
+	  </form>
+        </div>    
+      </div>
+    </body>
+</html>
