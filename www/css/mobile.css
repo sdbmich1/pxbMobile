@@ -295,8 +295,8 @@ label .ui-body-a, .ui-overlay-a { border: none; }
 
 li.plist { line-height: 14px!important; }
 
-.pstr { font-size: 1.75em; font-weight: bold; color: $pixiBlue; }
-.title-str { font-size: 1.25em; font-weight: bold; color: $pixiBlue; }
+.pstr { font-size: 1.25em; font-weight: bold; color: #026FB7; }
+.title-str { font-size: 1.25em; font-weight: bold; color: #026FB7; }
 
 .input-append { width: 100%!important; }
 
@@ -334,17 +334,21 @@ li.plist { line-height: 14px!important; }
 label, label.ui-input-text { font-size:12px!important; margin-top:5px!important; line-height: 0.8em!important}
 #card_month, #card_year { line-height: 16px!important; }
 
+// page title 
 .stitle h3, h4, h5, h6 {font-size: 1.35em; padding: 5px 0 7px 0; }
+.pg-title {padding: 5px 0 7px 0; }
+
 .sgrp { line-height: 1em; }
-.sdescr { font-size: 0.725em!important; font-weight: normal; height: 30px; margin-right: 5px;}
+.sdescr { font-size: 0.725em!important; font-weight: normal; height: 30px; margin-right: 5px; vertical-align: top; }
 .inv-descr { font-size: 0.875em!important; }
 .fm-link { font-size: 0.825em!important; width: 75%; font-weight: normal; height: 30px; }
 
-.seller-name { font-size: 0.725em; margin-right: 5px; float: left;}
+.dt-descr, .seller-name { font-size: 0.725em; margin-right: 5px; float: left;}
 .sponsor-msg { color: blue; font-weight: bold; }
 .close-lnk, .suggestions { font-size: 0.75em; }
 .hdescr { font-size: 1.25em; line-height: 12px;}
 .version {font-size: 0.625em; color: blue;}
+.item-dt {font-size: 0.625em;}
 
 /* add event styling */
 #start-time hour { color: blue}

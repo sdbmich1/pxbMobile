@@ -1,0 +1,33 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+  </head>
+  <body>
+    <div data-role="page" id="mypixis" data-cache="never" data-theme="a">
+      <div data-role="panel" id="navpanel" data-theme="d" data-display="overlay" data-position="left">
+        <div data-role="controlgroup" data-corners="false">
+    	    <ul data-role='listview' data-icon="false" data-theme='e' class='mainMenu'></ul>
+        </div>
+      </div>    
+      <div data-role="header" data-theme="d">
+        <div class='pg-title center-wrapper'>My Pixis</div>
+	<a href="#navpanel" id='list' data-theme="app-bar"><img src='../img/rsz_list-view_blue.png'></a>
+	<a href='#' data-theme="app-loc" id='add-pixi-link'><img src='../img/rsz_camera-icon_blue.png'></a>
+	<div id='mypixi-nav' data-role='navbar' data-theme='c' class='show-pixi-bar'>
+	  <ul>
+	    <li><a href='#' id='active-btn' data-mini='true' data-theme='get_theme(1);'>Active</a></li>
+	    <li><a href='#' id='draft-btn' data-mini='true' data-theme='get_theme(2);'>Draft</a></li>
+	    <li><a href='#' id-'sold-btn' data-mini='true' data-theme='get_theme(3);'>Sold</a></li>
+	  </ul>
+	</div>
+      </div>
+      <div class="app-content" data-theme="a" data-role="content">
+        <div id="mxboard">
+	  <ul id='pixi-list' data-role="listview">
+	  </ul>
+	</div>
+      </div>
+    </div>
+  </body>
+</html>
+

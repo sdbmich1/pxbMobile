@@ -1,0 +1,27 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <title>Camera</title>
+  </head>
+  <body>
+    <div data-role="page" id="page-camera" data-cache="never">
+      <div data-role="header" data-theme="d">
+        <div class='pg-title center-wrapper'>Load Pix</div>
+	  <a href="../html/panel.html/#navpanel" id='list' data-theme="app-bar"><img src='../img/rsz_list-view_blue.png'></a>
+	  <a href='#' data-theme="app-loc" id='add-pixi-link'><img src='../img/rsz_camera-icon_blue.png'></a>
+      </div>
+      <div class="app-content" data-theme="a" data-role="content">
+        <div class='center-wrapper'><h4>Device's Camera</h4></div>
+        <button id='camera'>Capture Photo</button><br>
+        <button id='gallery'>From Photo Library</button><br>
+        <button id='album'>From Photo Album</button><br>
+	<hr>
+	<div id="picture">
+	  <center><img style="width:60px;height:60px;" id="smallImage" src="" /></center>
+	  <hr>
+	  <center><img style="" id="largeImage" src="" /></center>
+	</div>
+      </div>
+    </div>
+  </body>
+</html>

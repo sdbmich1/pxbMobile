@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    </head>
+    <body>
+      <div id="formapp" data-role="page" data-cache="never" data-theme='a' class='home-pg'>
+        <div data-role="header" data-theme="d">
+          <div class='pg-title center-wrapper'>Build Your Pixi</div>
+	  <a href="./html/panel.html/#navpanel" id='list' data-theme="app-bar"><img src='../img/rsz_list-view_blue.png'></a>
+	  <a href='#' data-theme="app-loc" id='add-pixi-link'><img src='../img/rsz_camera-icon_blue.png'></a>
+	</div>  
+        <div class="app-content" data-role="content" data-theme='a' class='listpg'>
+          <div id="buyTxtForm">
+	    <div id="form_errors" style="display:none" class="error"></div>
+	    <form id="pixi-form" enctype="multipart/form-data" method="post" data-ajax="false">
+	        <div id="picture">
+	          <center><img style="width:80px;height:80px;" id="smallImage" src="" /></center>
+	        </div>
+		<table class='inv-descr' id='input-form'>
+		  <tr class=''><td><div data-role="fieldcontain" class="ui-hide-label">
+	            <input type="text" name="title" id="title" value="" placeholder="Pixi Title" data-theme='a' autofocus required /></div></td>
+		  </tr>
+		  <tr id='price-fld'><td><div data-role="fieldcontain" class="ui-hide-label"><label for="price">Price:</label>
+	            <input type="number" name="price" id="price" value="" placeholder="Price" data-theme='a' /></div></td>
+		  </tr>
+		  <tr class=''><td><div data-role="fieldcontain" class="ui-hide-label"><label for="site_name">Pixi Location:</label>
+	            <input type="text" name="site_name" id="site_name" value="" placeholder="Pixi Location" data-theme='a' required /></div></td>
+		  </tr>
+		  <tr class=''><td>
+	            <div data-role="fieldcontain">
+		      <select name="category_id" id="category_id" data-mini='true'></select>
+	            </div></td>
+		  </tr>
+		  <tr><td><div data-role="fieldcontain" class="ui-hide-label"><label for="description">Description:</label>
+	            <textarea name="description" id="description" value="" placeholder="Describe Your Pixi" data-theme='a' required></textarea>
+		    </div></td>
+		  </tr>
+		</table>
+
+	        <input type="hidden" name="site_id" id="site_id" value="" required />
+	        <input type="hidden" name="start_date" id="start_date" value="$.now();" />
+	        <input type="hidden" name="post_ip" id="post_ip" value="getUserData('ip');" />
+	        <input type="hidden" name="seller_id" id="seller_id" value="getUserData('id');" />
+	      </div>
+	      <a href='../html/listings.html' data-role='button' data-inline='true' 
+	          onclick='return confirm(\"Are you sure? All changes will be lost!\");' />Cancel</a>
+	      <input type='submit' value='Next' data-theme='d' data-inline='true' id='add-pixi-btn' class='pull-right' />
+	    </form>
+          </div>
+        </div>
+      </div>
+    </body>
+</html>
+

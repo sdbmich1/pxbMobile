@@ -31,6 +31,7 @@ c:\RoRDev\pxbMobile\platforms\android\assets\www\css\image.css \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\css\images \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\css\index.css \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\css\jquery-ui.css \
+c:\RoRDev\pxbMobile\platforms\android\assets\www\css\jquery.bxslider.css \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\css\jquery.mobile.structure-1.3.2.min.css \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\css\mobile.css \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\css\pixi-theme.min.css \
@@ -42,10 +43,16 @@ c:\RoRDev\pxbMobile\platforms\android\assets\www\css\images\icons-36-black.png \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\css\images\icons-36-white.png \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\css\themes\default \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\css\themes\default\jquery.mobile.theme-1.3.2.min.css \
+c:\RoRDev\pxbMobile\platforms\android\assets\www\html\advanced_search.html \
+c:\RoRDev\pxbMobile\platforms\android\assets\www\html\camera.html \
+c:\RoRDev\pxbMobile\platforms\android\assets\www\html\comments.html \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\html\listings.html \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\html\login.html \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\html\main.html \
+c:\RoRDev\pxbMobile\platforms\android\assets\www\html\new_temp_listing.html \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\html\panel.html \
+c:\RoRDev\pxbMobile\platforms\android\assets\www\html\pixis.html \
+c:\RoRDev\pxbMobile\platforms\android\assets\www\html\show_listing.html \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\html\signup.html \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\img\09-chat-2.png \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\img\162-receipt.png \
@@ -71,6 +78,7 @@ c:\RoRDev\pxbMobile\platforms\android\assets\www\img\rsz_search_icon1_blue.png \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\img\sm_px_word_logo.png \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\js\application.mobile.js \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\js\camera.js \
+c:\RoRDev\pxbMobile\platforms\android\assets\www\js\imagesloaded.pkgd.min.js \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\js\index.js \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\js\jquery-1.9.1.min.js \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\js\jquery-ui.min.js \
@@ -84,6 +92,7 @@ c:\RoRDev\pxbMobile\platforms\android\assets\www\js\jquery.placeholder.min.js \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\js\jquery.timeago.js \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\js\jquery.ui.autocomplete.html.js \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\js\main.js \
+c:\RoRDev\pxbMobile\platforms\android\assets\www\js\masonry.pkgd.min.js \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\js\pginit.js \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\js\phonegap.js \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\plugins\org.apache.cordova.camera \

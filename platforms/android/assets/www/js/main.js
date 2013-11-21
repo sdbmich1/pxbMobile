@@ -130,11 +130,10 @@ function load_slider(cntl) {
 
   // picture slider
   if( $('.bxslider').length > 0 ) {
+    console.log('in bxslider');
+
     $('.bxslider').bxSlider({
       slideMargin: 10,
-      auto: cntl,
-      controls: cntl,
-      autoControls: true,
       mode: 'fade'
     });
 
@@ -154,11 +153,6 @@ $(document).ready(function(){
 
   console.log('doc ready');
 
-  // set autocomplete to accept images
-  if ($('#buyer_name').length > 0) {  
-    $("input#buyer_name").autocomplete({ html: true });
-  }
-
   // used to scroll up page
   $(window).scroll(function(){
     if ($(this).scrollTop() > 100) {
@@ -169,14 +163,8 @@ $(document).ready(function(){
     }
   }); 
 
-  // initialize slider
-  load_slider(true);
-
   // remove stnd header icon
   $('a[data-theme="app-bar"], a[data-theme="app-loc"]').find('.ui-icon').remove();
-
-  // set time ago format
-  $("abbr.timeago").timeago();
 
   // set window scroll
   $('.scrollup').click(function(){
@@ -238,7 +226,7 @@ function initScroll(cntr, nav, nxt, item) {
       // ensure that images load before adding to masonry layout
       $newElems.imagesLoaded(function(){
         $newElems.animate({ opacity: 1 });
-        $container.masonry( 'appended', $newElems, true ).masonry('reload'); 
+        $container.masonry( 'appended', $newElems, true );
       });
     }
   );
@@ -503,7 +491,7 @@ function resetScroll(px_url) {
   $container.data('infinitescroll', null);
 
   // load board
-  loadBoard(px_url);
+  loadData(px_url, 'board');
 
   // reset scroll
   $container.infinitescroll({                      

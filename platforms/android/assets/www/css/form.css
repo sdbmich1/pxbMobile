@@ -13,7 +13,7 @@ $pixiBlue: #026FB7;
 .pixi-lt-bkgnd { background-color: #fde9d9 }
 .pixi-blue-bkgnd { background-color: $pixiBlue }
 .pixi-blk-bkgnd { background-color: black }
-.pixi-grey-bkgnd { background-color: $grayMediumLight }
+.pixi-grey-bkgnd { background-color: #eaeaea }
 
 /* posts */
 
@@ -95,3 +95,5 @@ form {margin-bottom: 5px!important;}
 .no-btop {
   border-top: none; 
 }
+
+.pad10 { padding: 10px 0 10px 0; }
