@@ -355,39 +355,6 @@ $(document).on("keypress", ".reply_content", function(e){
   keyEnter(e, $(this), '.reply-btn');
 });
 
-// set autocomplete selection value
-$(document).on("railsAutocomplete.select", "#search", function(event, data){
-  $('#submit-btn').click();
-});
-
-var time_id;
-function set_timer() {
- time_id = setTimeout(updatePixis, 30000);  
-}
-
-// polling for recent pixis
-$(function () {  
-  if ($('#recent-pixis').length > 0) {  
-  //  set_timer(); 
-  }
-  else {
-    clearTimeout(time_id);
-  }  
-});  
-
-// refresh recent pixis
-function updatePixis() {  
-  if ($('.pixi').length > 0) {  
-    var after = $('.pixi:last').attr('data-time');  
-  }  
-  else {  
-    var after = 0;  
-  }
-
-  processUrl('/pages.js?after=' + after);
-  set_timer();
-}  
-
 // check for location changes
 $(document).on("change", "#site_id, #category_id", function() {
 

@@ -46,6 +46,7 @@ var App = {
 
         function initPages () {
 	  console.log("[initPages]");
+	  //localStorage.clear();
 	  checkPreAuth();
         }
     },
@@ -96,6 +97,14 @@ var PGproxy = {
                     navigator.notification.vibrate(a);
                 } else {
                     console.log("navigator.notification.vibrate");
+                }
+            },
+            "confirm": function (a, b, c, d) {
+                if (navigator.notification && navigator.notification.confirm) {
+                    navigator.notification.confirm(a, b, c, d);
+                } else {
+                    console.log("navigator.notification.confirm");
+                    alert(a);
                 }
             },
             "alert": function (a, b, c, d) {

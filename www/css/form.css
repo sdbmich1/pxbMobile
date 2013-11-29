@@ -7,11 +7,11 @@ $pixiBlue: #026FB7;
 //$pixiOrange: #F15A25;
 
 .pixi-color { 
-  color: $pixiOrange; 
+  color: #F95700; 
 }
-.pixi-bkgnd { background-color: $pixiOrange }
+.pixi-bkgnd { background-color: #F95700 }
 .pixi-lt-bkgnd { background-color: #fde9d9 }
-.pixi-blue-bkgnd { background-color: $pixiBlue }
+.pixi-blue-bkgnd { background-color: #026FB7 }
 .pixi-blk-bkgnd { background-color: black }
 .pixi-grey-bkgnd { background-color: #eaeaea }
 
@@ -46,13 +46,14 @@ $pixiBlue: #026FB7;
 }
 
 .gray-content {
-  @extend .content;
-  color: $grayLight;
+  display: block;
+  margin-top: -5px!important;
+  color: #eaeaea;
   float: left;
 }
 
 .timestamp {
-  color: $grayLight;
+  color: #eaeaea;
   margin-top: 5px!important;
   margin-bottom: 10px;
 }
@@ -74,7 +75,7 @@ form {margin-bottom: 5px!important;}
 }
 
 /* submit button */
-.submit-btn { color: white!important; font-weight: bold; background: $pixiOrange!important; border: $pixiOrange!important; }
+.submit-btn { color: white!important; font-weight: bold; background: #F95700!important; border: #F95700!important; }
 .basic-btn { color: white!important; font-weight: normal;}
 .stnd-btn { color: black!important; background:#CCCCCC!important; border:1px gray!important; font-weight: normal;}
 .fb-btn { 

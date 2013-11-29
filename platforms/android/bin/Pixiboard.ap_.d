@@ -69,10 +69,14 @@ c:\RoRDev\pxbMobile\platforms\android\assets\www\img\logout.png \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\img\pixi_wings_blue.png \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\img\rsz_blue-white-globe.png \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\img\rsz_camera-icon_blue.png \
+c:\RoRDev\pxbMobile\platforms\android\assets\www\img\rsz_camera_256.png \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\img\rsz_check_sample.gif \
+c:\RoRDev\pxbMobile\platforms\android\assets\www\img\rsz_gallery_icon.png \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\img\rsz_grid_categories.png \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\img\rsz_list-view_blue.png \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\img\rsz_money-bag-hi_blue-icon.png \
+c:\RoRDev\pxbMobile\platforms\android\assets\www\img\rsz_photo-camera.png \
+c:\RoRDev\pxbMobile\platforms\android\assets\www\img\rsz_photoalbum.png \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\img\rsz_px_word_logo.png \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\img\rsz_search_icon1_blue.png \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\img\sm_px_word_logo.png \
@@ -96,6 +100,7 @@ c:\RoRDev\pxbMobile\platforms\android\assets\www\js\masonry.pkgd.min.js \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\js\pginit.js \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\js\phonegap.js \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\plugins\org.apache.cordova.camera \
+c:\RoRDev\pxbMobile\platforms\android\assets\www\plugins\org.apache.cordova.dialogs \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\plugins\org.apache.cordova.file \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\plugins\org.apache.cordova.file-transfer \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\plugins\org.apache.cordova.geolocation \
@@ -106,6 +111,10 @@ c:\RoRDev\pxbMobile\platforms\android\assets\www\plugins\org.apache.cordova.came
 c:\RoRDev\pxbMobile\platforms\android\assets\www\plugins\org.apache.cordova.camera\www\CameraConstants.js \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\plugins\org.apache.cordova.camera\www\CameraPopoverHandle.js \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\plugins\org.apache.cordova.camera\www\CameraPopoverOptions.js \
+c:\RoRDev\pxbMobile\platforms\android\assets\www\plugins\org.apache.cordova.dialogs\www \
+c:\RoRDev\pxbMobile\platforms\android\assets\www\plugins\org.apache.cordova.dialogs\www\android \
+c:\RoRDev\pxbMobile\platforms\android\assets\www\plugins\org.apache.cordova.dialogs\www\notification.js \
+c:\RoRDev\pxbMobile\platforms\android\assets\www\plugins\org.apache.cordova.dialogs\www\android\notification.js \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\plugins\org.apache.cordova.file\www \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\plugins\org.apache.cordova.file\www\DirectoryEntry.js \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\plugins\org.apache.cordova.file\www\DirectoryReader.js \

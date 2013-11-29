@@ -1,8 +1,8 @@
 var pictureSource;
 var destinationType;
 
-$(document).on('pageinit','#page-camera',function(){
-  console.log('in page camera');
+$(document).on('pageinit','#formapp, #signup, #user_form',function(){
+  console.log('in init camera');
   pictureSource = navigator.camera.PictureSourceType;
   destinationType = navigator.camera.DestinationType;
 }); 
@@ -75,25 +75,22 @@ $(document).on('click', "#album", function(e){
 function setImage(imageURI) {
   console.log('in setImage');
   $("#smallImage").attr("src", imageURI);
+  $('#popupPix').popup("close");  // close pix popup
 }
 
 // uploads image to server
-function uploadPhoto(imageURI, path) {
+function uploadPhoto(imageURI, path, params) {
   console.log('in upload photo');
 
   var options = new FileUploadOptions();
   options.chunkedMode = false;
   options.fileKey = "file";
   options.fileName = imageURI.substr(imageURI.lastIndexOf('/')+1)+'.png';
-  options.mimeType = "image/jpeg";
-
-  console.log('fileName = ' + options.fileName);
-
-  var params = new Object();
+  options.mimeType = "text/plain";
   options.params = params;
 
   var ft = new FileTransfer();
-  ft.upload(imageURI, encodeURI(url + path), onSuccess, onFail, options);
+  ft.upload(imageURI, encodeURI(path), onSuccess, onFail, options);
 }
 
 // success handler
@@ -101,12 +98,14 @@ function onSuccess(r) {
   console.log("Code = " + r.responseCode);
   console.log("Response = " + r.response);
   console.log("Sent = " + r.bytesSent);
+  uiLoading(false);
 }
 
 // error handler
 function onFail(error) {
-  alert("An error has occurred: Code = " = error.code);
+  PGproxy.navigator.notification.alert("An error has occurred: Code = " + error.code, function() {}, 'Upload', 'Done');
   console.log("upload error source " + error.source);
   console.log("upload error target " + error.target);
+  uiLoading(false);
 }
 

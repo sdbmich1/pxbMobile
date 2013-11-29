@@ -1,12 +1,14 @@
-//var url = 'http://localhost:3000';
+//var url = 'http://pixiboard.com';
 var url = 'http://10.0.2.2:3000';
 var listPath = url + '/listings';
-var pixPath = url + '/pictures/';
+var pixPath = url + '/pictures.json';
+var tmpPath = url + '/temp_listings.json';
 var pxPath = listPath + '/';
 var listPage = '../html/show_listing.html';
+var homePage = "../html/listings.html";
 var catPath = pxPath + 'category.json' ;
 var locPath = pxPath + 'location.json' ;
-var pid, token, usr, categories;
+var email, pwd, pid, token, usr, categories;
 
 $(function(){
   // ajax setup
@@ -15,16 +17,6 @@ $(function(){
     headers: { 'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content') },
     dataType: 'json'
   });
-});
-
-// reset board images to align properly
-$(document).on('pageshow', '#listapp', function() {
-
-  // initialize infinite scroll
-  if( $('#px-container').length > 0 ) {
-    console.log('listapp pageshow');
-    //load_masonry('#px-nav', '#px-nav a', '#pxboard .item', null); 
-  }
 });
 
 // change page
@@ -46,7 +38,7 @@ $(document).on('pageinit', '#listapp', function() {
   loadData(listUrl, 'board');
 
   // initialize infinite scroll
-  //load_masonry('#px-nav', '#px-nav a.nxt-pg', '#pxboard .item', 1);
+  // load_masonry('#px-nav', '#px-nav a.nxt-pg', '#pxboard .item', 1);
 });
 
 // load pixi form data
@@ -54,6 +46,23 @@ $(document).on('pageinit', '#formapp', function() {
   if (categories !== undefined) {
     loadList(categories, '#category_id', 'Category');
   }
+  else {
+    // get category data
+    var catUrl = url + '/categories.json' + token;
+    var data = loadData(catUrl, 'list');
+    loadList(data, '#category_id', 'Category');
+  }
+  $("#category_id").trigger("change"); // update item
+
+  // load year fld
+  var item_str = '<option default value="">' + 'Year' + '</option>';
+  $("#yr_built").append(item_str);
+
+  for (i = new Date().getFullYear(); i > 1930; i--)
+    { $('#yr_built').append($('<option />').val(i).html(i)); }
+
+  $("#yr_built").selectmenu().selectmenu('refresh', true);
+  $('#popupPix').popup({ history: false });  // clear popup history to prevent app exit
 });
 
 // get pixi picture
@@ -97,20 +106,20 @@ function loadBoard(data, resFlg) {
   var $container = $('#px-container').masonry({ itemSelector : '.item', gutter : 1, isFitWidth: true, columnWidth : 1 });
   var item_str = '';
   var post_dt, localUrl;
-  //console.log('listUrl = ' + listUrl);
 
   if(resFlg) {
+    usr = data.user;  // store user
+
     // load pixis
     $.each(data.listings, function(index, item) {
 
         // build pixi item string
 	post_dt = $.timeago(item.updated_at);
 	localUrl = 'data-pixi-id="' + item.pixi_id + '"';
-	//console.log('localUrl = ' + localUrl);
 
         item_str += '<div class="item"><div class="center-wrapper">'
 	  + '<a href="#" ' + localUrl + ' class="bd-item" data-ajax="false">'  
-	  + getPixiPic(item.pictures[0].photo_url, 'height:120px; width:120px;') + '</a>'
+	  + getPixiPic(item.pictures[0].photo_url, 'height:115px; width:115px;') + '</a>'
 	  + '<div class="sm-top mbdescr">' + item.title + '</div>'
 	  + '<div class="sm-top mgdescr">' + '<div class="item-cat pixi-grey-bkgnd">' 
 	  + '<a href="' + catPath + token + '&cid=' + item.category_id + '"' + ' class="pixi-cat"' + ' data-cat-id=' + item.category_id + '>'
@@ -119,9 +128,10 @@ function loadBoard(data, resFlg) {
     });
 
     // build masonry blocks for board
+    var $elem = $(item_str).css({ opacity: 0 });
     $container.imagesLoaded(function(){
-      var $elem = $(item_str);
-      $container.append($elem).masonry( 'appended', $elem, true).masonry('reloadItems');
+      $elem.animate({ opacity: 1 });
+      $container.append($elem).masonry('appended', $elem, true).masonry('reloadItems');
     });
 
     // load categories
@@ -137,30 +147,91 @@ function loadBoard(data, resFlg) {
     // load msg
     $container.append(item_str);
   }
+
+  // turn off spinner
+  uiLoading(false);
+}
+
+// post data based on given url & data type
+function postData(postUrl, fdata, dType) {
+  console.log('in postData: ' + postUrl);
+  var dFlg;
+
+  // turn on spinner
+  uiLoading(true);
+
+  // process post
+  $.post(postUrl, fdata, function(res) {
+    if (res == undefined) {
+      dFlg = false;  // set flag
+    } 
+    else {
+      dFlg = true;  // set flag
+    }  
+
+    // load data based on display type
+    switch (dType) {
+      case 'login':
+        processLogin(res);
+	break;
+      case 'pixi':
+        processPixiData(res);
+	break;
+      default:
+        return res;
+	break;
+    }
+  },"json").fail(function (a, b, c) {
+  	uiLoading(false);
+        PGproxy.navigator.notification.alert(b + ' | ' + c, function() {}, 'Error', 'Done');
+        console.log(b + ' | ' + c);
+  });
 }
 
 // load data based on given url & display type
-function loadData(listUrl, dType) {
-  console.log('in loadData');
+function loadData(listUrl, dType, params) {
+  console.log('in loadData: ' + listUrl);
   var dFlg;
 
-  $.getJSON(listUrl, function(data) {
+  // turn on spinner
+  uiLoading(true);
+
+  // set params
+  params = params || {};
+
+  $.getJSON(listUrl, params, function(data) {
     if (data == undefined) {
       dFlg = false;  // set flag
     } 
     else {
-      usr = data.user;  // store user
       dFlg = true;  // set flag
     }  
 
-    if (dType == 'board') 
-      { loadBoard(data, dFlg); }
-    else 
-      { loadListView(data, dFlg); }
-  }); 
-
-  // turn off spinner
-  uiLoading(false);
+    // load data based on display type
+    switch (dType) {
+      case 'board':
+        loadBoard(data, dFlg); 
+	break;
+      case 'list':
+	return data;
+	break;
+      case 'autocomplete':
+        loadResults(data, dFlg);
+	break;
+      case 'pixi':
+        loadPixiPage(data, dFlg);
+	break;
+      case 'view':
+        loadListView(data, dFlg); 
+	break;
+      default:
+	break;
+    }
+  }).fail(function (a, b, c) {
+        PGproxy.navigator.notification.alert(b + '|' + c, function() {}, 'Load Data', 'Done');
+  	uiLoading(false);
+        console.log(b + '|' + c);
+  });
 }
 
 // process images
@@ -192,17 +263,6 @@ function getName(cid, token) {
   return cat_name;
 }
 
-$(document).on('pageinit', '#formapp', function() {
-
-  // initialize slider
-  load_slider(false);
-
-  // set tab
-  if( $('#show-pixi').length > 0 ) {
-    $('#show-pixi').addClass('ui-btn-active');
-  }
-});
-
 // hide form btn
 function hide_btn() {
 
@@ -219,6 +279,18 @@ function hide_btn() {
 $(document).on('pagehide', 'div[data-role="page"]', function(event, ui) {
   $(event.currentTarget).remove();
 });
+
+// confirm cancellation
+$(document).on('click', '#px-cancel', function(e) {
+  e.preventDefault();
+  navigator.notification.confirm('Are you sure? All changes will be lost!', onConfirm, 'Cancel', 'No, Yes');
+});
+
+function onConfirm(button) {
+  if (button == 2) {
+    goToUrl(homePage, false);  // go to main board
+  }
+}
 
 // toggle page display
 $(document).on('click', '#loc-nav', function(e) {
@@ -251,11 +323,6 @@ function reset_top(tag, str) {
   }
 }
 
-// toggle menu state
-$(document).on('click', '#show-pixi, #show-cmt', function(e) {
-  $('.item-descr, .list-ftr, #px-pix, #comment_form, #post_form, #edit-pixi-btn').toggle();
-});
-
 // toggle profile state
 $(document).on('click', '.edit-prof-btn', function(e) {
   $('#edit-profile').toggle();
@@ -280,59 +347,86 @@ $(document).on('click', "#comment-btn, #contact-btn", function (e) {
   $(this).parent().attr('disabled', 'disabled');
 });
 
+// submit pixi form
+$(document).on("click", "#add-pixi-btn", function(e) {
+  console.log('in submit pixi-form');
+  uiLoading(true);
+
+  $("#add-pixi-btn").attr("disabled","disabled");
+
+  var imageURI = $('#smallImage').attr("src");
+  var params = new Object();
+
+  // set params
+  params.temp_listing = { title: $('#title').val(), site_id: $('#site_id').val(), category_id: $('#category_id').val(),
+    price: $('#price').val(), description: $('#description').val(), compensation: $('#salary').val(), year_built: $('#yr_built').val(),
+    event_start_date: $('#start-date').val(), event_end_date: $('#end-date').val(), post_ip: usr.current_sign_in_ip, 
+    event_start_time: $('#start-time').val(), event_end_time: $('#end-time').val(), start_date: new Date(), seller_id: usr.id };
+
+  // push to server
+  uploadPhoto(imageURI, tmpPath + token, params);
+
+  return false;
+});
+
+// complete post pixi process
+function processPixiData(res) {
+
+  if (res !== undefined) {
+    console.log('post pixi success');
+  }
+  else {
+    console.log('post pixi failed');
+  }
+}
+
 // submit login form
 $(document).on("submit", "#loginForm", function(e) {
-
-  //prevent the default submission of the form
-  //e.preventDefault();
   console.log('submit loginForm');
 
-  // process login
-  handleLogin();
-
+  handleLogin(); // process login
   return false;
 });
 
 function handleLogin() {
   console.log('in handlelogin');
+  uiLoading(true);
 
   //disable the button so we can't resubmit while we wait
   $("#signin-btn").attr("disabled","disabled");
 
-  uiLoading(true);
+  // set vars
+  email = $("#email").val();
+  pwd = $("#password").val();
 
-  var $form = $("#loginForm");
-  var fdata = $form.serialize();
-  var email = $("#email").val();
-  var pwd = $("#password").val();
+  var fdata = $("#loginForm").serialize();
   var loginUrl = url + '/api/v1/sessions.json';
 
-  $.post(loginUrl, fdata, function(res) {
+  // process login
+  postData(loginUrl, fdata, 'login');
+}
+
+// complete login process
+function processLogin(res) {
   
-    if(res.token.length > 0) {
-      console.log('login success');
+  if(res.token.length > 0) {
+    console.log('login success');
 
-      //store credentials on device
-      window.localStorage["email"] = email;
-      window.localStorage["password"] = pwd;
-      window.localStorage["token"] = res.token;
+    //store credentials on device
+    window.localStorage["email"] = email;
+    window.localStorage["password"] = pwd;
+    window.localStorage["token"] = res.token;
 
-      // go to main board
-      goToUrl("./html/listings.html", false);
-    }
-    else {
-      uiLoading(false);
-      console.log('login failed');
-      PGproxy.navigator.notification.alert("Your login failed", function() {}, 'Login', 'Done');
-    }
-
+    // go to main board
+    goToUrl("./html/listings.html", false);
+  }
+  else {
+    console.log('login failed');
     $("#signin-btn").removeAttr("disabled");
-    uiLoading(false);
-  },"json").fail(function (a, b, c) {
-        PGproxy.navigator.notification.alert(b + '|' + c, function() {}, 'Login', 'Done');
-  	uiLoading(false);
-        console.log(b + '|' + c);
-  });
+    PGproxy.navigator.notification.alert("Your login failed", function() {}, 'Login', 'Done');
+  }
+
+  uiLoading(false);
 }
 
 // check if credentials are already set locally
@@ -351,20 +445,11 @@ function checkPreAuth() {
   }
 }
 
-/*
-$(document).on('pageinit', '[data-role=page]', function(event, ui) {
-  $('<div>').attr({'id':'navpanel','data-role':'panel'}).appendTo($(this));
-  $.mobile.activePage.find('#navpanel').panel();
-  $(document).on('click', '#list', function(){   
-    $.mobile.activePage.find('#navpanel').panel("open");       
-  });
-});
-*/
-
 // load dropdown list based on given url
 function loadList(list, fld, descr) {
   var item_str = '<option value="">' + 'Select ' + descr + '</option>';
   var len = list.length;
+  console.log('loadList = ' + list[0].name_title);
 
   // load list as options for select
   for (var i = 0; i < len; i++){
@@ -381,41 +466,49 @@ $(document).on('click', "#add-pixi-link", function (e) {
   goToUrl("../html/new_temp_listing.html", false);
 });
 
-// used to retrieve user data
-function getUserData(val) {
-  switch (val) {
-    case 'id':
-      return usr.id;
-    case 'ip':
-      return usr.post_ip;
-    default:
-      console.log('val not found; val= ' + val);
-      break;
-  }
-}
-
 // add autocomplete for location fields
 $(document).on('keyup', '#site_name', function (e, ui) {
   var nxtID = $(this).next();
   var text = $(this).val();
+  var searchUrl = url + "/loc_name.json" + token;
+  var $sugList = $(".suggestions");
 
   if(text.length < 3) {
-    $(nxtID).html("");
-    $(nxtID).hide('fast');
+    $sugList.html('');
   }
   else {
-    $.get(url + "/listings/loc_name.json" + token, {search:text}, function(res,code) {
-      var str = "";
-
-      for(var i=0, len=res.length; i<len; i++) {
-	str += "<li><a href='#'>"+res[i]+"</a></li>";
-      }
-
-      $(nxtID).html(str);
-      $(nxtID).show('fast');
-    },"json");
+    loadData(searchUrl, 'autocomplete', {search:text});
   }
 }); 
+
+// process results
+function loadResults(res, dFlg) {
+  var $sugList = $(".suggestions");
+  if (res !== undefined) {
+    var str = "";
+    for(var i=0, len=res.length; i<len; i++) {
+	str += "<li><a href='#' class='ac-item' data-site-id='" + res[i].id + "'>" + res[i].name + "</a></li>";
+    }
+    $sugList.html(str);
+    //$sugList.listview("refresh"); // update list
+  } 
+  uiLoading(false);
+}
+
+// process click on autocomplete site name 
+$(document).on('click', ".ac-item", function(e) {
+  e.preventDefault();
+
+  var sid = $(this).attr("data-site-id");
+  var sname = $(this).html();
+  console.log('sid = ' + sid);
+  console.log('sname = ' + sname);
+
+  // set fld values
+  $('#site_id').val(sid);
+  $('#site_name').val(sname);
+  $('.suggestions').html('');  // clear list
+});
 
 // process click on board pix
 $(document).on('click', ".bd-item", function(e) {
@@ -430,54 +523,50 @@ $(document).on('click', ".bd-item", function(e) {
 });
 
 // parameter for show listing page
-$(document).on("pageinit", "#show_listing", function(event) {
+$(document).on("pageinit", "#show_listing, #comment-page", function(event) {
   var pixiUrl = pxPath + pid + '.json' + token
   console.log('pixiUrl => ' + pixiUrl);
-
-  // get server data to build page
-  $.getJSON(pixiUrl, function(data) {
-    if (data !== undefined) {
-
-      // set pixi header details
-      var cstr = "<div class='show-pixi-bar' data-role='navbar'><ul>"
-        + "<li><a href='#' id='show-pixi' data-theme='d' class='ui-btn-active' data-pixi-id='" + pid + "' data-mini='true'>Details</a></li>"
-        + "<li><a href='#' id='show-cmt' data-theme='d' data-mini='true' data-pixi-id='" + pid + "'>Comments (" + data.comments.length 
-	+ ")</a></li></ul></div>";
-      $('#show-list-hdr').append(cstr).trigger("create");
-
-      // show pixi details
-      if ($.mobile.activePage.attr("id") == 'show_listing') 
-        { showPixiPage(data); 
-  	  console.log('in active pixiPage' );
-	}  // load page data
-      else
-        { showCommentPage(data); } // load comment data
-    }
-  });
+  
+  // load pixi data
+  loadData(pixiUrl, 'pixi'); 
 });
+
+// process pixi page display
+function loadPixiPage(data, resFlg) {
+  if (resFlg) {
+
+    // show pixi details
+    if ($.mobile.activePage.attr("id") == 'show_listing') 
+      { showPixiPage(data); }  // load page data
+    else
+      { showCommentPage(data); } // load comment data
+  }
+  else {
+    console.log('pixi page load failed');
+    PGproxy.navigator.notification.alert("Page load failed", function() {}, 'View Pixi', 'Done');
+  }
+}
 
 // process menu click
 $(document).on("click", ".sl-menu", function(e) {
   e.preventDefault();
 
   href = $(this).attr("href");
-  console.log('href = ' + href);
-
   if ( href !== undefined && href != '' ) {
-    goToUrl(href);
+    goToUrl(href, false);
   }
 });
 
 var menu = [
-  { title: 'Home', href: './html/listings.html', icon: '../img/home_button_blue.png' },
-  { title: 'Send Bill', href: './html/invoice.html', icon: '../img/162-receipt.png' },
-  { title: 'Pay Bill', href: './html/payment.html', icon: '../img/rsz_money-bag-hi_blue-icon.png' },
-  { title: 'My Pixis', href: './html/pixis.html', icon: '../img/pixi_wings_blue.png' },
-  { title: 'My Posts', href: './html/posts.html', icon: '../img/09-chat-2.png' },
-  { title: 'My Invoices', href: './html/invoices.html', icon: '../img/bill.png' },
-  { title: 'My Accounts', href: './html/accounts.html', icon: '../img/190-bank.png' },
-  { title: 'Settings', href: './html/settings.html', icon: '../img/19-gear.png' },
-  { title: 'Sign out', href: './html/signout.html', icon: '../img/logout.png' },
+  { title: 'Home', href: homePage, icon: '../img/home_button_blue.png' },
+  { title: 'Send Bill', href: '../html/invoice.html', icon: '../img/162-receipt.png' },
+  { title: 'Pay Bill', href: '../html/payment.html', icon: '../img/rsz_money-bag-hi_blue-icon.png' },
+  { title: 'My Pixis', href: '../html/pixis.html', icon: '../img/pixi_wings_blue.png' },
+  { title: 'My Posts', href: '../html/posts.html', icon: '../img/09-chat-2.png' },
+  { title: 'My Invoices', href: '../html/invoices.html', icon: '../img/bill.png' },
+  { title: 'My Accounts', href: '../html/accounts.html', icon: '../img/190-bank.png' },
+  { title: 'Settings', href: '../html/settings.html', icon: '../img/19-gear.png' },
+  { title: 'Sign out', href: '../html/signout.html', icon: '../img/logout.png' },
 ];
 
 // show menu
@@ -491,13 +580,19 @@ $(document).on("pageshow", function(event) {
   }
 
   // append items
-  ul.append(items);
-  ul.listview('refresh');
+  ul.append(items).listview('refresh');
 });
 
 // open pixi page
 function showPixiPage(data) {
   var px_str = '';
+
+  // set pixi header details
+  var cstr = "<div class='show-pixi-bar' data-role='navbar'><ul>"
+    + "<li><a href='#' id='show-pixi' data-theme='d' class='ui-btn-active' data-pixi-id='" + pid + "' data-mini='true'>Details</a></li>"
+    + "<li><a href='#' id='show-cmt' data-theme='d' data-mini='true' data-pixi-id='" + pid + "'>Comments (" + data.comments.length 
+    + ")</a></li></ul></div>";
+  $('#show-list-hdr').append(cstr).trigger("create");
 
   // load title
   var tstr = "<h4 class='mbot major_evnt'>" + data.listing.title + "</h4>"
@@ -507,6 +602,11 @@ function showPixiPage(data) {
   var seller_str = "<div class='sdescr'>Posted By: " + getPixiPic(data.listing.seller_photo, 'height:30px; width:30px;') 
     + ' ' + data.listing.seller_name + "</div>";
   $('#seller-name').append(seller_str);
+
+  // load post values
+  $('#user_id').val(data.user.id);
+  $('#seller_id').val(data.listing.seller_id);
+  $('#pixi_id').val(data.listing.pixi_id);
 
   // load pix
   $.each(data.listing.pictures, function(index, item) {
@@ -518,30 +618,74 @@ function showPixiPage(data) {
 
   // load details
   var detail_str = "<span class='mtop inv-descr'>DETAILS:</span><br /><div class='inv-descr'>" + data.listing.summary + "<br />";
-
   if(data.listing.price !== undefined) {
     var prc = parseFloat(data.listing.price).toFixed(2);
     detail_str += "<div class='mtop'>Price: <span class='pstr'>$" + prc + "</span></div></div>"
   }
 
   // add pixi footer
-  detail_str += '<div class="grey-text dt-descr mtop row">ID: ' + data.listing.id + ' | Posted: ' + data.listing.start_date 
-    + ' | Updated: ' + data.listing.updated_at + '</div>'
+  var post_dt = $.timeago(data.listing.updated_at); // set post dt
+  detail_str += '<div class="grey-text dt-descr mtop row">ID: ' + data.listing.pixi_id + '<br />Posted: ' + data.listing.start_dt 
+    + ' | Updated: ' + post_dt + '</div>'
   $('#pixi-details').append(detail_str);
 
   // check if listing owner
   if(data.listing.seller_id == usr.id) {
     var btn_str = "<a href='#' id='del-pixi-btn' data-role='button' data-inline='true'>Remove</a>" 
       + "<a href='#' id='edit-pixi-btn' data-role='button' data-inline='true' data-theme='b'>Edit</a>"; 
-
     $('#edit-pixi-details').append(btn_str); // show btns
   }
+  
+  uiLoading(false);  // toggle spinner
 }
 
+// process menu click
+$(document).on("click", "#show-cmt, #show-pixi", function(e) {
+  e.preventDefault();
+
+  // show pixi comments
+  if ($.mobile.activePage.attr("id") !== 'comment-page') 
+    { goToUrl('../html/comments.html'); }  
+  else
+    { goToUrl('../html/show_listing.html'); }  
+});
+
 // open comment page
-function showCommentPage (data) {
+function showCommentPage(data) {
+  console.log('in show comment page');
+  var item_str = '<ol class="posts">';
+  var post_dt;
+
+  // set pixi header details
+  var cstr = "<div class='show-pixi-bar' data-role='navbar'><ul>"
+    + "<li><a href='#' id='show-pixi' data-theme='d' data-pixi-id='" + pid + "' data-mini='true'>Details</a></li>"
+    + "<li><a href='#' id='show-cmt' data-theme='d' class='ui-btn-active' data-mini='true' data-pixi-id='" + pid + "'>Comments (" 
+    + data.comments.length + ")</a></li></ul></div>";
+  $('#show-list-hdr').append(cstr).trigger("create");
+
+  // load post values
+  $('#user_id').val(data.user.id);
+  $('#pixi_id').val(data.listing.pixi_id);
 
   // load comments
-  $.each(data.comments, function(index, item) {
-  });
+  if (data.comments.length > 0) {
+    $.each(data.comments, function(index, item) {
+      post_dt = $.timeago(item.created_at); // set post dt
+      item_str += '<li id="' + item.id + '"><div class="cal-size no-left">'
+        + "<div class='sender'>" + item.sender_name + "<span class='timestamp'>"
+	+ "Posted " + post_dt + "</span></div>"
+	+ "<span class='fcontent'>" + item.content + "</span></div>"
+	+ "<div class='nav-right'>"
+        + "<div class='sdescr'>" + getPixiPic(item.user.photo, 'height:30px; width:30px;') 
+        + ' ' + item.sender_name + "</div></div><div class='clear-all'></div></li>";
+    });
+    item_str += '</ol>';
+  }
+  else {
+    item_str = "<div class='center-wrapper'>No comments found.</div>";
+  }
+
+  // append content
+  $('#comment-item').append(item_str);
+  uiLoading(false);  // toggle spinner
 }

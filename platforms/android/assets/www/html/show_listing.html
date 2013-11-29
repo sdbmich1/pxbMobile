@@ -15,7 +15,6 @@
 	<a href='#' data-theme="app-loc" id='add-pixi-link'><img src='../img/rsz_camera-icon_blue.png'></a>
 	<div id='show-list-hdr'></div>
       </div>
-
       <div class="app-content" data-theme="a" data-role="content">
         <div id='list_title'></div>
         <div id='seller-name'></div>
@@ -23,9 +22,10 @@
 	<div id='post_form'><form id="post-doc" method="post" data-ajax="false">
 	  <div id='seller-post' class='clear-all'>
 	    <table>
-	      <tr><td class='cal-size'><div data-role="fieldcontain" class="ui-hide-label"><label for="content">Description:</label>
-	            <textarea name="content" id="content" class='slide-menu' value="" placeholder="Type message to seller..." data-theme='a' required>
-		    </textarea></div></td>
+	      <tr><td class='cal-size'>
+	          <div data-role="fieldcontain" class="ui-hide-label">
+		    <input name="content" id="content" value="" placeholder="Type message to seller..." data-theme='a' required />
+	          </div></td>
 	          <td><input type='submit' value='Send' data-theme='b' data-inline='true' id='contact-btn' data-mini='true'></td>
 	      </tr>
 	    </table>

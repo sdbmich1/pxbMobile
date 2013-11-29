@@ -4,47 +4,78 @@
     </head>
     <body>
       <div id="formapp" data-role="page" data-cache="never" data-theme='a' class='home-pg'>
+        <div data-role="panel" id="navpanel" data-theme="d" data-display="overlay" data-position="left">
+          <div data-role="controlgroup" data-corners="false">
+    	    <ul data-role='listview' data-icon="false" data-theme='e' class='mainMenu'></ul>
+          </div>
+        </div>    
+	<div data-role="popup" id="popupPix" data-theme="a" data-overlay-theme='d'>
+	  <ul data-role="listview" data-icon="false" data-inset="true" style="min-width:210px;" data-theme="a">
+	    <li data-role="divider" data-theme="b">Choose Photo Source</li>
+	    <li data-theme="a"><a href="#" id='camera'><img src='../img/rsz_camera_256.png'>Camera</a></li>
+	    <li data-theme="a"><a href="#" id='gallery'><img src='../img/rsz_gallery_icon.png'>Gallery</a></li>
+	    <li data-theme="a"><a href="#" id='album'><img src='../img/rsz_photoalbum.png'>Photo Album</a></li>
+	  </ul>
+        </div>    
         <div data-role="header" data-theme="d">
           <div class='pg-title center-wrapper'>Build Your Pixi</div>
-	  <a href="./html/panel.html/#navpanel" id='list' data-theme="app-bar"><img src='../img/rsz_list-view_blue.png'></a>
+	  <a href="#navpanel" id='list' data-theme="app-bar"><img src='../img/rsz_list-view_blue.png'></a>
 	  <a href='#' data-theme="app-loc" id='add-pixi-link'><img src='../img/rsz_camera-icon_blue.png'></a>
 	</div>  
         <div class="app-content" data-role="content" data-theme='a' class='listpg'>
           <div id="buyTxtForm">
 	    <div id="form_errors" style="display:none" class="error"></div>
-	    <form id="pixi-form" enctype="multipart/form-data" method="post" data-ajax="false">
-	        <div id="picture">
-	          <center><img style="width:80px;height:80px;" id="smallImage" src="" /></center>
-	        </div>
-		<table class='inv-descr' id='input-form'>
-		  <tr class=''><td><div data-role="fieldcontain" class="ui-hide-label">
-	            <input type="text" name="title" id="title" value="" placeholder="Pixi Title" data-theme='a' autofocus required /></div></td>
-		  </tr>
-		  <tr id='price-fld'><td><div data-role="fieldcontain" class="ui-hide-label"><label for="price">Price:</label>
-	            <input type="number" name="price" id="price" value="" placeholder="Price" data-theme='a' /></div></td>
-		  </tr>
-		  <tr class=''><td><div data-role="fieldcontain" class="ui-hide-label"><label for="site_name">Pixi Location:</label>
-	            <input type="text" name="site_name" id="site_name" value="" placeholder="Pixi Location" data-theme='a' required /></div></td>
-		  </tr>
-		  <tr class=''><td>
-	            <div data-role="fieldcontain">
-		      <select name="category_id" id="category_id" data-mini='true'></select>
-	            </div></td>
-		  </tr>
-		  <tr><td><div data-role="fieldcontain" class="ui-hide-label"><label for="description">Description:</label>
-	            <textarea name="description" id="description" value="" placeholder="Describe Your Pixi" data-theme='a' required></textarea>
-		    </div></td>
-		  </tr>
+	    <form id="pixi-form" enctype="multipart/form-data" data-ajax="false">
+	      <table class='mleft10'>
+	        <tr><td id='add-pixi-photo'>
+	            <div id="picture"><img style="width:80px;height:80px;" id="smallImage" src="../img/rsz_photo-camera.png" /></div></td>
+		    <td><a href='#popupPix' class='mleft10 upload-btn' data-mini='true' data-role='button' data-inline='true' data-theme='b'
+		        data-rel="popup" data-position-to="window" data-transition="pop" />Upload</a>
+		    </td>
+		</tr>
+	      </table>
+		<div data-role="fieldcontain" class="sm-top ui-hide-label">
+	          <input type="text" name="title" id="title" placeholder="Pixi Title" data-theme='a' />
+		</div>
+		<div data-role="fieldcontain" class="sm-top ui-hide-label">
+	          <input type="text" name="site_name" id="site_name" placeholder="Pixi Location" data-theme='a' />
+		</div>
+		<ul class="suggestions" data-role="listview" data-inset="true" data-icon="false"></ul>
+	        <div class='sm-top sm-bot'><div data-role="fieldcontain"> 
+		  <select name="category_id" id="category_id"></select>
+	        </div></div>
+		<table class="sm-top sm-bot"><tr><td class='width50'>
+		  <div data-role="fieldcontain" class="ui-hide-label" id="price-fld">
+	            <input type="number" name="price" id="price" placeholder="Price" data-theme='a' />
+		  </div></td><td>
+		  <div data-role="fieldcontain" class="ui-hide-label" id="yr-fld" style="display:none">
+		    <select name="year_built" id="yr_built"></select> 
+		  </div></td>
+		</tr></table>
+		<div data-role="fieldcontain" class="sm-top ui-hide-label" id="comp-fld" style="display:none">
+	          <input type="text" name="compensation" id="salary" placeholder="Salary" data-theme='a' />
+		</div>
+		<table id='event-fields' style="display:none">
+		  <tr><td><label for="event_start_date" class='med-top'>Start Date</label> 
+		          <input type="date" name="event_start_date" id="start-date" /></td><td></td>
+		      <td><label for="event_end_date" class='med-top'>End Date</label> 
+		          <input type="date" name="event_end_date" id="end-date" /></td></tr>
+		  <tr><td><label for="event_start_time" class='med-top'>Start Time</label> 
+		          <input type="time" name="event_start_time" id="start-time" /></td><td></td>
+		      <td><label for="event_end_time" class='med-top'>End Time</label> 
+		          <input type="time" name="event_end_time" id="end-time" /></td></tr>
 		</table>
-
-	        <input type="hidden" name="site_id" id="site_id" value="" required />
-	        <input type="hidden" name="start_date" id="start_date" value="$.now();" />
-	        <input type="hidden" name="post_ip" id="post_ip" value="getUserData('ip');" />
-	        <input type="hidden" name="seller_id" id="seller_id" value="getUserData('id');" />
+		<div data-role="fieldcontain" class="sm-top ui-hide-label">
+	          <textarea name="description" id="description" cols="40" rows="8" placeholder="Describe Your Pixi" data-theme='a' ></textarea>
+		</div>
+	        <input type="hidden" name="site_id" id="site_id" />
 	      </div>
-	      <a href='../html/listings.html' data-role='button' data-inline='true' 
-	          onclick='return confirm(\"Are you sure? All changes will be lost!\");' />Cancel</a>
-	      <input type='submit' value='Next' data-theme='d' data-inline='true' id='add-pixi-btn' class='pull-right' />
+	      <table><tr>
+	      <td class='cal-size'><a href='#' id='px-cancel' data-role='button' data-inline='true' />Cancel</a></td>
+	      <td class='nav-right'>
+	        <input type="submit" value="Next" data-theme="d" data-inline="true" id="add-pixi-btn">
+	      </td></tr>
+	      </table>
 	    </form>
           </div>
         </div>

@@ -1,26 +1,38 @@
 <!DOCTYPE HTML>
 <html>
   <head>
-    <title>Camera</title>
+    <title>Comments</title>
   </head>
   <body>
-    <div data-role="page" id="page-camera" data-cache="never">
+    <div data-role="page" id="comment-page" data-cache="never" data-theme="a">
+      <div data-role="panel" id="navpanel" data-theme="d" data-display="overlay" data-position="left">
+        <div data-role="controlgroup" data-corners="false">
+    	    <ul data-role='listview' data-icon="false" data-theme='e' class='mainMenu'></ul>
+        </div>
+      </div>    
       <div data-role="header" data-theme="d">
-        <div class='pg-title center-wrapper'>Load Pix</div>
-	  <a href="../html/panel.html/#navpanel" id='list' data-theme="app-bar"><img src='../img/rsz_list-view_blue.png'></a>
-	  <a href='#' data-theme="app-loc" id='add-pixi-link'><img src='../img/rsz_camera-icon_blue.png'></a>
+        <div class='pg-title center-wrapper'>Comments</div>
+	<a href="#navpanel" id='list' data-theme="app-bar"><img src='../img/rsz_list-view_blue.png'></a>
+	<a href='#' data-theme="app-loc" id='add-pixi-link'><img src='../img/rsz_camera-icon_blue.png'></a>
+	<div id='show-list-hdr'></div>
       </div>
       <div class="app-content" data-theme="a" data-role="content">
-        <div class='center-wrapper'><h4>Device's Camera</h4></div>
-        <button id='camera'>Capture Photo</button><br>
-        <button id='gallery'>From Photo Library</button><br>
-        <button id='album'>From Photo Album</button><br>
-	<hr>
-	<div id="picture">
-	  <center><img style="width:60px;height:60px;" id="smallImage" src="" /></center>
-	  <hr>
-	  <center><img style="" id="largeImage" src="" /></center>
-	</div>
+	<div id="form_errors" style="display:none" class="error"></div>
+	<div id='comment_form'><form id="comment-doc" data-ajax="false">
+	  <div id='seller-comment' class='clear-all mbot'>
+	    <table>
+	      <tr><td class='cal-size'>
+	          <div data-role="fieldcontain" class="ui-hide-label">
+		    <input name="content" id="content" value="" placeholder="Post comment on item..." data-theme='a' required />
+	          </div></td>
+	          <td><input type='submit' value='Post' data-theme='b' data-inline='true' id='comment-btn' data-mini='true'></td>
+	      </tr>
+	    </table>
+	  </div>
+	  <input type="hidden" name="user_id" id="user_id" />
+	  <input type="hidden" name="pixi_id" id="pixi_id" />
+	</form></div>
+        <div id='comment-item'></div>
       </div>
     </div>
   </body>
