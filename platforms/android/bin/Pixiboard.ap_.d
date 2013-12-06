@@ -46,6 +46,8 @@ c:\RoRDev\pxbMobile\platforms\android\assets\www\css\themes\default\jquery.mobil
 c:\RoRDev\pxbMobile\platforms\android\assets\www\html\advanced_search.html \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\html\camera.html \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\html\comments.html \
+c:\RoRDev\pxbMobile\platforms\android\assets\www\html\invoice.html \
+c:\RoRDev\pxbMobile\platforms\android\assets\www\html\invoices.html \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\html\listings.html \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\html\login.html \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\html\main.html \
@@ -99,6 +101,7 @@ c:\RoRDev\pxbMobile\platforms\android\assets\www\js\main.js \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\js\masonry.pkgd.min.js \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\js\pginit.js \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\js\phonegap.js \
+c:\RoRDev\pxbMobile\platforms\android\assets\www\js\pixipage.js \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\plugins\org.apache.cordova.camera \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\plugins\org.apache.cordova.dialogs \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\plugins\org.apache.cordova.file \

@@ -292,18 +292,16 @@ label .ui-body-a, .ui-overlay-a { border: none; }
 .etime { position: absolute; top: 0.25em; left: 1.5em; width: 50px;
 		font-size: 0.75em; font-weight: bold; }
 
-.sess-time, .stime {position: absolute; top: 0.25em; right: 1em; font-size: 0.65em; font-weight: bold;  }
-.list-hdr h6 {font-size:0.875em; color: blue; }
-.loc {font-weight: normal; font-size: 0.65em; margin: 0; }
+.sess-time, .stime { position: absolute; top: 0.25em; right: 1em; font-size: 0.65em; font-weight: bold; }
+.list-hdr h6 { font-size:0.875em; color: blue; }
+.loc { font-weight: normal; font-size: 0.65em; margin: 0; }
 
 /*  session presenter list */
-.plist {
-  .ui-li-heading {margin: -1em 0 0.2em -0.2em!important; white-space: normal; font-size: 14px!important;}
-}
+.plist .ui-li-heading {margin: 0.1em 0 0.2em -0.2em!important; white-space: normal; font-size: 14px!important;}
 
 li.plist { line-height: 14px!important; }
 
-.pstr { font-size: 1.25em; font-weight: bold; color: #026FB7; }
+.pstr { font-size: 1.05em; font-weight: bold; color: #026FB7; }
 .title-str { font-size: 1.25em; font-weight: bold; color: #026FB7; }
 
 .input-append { width: 100%!important; }
@@ -623,6 +621,10 @@ a.map-btn {
 
 .pay-tbl {
   line-height: 14px !important;
+}
+
+table.inv-tbl, th, td {
+  border: 1px solid #ccc;
 }
 
 table.items {

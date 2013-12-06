@@ -13,18 +13,16 @@
         <div class='pg-title center-wrapper'>My Pixis</div>
 	<a href="#navpanel" id='list' data-theme="app-bar"><img src='../img/rsz_list-view_blue.png'></a>
 	<a href='#' data-theme="app-loc" id='add-pixi-link'><img src='../img/rsz_camera-icon_blue.png'></a>
-	<div id='mypixi-nav' data-role='navbar' data-theme='d' class='show-pixi-bar'>
-	  <ul>
-	    <li><a href='#' id='active-btn' data-mini='true' data-theme='d'>Active</a></li>
-	    <li><a href='#' id='draft-btn' data-mini='true' data-theme='d'>Draft</a></li>
-	    <li><a href='#' id-'sold-btn' data-mini='true' data-theme='d'>Sold</a></li>
-	  </ul>
+	<div class='show-pixi-bar' data-role='navbar'><ul>
+	  <li><a href='#' id='active-btn' data-mini='true' class='ui-btn-active' data-view='active' data-theme='d' data-dtype='view'>Active</a></li>
+	  <li><a href='#' id='draft-btn' data-mini='true' data-theme='d' data-view='draft' data-dtype='view'>Draft</a></li>
+	  <li><a href='#' id='sold-btn' data-mini='true' data-theme='d' data-view='sold' data-dtype='view'>Sold</a></li></ul>
 	</div>
       </div>
       <div class="app-content" data-theme="a" data-role="content">
         <div id="mxboard">
-	  <ul id='pixi-list' data-role="listview">
-	  </ul>
+	  <div id='item-str'></div>
+	  <ul id='pixi-list' data-role="listview"></ul>
 	</div>
       </div>
     </div>

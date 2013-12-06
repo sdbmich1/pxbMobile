@@ -46,7 +46,7 @@ var App = {
 
         function initPages () {
 	  console.log("[initPages]");
-	  //localStorage.clear();
+	  localStorage.clear();
 	  checkPreAuth();
         }
     },

@@ -89,6 +89,7 @@ function uploadPhoto(imageURI, path, params) {
   options.mimeType = "text/plain";
   options.params = params;
 
+  // transfer file
   var ft = new FileTransfer();
   ft.upload(imageURI, encodeURI(path), onSuccess, onFail, options);
 }
@@ -98,6 +99,16 @@ function onSuccess(r) {
   console.log("Code = " + r.responseCode);
   console.log("Response = " + r.response);
   console.log("Sent = " + r.bytesSent);
+
+  var result = $.parseJSON(r.response)
+
+  // process pixi
+  if(result['pixi_id'] !== undefined) {
+    console.log('response pixi id = ' + result['pixi_id']);
+    pid = result['pixi_id'];  // reset pid
+    pxPath = url + '/temp_listings/';
+    goToUrl('../html/show_listing.html', false);
+  }
   uiLoading(false);
 }
 

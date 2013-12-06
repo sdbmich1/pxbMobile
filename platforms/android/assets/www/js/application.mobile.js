@@ -2,13 +2,13 @@
 var url = 'http://10.0.2.2:3000';
 var listPath = url + '/listings';
 var pixPath = url + '/pictures.json';
-var tmpPath = url + '/temp_listings.json';
+var tmpPath = url + '/temp_listings/';
 var pxPath = listPath + '/';
 var listPage = '../html/show_listing.html';
 var homePage = "../html/listings.html";
 var catPath = pxPath + 'category.json' ;
 var locPath = pxPath + 'location.json' ;
-var email, pwd, pid, token, usr, categories;
+var email, pwd, pid, token, usr, categories, deleteUrl, myPixiPage;
 
 $(function(){
   // ajax setup
@@ -24,8 +24,44 @@ function goToUrl(pxUrl, rFlg) {
   $.mobile.changePage( pxUrl, { transition: "none", reverse: false, reloadPage: rFlg, changeHash: false });
 }
 
+// load list page
+$(document).on('pageinit', '#mypixis, #myinv', function() {
+  if(myPixiPage == 'active') {
+    var dType = 'view'; }
+  else {
+    var dType = 'inv'; }
+
+  loadListPage(myPixiPage, dType); 
+});
+
+// set url for pixi list pages based on switch
+function loadListPage(pgType, viewType) {
+  switch(pgType){
+  case 'draft':
+    var pixiUrl = tmpPath + 'unposted.json' + token;
+    break;
+  case 'sold':
+    var pixiUrl = pxPath + 'sold.json' + token;
+    break;
+  case 'active':
+    var pixiUrl = pxPath + 'seller.json' + token;
+    break;
+  case 'sent':
+    var pixiUrl = url + '/invoices.json' + token;
+    break;
+  case 'received':
+    var pixiUrl = url + '/invoices/received.json' + token;
+    break;
+  }
+  
+  // load pixi data
+  console.log('loadListPage pixiUrl => ' + pixiUrl);
+  loadData(pixiUrl, viewType); 
+}
+
 // load initial board
 $(document).on('pageinit', '#listapp', function() {
+  pxPath = listPath + '/';  // reset pxPath
 
   // set time ago format
   $("time.timeago").timeago();
@@ -75,10 +111,12 @@ function getPixiPic(pic, style) {
 function loadListView(data, resFlg) {
   var $container = $('#pixi-list');
   var localUrl, post_dt, item_str = '';
+  console.log('in loadListView' );
 
+  // load listview
   if(resFlg) {
-    // load pixis
-    $.each(data.listings, function(index, item) {
+    if (data.listings.length > 0) {
+      $.each(data.listings, function(index, item) {
 	post_dt = $.timeago(item.updated_at); // set post dt
 
         // build pixi item string
@@ -86,19 +124,65 @@ function loadListView(data, resFlg) {
 
         item_str += "<li class='plist'>"
 	  + '<a href="#" ' + localUrl + ' class="pending_title bd-item" data-ajax="false">'  
-	  + getPixiPic(item.pictures[0].photo_url, 'height:100px; width:100px;')
+	  + getPixiPic(item.pictures[0].photo_url, 'height:60px; width:60px;')
 	  + '<div class="pstr"><h6>' + item.short_title + '</h6></div>'
 	  + '<p>' + item.site_name + '<br />' + item.category_name + ' | ' + post_dt + '</p></a></li>';
-    });
+      });
+    }
+    else {
+      console.log('resFlg = true');
+      item_str = '<li class="center-wrapper">No pixis found.</li>'
+    }
   }
   else {
-    // not found
-    item_str = '<div class="center-wrapper">No pixis found.</div>'
+    console.log('resFlg = false');
+    item_str = '<li class="center-wrapper">No pixis found.</li>'
   }
 
   // append items
-  $container.append(item_str);
-  $container.listview('refresh');
+  $container.append(item_str).listview('refresh');
+}
+
+// load list view if resFlg else return not found
+function loadInvList(data, resFlg) {
+  var $container = $('#pixi-list');
+  var localUrl, item_str = '';
+
+  // load listview
+  if(resFlg) {
+    if (data.invoices.length > 0) {
+      $.each(data.invoices, function(index, item) {
+        var amt = parseFloat(item.amount).toFixed(2);
+
+	// set invoice name
+	if(myPixiPage == 'received') {
+	  var inv_name = item.seller_name; }
+	else {
+	  var inv_name = item.buyer_name; }
+
+        // build pixi item string
+	localUrl = 'data-inv-id="' + item.id + '"';
+
+        item_str += "<li class='plist'>"
+	  + '<a href="#" ' + localUrl + ' class="pending_title inv-item" data-ajax="false">'  
+	  + getPixiPic(item.listing.photo_url, 'height:60px; width:60px;')
+	  + '<div class="pstr"><h6>' + item.short_title 
+	  + '<span class="nav-right">$' + amt + '</span></h6></div>'
+	  + '<p>Invoice #' + item.id + ' - ' + inv_name + '<br />' + item.inv_dt + ' | ' + item.nice_status + '</p></a></li>';
+      });
+    } 
+    else {
+      console.log('resFlg = true');
+      item_str = '<li class="center-wrapper">No invoices found.</li>'
+    }
+  }
+  else {
+    console.log('resFlg = false');
+    item_str = '<li class="center-wrapper">No invoices found.</li>'
+  }
+
+  // append items
+  $container.append(item_str).listview('refresh');
 }
 
 // load board if resFlg else return not found
@@ -152,6 +236,31 @@ function loadBoard(data, resFlg) {
   uiLoading(false);
 }
 
+// put data based on given url & data type
+function putData(putUrl, fdata, dType) {
+  console.log('in putData: ' + putUrl);
+  var dFlg;
+
+  // turn on spinner
+  uiLoading(true);
+
+  // push data to server
+  $.ajax({
+    url: putUrl, 
+    type: "put",
+    contentType: 'application/json',
+    dataType: "json",
+    data: JSON.stringify(fdata),
+    success: function(data) {
+    },
+    fail: function (a, b, c) {
+        PGproxy.navigator.notification.alert(b + '|' + c, function() {}, 'Delete Data', 'Done');
+  	uiLoading(false);
+        console.log(b + '|' + c);
+    }
+  });
+}
+
 // post data based on given url & data type
 function postData(postUrl, fdata, dType) {
   console.log('in postData: ' + postUrl);
@@ -199,6 +308,7 @@ function loadData(listUrl, dType, params) {
   // set params
   params = params || {};
 
+  // get data from server
   $.getJSON(listUrl, params, function(data) {
     if (data == undefined) {
       dFlg = false;  // set flag
@@ -224,6 +334,12 @@ function loadData(listUrl, dType, params) {
       case 'view':
         loadListView(data, dFlg); 
 	break;
+      case 'inv':
+        loadInvList(data, dFlg); 
+	break;
+      case 'invpg':
+        loadInvPage(data, dFlg); 
+	break;
       default:
 	break;
     }
@@ -231,6 +347,24 @@ function loadData(listUrl, dType, params) {
         PGproxy.navigator.notification.alert(b + '|' + c, function() {}, 'Load Data', 'Done');
   	uiLoading(false);
         console.log(b + '|' + c);
+  });
+}
+
+// delete server data
+function deleteData(delUrl) {
+  $.ajax({
+    url: delUrl, 
+    type: "post",
+    dataType: "json",
+    data: {"_method":"delete"},
+    success: function(data) {
+        PGproxy.navigator.notification.alert('Item deleted.', function() {}, 'Delete', 'Done');
+    },
+    fail: function (a, b, c) {
+        PGproxy.navigator.notification.alert(b + '|' + c, function() {}, 'Delete', 'Done');
+  	uiLoading(false);
+        console.log(b + '|' + c);
+    }
   });
 }
 
@@ -246,7 +380,6 @@ function processPix(pixArr, style) {
       img_str = '<img style="' + style + '" src="' + url + pixArr[i].photo_url + '">';
     }
   }
-
   return img_str;
 }
 
@@ -265,7 +398,6 @@ function getName(cid, token) {
 
 // hide form btn
 function hide_btn() {
-
   if( $('#comment-btn').length > 0 ) {
     $("#comment-btn").parent().hide();
   }
@@ -280,15 +412,81 @@ $(document).on('pagehide', 'div[data-role="page"]', function(event, ui) {
   $(event.currentTarget).remove();
 });
 
+// process active btn
+$(document).on('click', '#inv-menu-btn', function(e) {
+  myPixiPage = 'sent';  // set var
+  return false;
+});
+
+// process active btn
+$(document).on('click', '#pixis-menu-btn', function(e) {
+  myPixiPage = 'active';  // set var
+  return false;
+});
+
+// process active btn
+$(document).on('click', '#active-btn, #draft-btn, #sold-btn, #sent-inv-btn, #recv-inv-btn', function(e) {
+  e.preventDefault();
+  console.log('active btn click');
+  
+  // remove active class
+  var $headers = $(document).find('div[data-role="header"]');
+  $headers.find('a').removeClass("ui-btn-active");
+
+  // set active class
+  $(this).addClass("ui-btn-active");
+
+  // set var to active item
+  myPixiPage = $(this).attr('data-view'); 
+  var dType = $(this).attr('data-dtype'); 
+  console.log('myPixiPage = ' + myPixiPage);
+
+  // clear container
+  $('#pixi-list').html('').listview('refresh');
+
+  // load list page
+  loadListPage(myPixiPage, dType);
+});
+
 // confirm cancellation
-$(document).on('click', '#px-cancel', function(e) {
+$(document).on('click', '#submit-pixi-btn', function(e) {
+  e.preventDefault();
+  var sType = $('#px-status').attr('data-status-type');
+
+  if(sType == 'new') {
+    var submitUrl = url + '/temp_listings/' + pid + '.json' + '/submit' + token;
+  } 
+  else {
+    var submitUrl = url + '/temp_listings/' + pid + '.json' + '/resubmit' + token;
+  }
+
+  //var fdata = $(this).parent().serialize();
+  putData(submitUrl, {}, 'pixi');
+});
+
+// confirm cancellation
+$(document).on('click', '#cancel-pixi-btn, #px-cancel', function(e) {
   e.preventDefault();
   navigator.notification.confirm('Are you sure? All changes will be lost!', onConfirm, 'Cancel', 'No, Yes');
 });
 
+// confirm removal
+$(document).on('click', '#remove-pixi-btn', function(e) {
+  e.preventDefault();
+  navigator.notification.confirm('Are you sure? Your data will be removed!', onRemoveConfirm, 'Cancel', 'No, Yes');
+});
+
+// process confirmation
 function onConfirm(button) {
   if (button == 2) {
     goToUrl(homePage, false);  // go to main board
+  }
+}
+
+// process confirmation
+function onRemoveConfirm(button) {
+  if (button == 2) {
+    deleteData(deleteUrl);  // delete record
   }
 }
 
@@ -490,7 +688,6 @@ function loadResults(res, dFlg) {
 	str += "<li><a href='#' class='ac-item' data-site-id='" + res[i].id + "'>" + res[i].name + "</a></li>";
     }
     $sugList.html(str);
-    //$sugList.listview("refresh"); // update list
   } 
   uiLoading(false);
 }
@@ -522,30 +719,36 @@ $(document).on('click', ".bd-item", function(e) {
   }
 });
 
+// process click on invoice item
+$(document).on('click', ".inv-item", function(e) {
+  e.preventDefault();
+
+  pid = $(this).attr("data-inv-id");
+  console.log('pid = ' + pid);
+
+  if ( pid !== undefined && pid != '' ) {
+    goToUrl('../html/invoice.html', false);
+  }
+});
+
 // parameter for show listing page
 $(document).on("pageinit", "#show_listing, #comment-page", function(event) {
-  var pixiUrl = pxPath + pid + '.json' + token
+  var pixiUrl = pxPath + pid + '.json' + token;
   console.log('pixiUrl => ' + pixiUrl);
   
   // load pixi data
   loadData(pixiUrl, 'pixi'); 
 });
 
-// process pixi page display
-function loadPixiPage(data, resFlg) {
-  if (resFlg) {
-
-    // show pixi details
-    if ($.mobile.activePage.attr("id") == 'show_listing') 
-      { showPixiPage(data); }  // load page data
-    else
-      { showCommentPage(data); } // load comment data
-  }
-  else {
-    console.log('pixi page load failed');
-    PGproxy.navigator.notification.alert("Page load failed", function() {}, 'View Pixi', 'Done');
-  }
-}
+// parameter for show listing page
+$(document).on("pageinit", "#show-invoice", function(event) {
+  var invUrl = url + '/invoices/' + pid + '.json' + token;
+  console.log('invUrl => ' + invUrl);
+  $('#popupInfo').popup({ history: false });  // clear popup history to prevent app exit
+  
+  // load inv data
+  loadData(invUrl, 'invpg'); 
+});
 
 // process menu click
 $(document).on("click", ".sl-menu", function(e) {
@@ -558,85 +761,45 @@ $(document).on("click", ".sl-menu", function(e) {
 });
 
 var menu = [
-  { title: 'Home', href: homePage, icon: '../img/home_button_blue.png' },
-  { title: 'Send Bill', href: '../html/invoice.html', icon: '../img/162-receipt.png' },
-  { title: 'Pay Bill', href: '../html/payment.html', icon: '../img/rsz_money-bag-hi_blue-icon.png' },
-  { title: 'My Pixis', href: '../html/pixis.html', icon: '../img/pixi_wings_blue.png' },
-  { title: 'My Posts', href: '../html/posts.html', icon: '../img/09-chat-2.png' },
-  { title: 'My Invoices', href: '../html/invoices.html', icon: '../img/bill.png' },
-  { title: 'My Accounts', href: '../html/accounts.html', icon: '../img/190-bank.png' },
-  { title: 'Settings', href: '../html/settings.html', icon: '../img/19-gear.png' },
-  { title: 'Sign out', href: '../html/signout.html', icon: '../img/logout.png' },
+  { title: 'Home', href: homePage, icon: '../img/home_button_blue.png', id: 'home-menu-btn' },
+  { title: 'Send Bill', href: '../html/invoice.html', icon: '../img/162-receipt.png', id: 'bill-menu-btn' },
+  { title: 'PixiPay', href: '../html/payment.html', icon: '../img/rsz_money-bag-hi_blue-icon.png', id: 'pay-menu-btn' },
+  { title: 'My Pixis', href: '../html/pixis.html', icon: '../img/pixi_wings_blue.png', id: 'pixis-menu-btn' },
+  { title: 'My Posts', href: '../html/posts.html', icon: '../img/09-chat-2.png', id: 'posts-menu-btn' },
+  { title: 'My Invoices', href: '../html/invoices.html', icon: '../img/bill.png', id: 'inv-menu-btn' },
+  { title: 'My Accounts', href: '../html/accounts.html', icon: '../img/190-bank.png', id: 'acct-menu-btn' },
+  { title: 'Settings', href: '../html/settings.html', icon: '../img/19-gear.png', id: 'settings-menu-btn' },
+  { title: 'Sign out', href: '../html/signout.html', icon: '../img/logout.png', id: 'signout-menu-btn' },
 ];
 
 // show menu
 $(document).on("pageshow", function(event) {
   var items = '', // menu items list
     ul = $(".mainMenu:empty");  // get "every" mainMenu that has not yet been processed
-
+  
+  // build menu items
   for (var i = 0; i < menu.length; i++) {
-    items += '<li data-mini="true"><a href="' + menu[i].href + '" class="sl-menu"><img class="ui-li-icon" src="' + menu[i].icon + '">' 
-      + menu[i].title + '</a></li>';
+    if(usr !== undefined) { 
+      if(usr.pixi_count < 1 && menu[i].id == 'bill-menu-btn') {
+        console.log('usr has no pixis');
+        continue;
+      }
+      if(usr.unpaid_invoice_count < 1 && menu[i].id == 'pay-menu-btn') {
+        console.log('usr has no unpaid invoices');
+        continue;
+      }
+    }
+    items += '<li data-mini="true"><a href="' + menu[i].href + '" id="' + menu[i].id 
+      + '" class="sl-menu"><img class="ui-li-icon" src="' + menu[i].icon + '">' + menu[i].title + '</a></li>';
   }
 
   // append items
   ul.append(items).listview('refresh');
 });
 
-// open pixi page
-function showPixiPage(data) {
-  var px_str = '';
-
-  // set pixi header details
-  var cstr = "<div class='show-pixi-bar' data-role='navbar'><ul>"
-    + "<li><a href='#' id='show-pixi' data-theme='d' class='ui-btn-active' data-pixi-id='" + pid + "' data-mini='true'>Details</a></li>"
-    + "<li><a href='#' id='show-cmt' data-theme='d' data-mini='true' data-pixi-id='" + pid + "'>Comments (" + data.comments.length 
-    + ")</a></li></ul></div>";
-  $('#show-list-hdr').append(cstr).trigger("create");
-
-  // load title
-  var tstr = "<h4 class='mbot major_evnt'>" + data.listing.title + "</h4>"
-  $('#list_title').append(tstr);
-
-  // load seller
-  var seller_str = "<div class='sdescr'>Posted By: " + getPixiPic(data.listing.seller_photo, 'height:30px; width:30px;') 
-    + ' ' + data.listing.seller_name + "</div>";
-  $('#seller-name').append(seller_str);
-
-  // load post values
-  $('#user_id').val(data.user.id);
-  $('#seller_id').val(data.listing.seller_id);
-  $('#pixi_id').val(data.listing.pixi_id);
-
-  // load pix
-  $.each(data.listing.pictures, function(index, item) {
-    px_str += getPixiPic(item.photo_url, 'height:200px; width:100%;');
-  });
-
-  // load slider
-  $('.bxslider').append(px_str).bxSlider({ controls: false, pager: false, mode: 'fade' });
-
-  // load details
-  var detail_str = "<span class='mtop inv-descr'>DETAILS:</span><br /><div class='inv-descr'>" + data.listing.summary + "<br />";
-  if(data.listing.price !== undefined) {
-    var prc = parseFloat(data.listing.price).toFixed(2);
-    detail_str += "<div class='mtop'>Price: <span class='pstr'>$" + prc + "</span></div></div>"
-  }
-
-  // add pixi footer
-  var post_dt = $.timeago(data.listing.updated_at); // set post dt
-  detail_str += '<div class="grey-text dt-descr mtop row">ID: ' + data.listing.pixi_id + '<br />Posted: ' + data.listing.start_dt 
-    + ' | Updated: ' + post_dt + '</div>'
-  $('#pixi-details').append(detail_str);
-
-  // check if listing owner
-  if(data.listing.seller_id == usr.id) {
-    var btn_str = "<a href='#' id='del-pixi-btn' data-role='button' data-inline='true'>Remove</a>" 
-      + "<a href='#' id='edit-pixi-btn' data-role='button' data-inline='true' data-theme='b'>Edit</a>"; 
-    $('#edit-pixi-details').append(btn_str); // show btns
-  }
-  
-  uiLoading(false);  // toggle spinner
+// check JSON returned booleans
+function parseBoolean(str) {
+  return /true/i.test(str);
 }
 
 // process menu click
@@ -650,42 +813,3 @@ $(document).on("click", "#show-cmt, #show-pixi", function(e) {
     { goToUrl('../html/show_listing.html'); }  
 });
 
-// open comment page
-function showCommentPage(data) {
-  console.log('in show comment page');
-  var item_str = '<ol class="posts">';
-  var post_dt;
-
-  // set pixi header details
-  var cstr = "<div class='show-pixi-bar' data-role='navbar'><ul>"
-    + "<li><a href='#' id='show-pixi' data-theme='d' data-pixi-id='" + pid + "' data-mini='true'>Details</a></li>"
-    + "<li><a href='#' id='show-cmt' data-theme='d' class='ui-btn-active' data-mini='true' data-pixi-id='" + pid + "'>Comments (" 
-    + data.comments.length + ")</a></li></ul></div>";
-  $('#show-list-hdr').append(cstr).trigger("create");
-
-  // load post values
-  $('#user_id').val(data.user.id);
-  $('#pixi_id').val(data.listing.pixi_id);
-
-  // load comments
-  if (data.comments.length > 0) {
-    $.each(data.comments, function(index, item) {
-      post_dt = $.timeago(item.created_at); // set post dt
-      item_str += '<li id="' + item.id + '"><div class="cal-size no-left">'
-        + "<div class='sender'>" + item.sender_name + "<span class='timestamp'>"
-	+ "Posted " + post_dt + "</span></div>"
-	+ "<span class='fcontent'>" + item.content + "</span></div>"
-	+ "<div class='nav-right'>"
-        + "<div class='sdescr'>" + getPixiPic(item.user.photo, 'height:30px; width:30px;') 
-        + ' ' + item.sender_name + "</div></div><div class='clear-all'></div></li>";
-    });
-    item_str += '</ol>';
-  }
-  else {
-    item_str = "<div class='center-wrapper'>No comments found.</div>";
-  }
-
-  // append content
-  $('#comment-item').append(item_str);
-  uiLoading(false);  // toggle spinner
-}
