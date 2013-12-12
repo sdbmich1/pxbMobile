@@ -3,26 +3,26 @@
   <head>
   </head>
   <body>
-    <div data-role="page" id="show-invoice" data-cache="never" data-theme="a">
+    <div data-role="page" id="myposts" data-cache="never" data-theme="a">
       <div data-role="panel" id="navpanel" data-theme="d" data-display="overlay" data-position="left">
         <div data-role="controlgroup" data-corners="false">
     	    <ul data-role='listview' data-icon="false" data-theme='e' class='mainMenu'></ul>
         </div>
       </div>    
       <div data-role="header" data-theme="d">
-        <div class='pg-title center-wrapper' id='inv-pg-title'></div>
+        <div class='pg-title center-wrapper'>My Posts</div>
 	<a href="#navpanel" id='list' data-theme="app-bar"><img src='../img/rsz_list-view_blue.png'></a>
 	<a href='#' data-theme="app-loc" id='add-pixi-link'><img src='../img/rsz_camera-icon_blue.png'></a>
+	<div class='show-pixi-bar' data-role='navbar'><ul>
+	  <li><a href='#' id='recv-post-btn' data-mini='true' data-dtype='recv' class='ui-btn-active' data-theme='d'>Received</a></li>
+	  <li><a href='#' id='sent-post-btn' data-mini='true' data-dtype='post' data-theme='d'>Sent</a></li>
+	</div>
       </div>
       <div class="app-content" data-theme="a" data-role="content">
-	<div id='inv_mform'>
-	  <div id='inv_details'></div>
-	  <div id='inv_btn'></div>
-	  <div id='pay_form'></div>
+        <div id="mxboard">
 	</div>
-	<div data-role='popup' id='popupInfo' class='ui-content' data-theme='a' style='max-width:350px;'>
-	  <p>Processing Fee is <strong>2.9% + $0.99</strong>.</p></div>
       </div>
     </div>
   </body>
 </html>
+

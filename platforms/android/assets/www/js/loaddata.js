@@ -1,3 +1,88 @@
+// load data based on given url & display type
+function loadData(listUrl, dType, params) {
+  console.log('in loadData: ' + listUrl);
+  var dFlg;
+
+  // turn on spinner
+  uiLoading(true);
+
+  // set params
+  params = params || {};
+
+  // get data from server
+  $.getJSON(listUrl, params, function(data) {
+    if (data == undefined) {
+      dFlg = false; }
+    else {
+      dFlg = true; }
+
+    // load data based on display type
+    switch (dType) {
+      case 'board':
+        loadBoard(data, dFlg); 
+	break;
+      case 'list':
+	return data;
+	break;
+      case 'autocomplete':
+        loadResults(data, dFlg);
+	break;
+      case 'pixi':
+        loadPixiPage(data, dFlg);
+	break;
+      case 'post':
+        loadPosts(data, dFlg);
+	break;
+      case 'view':
+        loadListView(data, dFlg); 
+	break;
+      case 'inv':
+        loadInvList(data, dFlg); 
+	break;
+      case 'invpg':
+        loadInvPage(data, dFlg); 
+	break;
+      default:
+	break;
+    }
+  }).fail(function (a, b, c) {
+        PGproxy.navigator.notification.alert(b + '|' + c, function() {}, 'Load Data', 'Done');
+  	uiLoading(false);
+        console.log(b + '|' + c);
+  });
+}
+
+// set url for pixi list pages based on switch
+function loadListPage(pgType, viewType) {
+  switch(pgType){
+  case 'draft':
+    var pixiUrl = tmpPath + 'unposted.json' + token;
+    break;
+  case 'sold':
+    var pixiUrl = pxPath + 'sold.json' + token;
+    break;
+  case 'active':
+    var pixiUrl = pxPath + 'seller.json' + token;
+    break;
+  case 'sent':
+    var pixiUrl = url + '/invoices.json' + token;
+    break;
+  case 'received':
+    var pixiUrl = url + '/invoices/received.json' + token;
+    break;
+  case 'recv':
+    var pixiUrl = url + '/posts.json' + token;
+    break;
+  case 'post':
+    var pixiUrl = url + '/posts/sent.json' + token;
+    break;
+  }
+  
+  // load pixi data
+  console.log('loadListPage pixiUrl => ' + pixiUrl);
+  loadData(pixiUrl, viewType); 
+}
+
 // process pixi page display
 function loadPixiPage(data, resFlg) {
   if (resFlg) {
@@ -92,9 +177,7 @@ function showPixiPage(data) {
 
 // open post page
 function loadPosts(data, resFlg) {
-  console.log('in show post page');
-  var item_str = '<div id="post-list-item"><ol class="posts">';
-  var $container = $('#pixi-list');
+  var item_str = '<ul class="posts">';
 
   // load listview
   if(resFlg) {
@@ -104,7 +187,7 @@ function loadPosts(data, resFlg) {
         item_str += "<li id='" + item.id + "'><div class='sender'>";
 
         // display correct photo based on whether user is sender or recipient
-        if(postType !== 'recv') {
+        if(postType == 'recv') {
           item_str += getPixiPic(item.user.photo, 'height:30px; width:30px;') + ' ' + item.sender_name;
         }
         else {
@@ -112,28 +195,34 @@ function loadPosts(data, resFlg) {
         }
 
 	// display post content
-	item_str += "</div><div class='clear-all'></div><div class=''>"
+	item_str += " | <span class='timestamp'>Posted " + post_dt + ".</span></div><div class='clear-all'></div><div class=''>"
  	  + "<div>RE: <a href='#' data-pixi-id='" + item.pixi_id + "' class='pixi-link'>" + item.pixi_title + "</a></div>"
-	  + "<span class='content'>" + item.content + "</span><span class='timestamp'>Posted " + post_dt + ".</span>";
+	  + "<span>" + item.content + "</span>";
 	
 	// render post form if user
 	if(usr.id == item.recipient_id) {
-	  item_str += "<div id='post_form'><form id='post-frm' method='post' data-ajax='false'>" 
+	  item_str += "<form id='post-frm' method='post' data-ajax='false'>" 
 	    + '<div id="notice" style="display:none"></div><div id="form_errors"></div>'
-	    + "<div class='clear-all'><table><tr><td>"
-	    + "<textarea name='content' placeholder='Type reply message...' class='reply_content' cols='40' rows='8' ></textarea></td>"
-	    + "<td><input type='submit' value='Send' data-theme='b' data-inline='true' class='reply-btn' data-mini='true'></td>"
-	    + "</tr></table></div></form></div>";
+	    + "<div class='clear-all'><table><tr><td class='cal-size'><div data-role='fieldcontain' class='ui-hide-label'>"
+	    + "<input name='content' class='reply_content slide-menu' placeholder='Type reply message...' data-theme='a' /></div></td>"
+	    + "<td><input type='submit' value='Send' data-theme='b' data-inline='true' id='reply-btn' data-mini='true'></td></tr></table>"
+	    + "</div></form>";
 	}
 	item_str += "</div><div class='clear-all'></div></li>";
       });
 
-      item_str += "</ol></div>";
-
-      // render content
-      $('#mxboard').append(item_str).trigger("create");
+      item_str += "</ul>";
+    }
+    else {
+      item_str = '<div class="center-wrapper">No posts found.</div>'
     }
   }
+  else {
+    item_str = '<div class="center-wrapper">No posts found.</div>'
+  }
+
+  // render content
+  $('#mxboard').append(item_str).trigger("create");
 }
 
 // open comment page
@@ -158,12 +247,8 @@ function showCommentPage(data) {
     $.each(data.comments, function(index, item) {
       post_dt = $.timeago(item.created_at); // set post dt
       item_str += '<li id="' + item.id + '"><div class="cal-size no-left">'
-        + "<div class='sender'>" + item.sender_name + "<span class='timestamp'>"
-	+ "Posted " + post_dt + "</span></div>"
-	+ "<span class='fcontent'>" + item.content + "</span></div>"
-	+ "<div class='nav-right'>"
-        + "<div class='sdescr'>" + getPixiPic(item.user.photo, 'height:30px; width:30px;') 
-        + ' ' + item.sender_name + "</div></div><div class='clear-all'></div></li>";
+        + "<div class='sender'>" + getPixiPic(item.user.photo, 'height:30px; width:30px;') + " " + item.sender_name + " | <span class='timestamp'>"
+	+ "Posted " + post_dt + "</span></div><br /><span class='fcontent'>" + item.content + "</span></div></li>";
     });
     item_str += '</ol>';
   }
@@ -216,7 +301,7 @@ function loadInvPage(data, resFlg) {
       + "<tr class='sls-tax' style='display:none'><td></td><td><div class='nav-right'>Sales Tax</div></td>"
       + "<td class='width120'><div class='nav-right'>" + tax + "</div></td>"
       + "<td class='width120'><div class='nav-right'>" + tax_total + "</div></td></tr>"
-      + "<tr><td></td><td class='img-valign nav-right'>Fee</td>"
+      + "<tr class='v-align'><td></td><td class='img-valign nav-right'>Fee</td>"
       + "<td><a href='#popupInfo' data-rel='popup' data-role='button' class='ui-icon-alt' data-inline='true' "
       + "data-transition='pop' data-icon='info' data-theme='a' data-iconpos='notext'>Learn more</a></td>"
       + "<td class='img-valign nav-right'>" + fee + "</td></tr>"
@@ -242,4 +327,130 @@ function loadInvPage(data, resFlg) {
     console.log('inv page load failed');
     PGproxy.navigator.notification.alert("Page load failed", function() {}, 'View Invoice', 'Done');
   }
+}
+
+// load list view if resFlg else return not found
+function loadInvList(data, resFlg) {
+  var $container = $('#pixi-list');
+  var localUrl, item_str = '';
+
+  // load listview
+  if(resFlg) {
+    if (data.invoices.length > 0) {
+      $.each(data.invoices, function(index, item) {
+        var amt = parseFloat(item.amount).toFixed(2);
+
+	// set invoice name
+	if(myPixiPage == 'received') {
+	  var inv_name = item.seller_name; }
+	else {
+	  var inv_name = item.buyer_name; }
+
+        // build pixi item string
+	localUrl = 'data-inv-id="' + item.id + '"';
+
+        item_str += "<li class='plist'>"
+	  + '<a href="#" ' + localUrl + ' class="pending_title inv-item" data-ajax="false">'  
+	  + getPixiPic(item.listing.photo_url, 'height:60px; width:60px;')
+	  + '<div class="pstr"><h6>' + item.short_title 
+	  + '<span class="nav-right">$' + amt + '</span></h6></div>'
+	  + '<p>Invoice #' + item.id + ' - ' + inv_name + '<br />' + item.inv_dt + ' | ' + item.nice_status + '</p></a></li>';
+      });
+    } 
+    else {
+      item_str = '<li class="center-wrapper">No invoices found.</li>'
+    }
+  }
+  else {
+    item_str = '<li class="center-wrapper">No invoices found.</li>'
+  }
+
+  // append items
+  $container.append(item_str).listview('refresh');
+}
+
+// load board if resFlg else return not found
+function loadBoard(data, resFlg) {
+  var $container = $('#px-container').masonry({ itemSelector : '.item', gutter : 1, isFitWidth: true, columnWidth : 1 });
+  var item_str = '';
+  var post_dt, localUrl;
+
+  if(resFlg) {
+    usr = data.user;  // store user
+
+    // load pixis
+    $.each(data.listings, function(index, item) {
+
+        // build pixi item string
+	post_dt = $.timeago(item.updated_at);
+	localUrl = 'data-pixi-id="' + item.pixi_id + '"';
+
+        item_str += '<div class="item"><div class="center-wrapper">'
+	  + '<a href="#" ' + localUrl + ' class="bd-item" data-ajax="false">'  
+	  + getPixiPic(item.pictures[0].photo_url, 'height:115px; width:115px;') + '</a>'
+	  + '<div class="sm-top mbdescr">' + item.title + '</div>'
+	  + '<div class="sm-top mgdescr">' + '<div class="item-cat pixi-grey-bkgnd">' 
+	  + '<a href="' + catPath + token + '&cid=' + item.category_id + '"' + ' class="pixi-cat"' + ' data-cat-id=' + item.category_id + '>'
+	  + item.category_name + '</a></div>' 
+	  + '<div class="item-dt pixi-grey-bkgnd">' + post_dt + '</div></div></div></div>';
+    });
+
+    // build masonry blocks for board
+    var $elem = $(item_str).css({ opacity: 0 });
+    $container.imagesLoaded(function(){
+      $elem.animate({ opacity: 1 });
+      $container.append($elem).masonry('appended', $elem, true).masonry('reloadItems');
+    });
+
+    // load categories
+    if (data.categories !== undefined) {
+      categories = data.categories;
+      loadList(data.categories, '#category_id', 'Category');
+    }
+  } 
+  else {
+    // not found
+    item_str = '<div class="center-wrapper">No pixis found for this location and/or category.</div>'
+
+    // load msg
+    $container.append(item_str);
+  }
+
+  // turn off spinner
+  uiLoading(false);
+}
+
+// load list view if resFlg else return not found
+function loadListView(data, resFlg) {
+  var localUrl, post_dt, item_str = '';
+  var $container = $('#pixi-list');
+
+  // load listview
+  if(resFlg) {
+    if (data.listings.length > 0) {
+      $.each(data.listings, function(index, item) {
+	post_dt = $.timeago(item.updated_at); // set post dt
+
+        // build pixi item string
+	localUrl = 'data-pixi-id="' + item.pixi_id + '"';
+
+        item_str += "<li class='plist'>"
+	  + '<a href="#" ' + localUrl + ' class="pending_title bd-item" data-ajax="false">'  
+	  + getPixiPic(item.pictures[0].photo_url, 'height:60px; width:60px;')
+	  + '<div class="pstr"><h6>' + item.med_title + '</h6></div>'
+	  + '<p>' + item.site_name + '<br />' + item.category_name + ' | ' + post_dt + '</p></a></li>';
+      });
+    }
+    else {
+      console.log('resFlg = true');
+      item_str = '<li class="center-wrapper">No pixis found.</li>'
+    }
+  }
+  else {
+    console.log('resFlg = false');
+    item_str = '<li class="center-wrapper">No pixis found.</li>'
+  }
+
+  // append items
+  $container.append(item_str).listview('refresh');
 }

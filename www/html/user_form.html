@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html>
   <head>
-    <title>Comments</title>
+    <title>My Settings</title>
   </head>
   <body>
     <div data-role="page" id="comment-page" data-cache="never" data-theme="a">
@@ -11,24 +11,21 @@
         </div>
       </div>    
       <div data-role="header" data-theme="d">
-        <div class='pg-title center-wrapper'>Comments</div>
+        <div class='pg-title center-wrapper'>My Settings</div>
 	<a href="#navpanel" id='list' data-theme="app-bar"><img src='../img/rsz_list-view_blue.png'></a>
 	<a href='#' data-theme="app-loc" id='add-pixi-link'><img src='../img/rsz_camera-icon_blue.png'></a>
-	<div id='show-list-hdr'></div>
+	<div id='user-nav' data-role='navbar' data-theme='c' class: 'show-pixi-bar'>
+	  <ul>
+	    <li><a href='#' data-mini='true' class='ui-btn-active'>Profile</a></li>
+	    <li><a href='#' data-mini='true'>Contact</a></li>
+	    <li><a href='#' data-mini='true' style='display:none'>Prefs</a></li>
+	  </ul>
+	</div>
       </div>
       <div class="app-content" data-theme="a" data-role="content">
 	<div id="form_errors" style="display:none" class="error"></div>
-	<div id='comment_form'><form id="comment-doc" data-ajax="false">
-	  <div id='seller-comment' class='clear-all mbot'>
-	    <table>
-	      <tr><td class='cal-size'>
-	          <div data-role="fieldcontain" class="ui-hide-label">
-		    <input name="content" id="content" class='slide-menu' placeholder="Post comment on item..." data-theme='a' required />
-	          </div></td>
-	          <td><input type='submit' value='Post' data-theme='b' data-inline='true' id='comment-btn' data-mini='true'></td>
-	      </tr>
-	    </table>
-	  </div>
+	<div id='user_form'><form id="user-doc" data-ajax="false">
+	  <div id='usr-prof' class="mleft10"></div>
 	  <input type="hidden" name="user_id" id="user_id" />
 	  <input type="hidden" name="pixi_id" id="pixi_id" />
 	</form></div>

@@ -623,10 +623,6 @@ a.map-btn {
   line-height: 14px !important;
 }
 
-table.inv-tbl, th, td {
-  border: 1px solid #ccc;
-}
-
 table.items {
 	border: 1px solid blue;
 	width:100%;

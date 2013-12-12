@@ -54,8 +54,10 @@ c:\RoRDev\pxbMobile\platforms\android\assets\www\html\main.html \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\html\new_temp_listing.html \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\html\panel.html \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\html\pixis.html \
+c:\RoRDev\pxbMobile\platforms\android\assets\www\html\posts.html \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\html\show_listing.html \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\html\signup.html \
+c:\RoRDev\pxbMobile\platforms\android\assets\www\html\user_form.html \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\img\09-chat-2.png \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\img\162-receipt.png \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\img\19-gear.png \
@@ -97,6 +99,7 @@ c:\RoRDev\pxbMobile\platforms\android\assets\www\js\jquery.mobile-1.3.2.min.js \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\js\jquery.placeholder.min.js \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\js\jquery.timeago.js \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\js\jquery.ui.autocomplete.html.js \
+c:\RoRDev\pxbMobile\platforms\android\assets\www\js\loaddata.js \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\js\main.js \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\js\masonry.pkgd.min.js \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\js\pginit.js \

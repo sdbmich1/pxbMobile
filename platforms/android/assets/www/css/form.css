@@ -20,17 +20,19 @@ $pixiBlue: #026FB7;
 .posts {
   list-style: none;
   font-size: 10px!important;
-  margin: 5px 0 0 0;
+  margin-top: 5px;
+  margin-left: -3.5em!important;
+}
 
-  li {
-     padding: 10px 0;
+.posts li {
+     padding-top: 10px!important;
+     padding-left: -40px!important;
      border-top: 1px solid #e8e8e8;
   }
 
-  a {
+.posts a {
     &:hover { background:none; text-decoration: underline; }
   }  
-}
 
 .sender {
   font-weight: bold;
@@ -55,6 +57,7 @@ $pixiBlue: #026FB7;
 .timestamp {
   color: #eaeaea;
   margin-top: 5px!important;
+  margin-left: 5px!important;
   margin-bottom: 10px;
 }
 
