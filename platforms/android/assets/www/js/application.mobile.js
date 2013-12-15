@@ -60,6 +60,12 @@ $(document).on('pageinit', '#listapp', function() {
 });
 
 // load pixi form data
+$(document).on('pageinit', '#profile-page', function() {
+  loadListPage('profile', 'user'); 
+  pixPopup("#popupPix1");  // load popup page
+});
+
+// load pixi form data
 $(document).on('pageinit', '#formapp', function() {
   if (categories !== undefined) {
     loadList(categories, '#category_id', 'Category');
@@ -70,22 +76,25 @@ $(document).on('pageinit', '#formapp', function() {
     var data = loadData(catUrl, 'list');
     loadList(data, '#category_id', 'Category');
   }
+
   $("#category_id").trigger("change"); // update item
-
-  // load year fld
-  var item_str = '<option default value="">' + 'Year' + '</option>';
-  $("#yr_built").append(item_str);
-
-  for (i = new Date().getFullYear(); i > 1930; i--)
-    { $('#yr_built').append($('<option />').val(i).html(i)); }
-
-  $("#yr_built").selectmenu().selectmenu('refresh', true);
-  $('#popupPix').popup({ history: false });  // clear popup history to prevent app exit
+  loadYear("#yr_built", 0, 90, '0'); // load year fld
+  pixPopup("#popupPix");  // load popup page
 });
 
-// get pixi picture
-function getPixiPic(pic, style) {
-  var img_str = '<img style="' + style + '" src="' + url + pic + '">';
+// build image string to display pix 
+function getPixiPic(pic, style, fld) {
+
+  // set fld id
+  fld = fld || '';
+
+  var img_str = '<img style="' + style + '" src="' + url + pic + '"';
+  
+  if(fld.length > 0) {
+    img_str += ' id="' + fld + '">'; }
+  else {
+    img_str += '>'; }
+
   return img_str
 }
 
@@ -224,9 +233,40 @@ $(document).on('click', '#pixis-menu-btn', function(e) {
   return false;
 });
 
+// reset nav-bar active class
+function resetActiveClass($this) {
+  
+  // remove active class
+  var $headers = $(document).find('div[data-role="header"]');
+  $headers.find('a').removeClass("ui-btn-active");
+
+  // set active class
+  $this.addClass("ui-btn-active");
+}
+
+// process list btn click
+$(document).on('click', '#profile-nav-btn, #contact-nav-btn, #prefs-nav-btn', function(e) {
+  var sType = $(this).attr('data-dtype'); 
+  var $this = $(this);
+
+  // reset active class
+  resetActiveClass($this);
+
+  // clear container
+  $('#user_form').html('');
+
+  // load page
+  loadListPage(postType, 'user');
+  return false;
+});
+
 // process list btn click
 $(document).on('click', '#sent-post-btn, #recv-post-btn', function(e) {
-  postType = $(this).attr('data-dtype'); 
+  var $this = $(this);
+  postType = $this.attr('data-dtype'); 
+
+  // reset active class
+  resetActiveClass($this);
 
   // clear container
   $('#mxboard').html('');
@@ -238,13 +278,10 @@ $(document).on('click', '#sent-post-btn, #recv-post-btn', function(e) {
 
 // process list btn click
 $(document).on('click', '#active-btn, #draft-btn, #sold-btn, #sent-inv-btn, #recv-inv-btn', function(e) {
-  
-  // remove active class
-  var $headers = $(document).find('div[data-role="header"]');
-  $headers.find('a').removeClass("ui-btn-active");
+  var $this = $(this);
 
-  // set active class
-  $(this).addClass("ui-btn-active");
+  // reset active class
+  resetActiveClass($this);
 
   // set var to active item
   myPixiPage = $(this).attr('data-view'); 
@@ -321,6 +358,7 @@ $(document).on('click', '#home-link', function(e) {
   reset_top('#px-search', '#pixi-loc, #cat-top, #px-search');
 });
 
+// reset top when selection is toggled
 function reset_top(tag, str) {
   $(tag).toggle();
   $(str).hide(300);
@@ -545,7 +583,6 @@ $(document).on('click', ".inv-item", function(e) {
 // parameter for show listing page
 $(document).on("pageinit", "#show_listing, #comment-page", function(event) {
   var pixiUrl = pxPath + pid + '.json' + token;
-  console.log('pixiUrl => ' + pixiUrl);
   
   // load pixi data
   loadData(pixiUrl, 'pixi'); 
@@ -554,7 +591,6 @@ $(document).on("pageinit", "#show_listing, #comment-page", function(event) {
 // parameter for show listing page
 $(document).on("pageinit", "#show-invoice", function(event) {
   var invUrl = url + '/invoices/' + pid + '.json' + token;
-  console.log('invUrl => ' + invUrl);
   $('#popupInfo').popup({ history: false });  // clear popup history to prevent app exit
   
   // load inv data
@@ -580,7 +616,7 @@ var menu = [
   { title: 'My Posts', href: '../html/posts.html', icon: '../img/09-chat-2.png', id: 'posts-menu-btn' },
   { title: 'My Invoices', href: '../html/invoices.html', icon: '../img/bill.png', id: 'inv-menu-btn' },
   { title: 'My Accounts', href: '../html/accounts.html', icon: '../img/190-bank.png', id: 'acct-menu-btn' },
-  { title: 'Settings', href: '../html/settings.html', icon: '../img/19-gear.png', id: 'settings-menu-btn' },
+  { title: 'Settings', href: '../html/user_form.html', icon: '../img/19-gear.png', id: 'settings-menu-btn' },
   { title: 'Sign out', href: '../html/signout.html', icon: '../img/logout.png', id: 'signout-menu-btn' },
 ];
 
@@ -598,6 +634,7 @@ $(document).on("pageshow", function(event) {
       continue;
     }
 
+    // if user exists then toggle invoice-related items based on counts
     if(usr !== undefined) { 
       if(usr.pixi_count < 1 && menu[i].id == 'bill-menu-btn') {
         console.log('usr has no pixis');
@@ -641,3 +678,13 @@ $(document).on("click", "#show-cmt, #show-pixi", function(e) {
   return false;
 });
 
+function pixPopup(fld) {
+  var pop_str = '<ul data-role="listview" data-icon="false" data-inset="true" style="min-width:210px;" data-theme="a">'
+    + '<li data-role="divider" data-theme="b">Choose Photo Source</li>'
+    + '<li data-theme="a"><a href="#" id="camera"><img src="../img/rsz_camera_256.png">Camera</a></li>'
+    + '<li data-theme="a"><a href="#" id="gallery"><img src="../img/rsz_gallery_icon.png">Gallery</a></li>'
+    + '<li data-theme="a"><a href="#" id="album"><img src="../img/rsz_photoalbum.png">Photo Album</a></li></ul>';
+
+  $(fld).append(pop_str).trigger('create');
+  $(fld).popup({ history: false });  // clear popup history to prevent app exit
+}

@@ -42,6 +42,9 @@ function loadData(listUrl, dType, params) {
       case 'invpg':
         loadInvPage(data, dFlg); 
 	break;
+      case 'user':
+        loadUserPage(data, dFlg); 
+	break;
       default:
 	break;
     }
@@ -75,6 +78,12 @@ function loadListPage(pgType, viewType) {
     break;
   case 'post':
     var pixiUrl = url + '/posts/sent.json' + token;
+    break;
+  case 'profile':
+    var pixiUrl = url + '/settings.json' + token;
+    break;
+  case 'contact':
+    var pixiUrl = url + '/settings/contact.json' + token;
     break;
   }
   
@@ -259,6 +268,84 @@ function showCommentPage(data) {
   // append content
   $('#comment-item').append(item_str);
   uiLoading(false);  // toggle spinner
+}
+
+// load user name & email if needed
+function showNameEmail(data, showFlg) {
+  var fname = '', lname = '', email = '';
+
+  if (data !== undefined) {
+    fname = data.first_name;
+    lname = data.last_name;
+    email = data.email ;
+  }
+
+  var name_str = "<tr><td>First Name* </td><td><input type='text' name='first_name' id='first_name' value='"
+    + fname + "' placeholder='First Name' data-theme='a' class='profile-txt' /></td></tr>"
+    + "<tr><td>Last Name* </td><td><input type='text' name='last_name' id='last_name' value='" + lname 
+    + "' placeholder='Last Name' class='profile-txt' data-theme='a' /></td></tr>" ;
+  
+  if(showFlg) {
+    name_str += "<tr><td>Email* </td><td><input type='text' name='email' id='email' class='profile-txt' value='" 
+      + email + "' placeholder='Email' data-theme='a' /></td></tr>";
+  }
+
+  return name_str;
+}
+
+// load user profile if needed
+function showProfile(data) {
+  var prof_str = "<tr><td>Gender</td><td><select name='gender' id='gender' data-mini='true'></select></td></tr>";
+
+  prof_str += "<tr><td>Birth Date</td><td><div data-role='fieldcontain'><fieldset data-role='controlgroup' data-type='horizontal'>"
+    + '<table><tr><td><select name="birth_mo" id="birth_mo" data-mini="true"></select></td>'
+    + '<td><select name="birth_dt" id="birth_dt" data-mini="true"></select></td>'
+    + '<td><select name="birth_yr" id="birth_yr" data-mini="true"></select><td></tr></table>'
+    + '</fieldset></div></td></tr>';
+
+  return prof_str;
+}
+
+// process user page display
+function loadUserPage(data, resFlg) {
+  if (resFlg) {
+    // set pixi header details
+    var cstr = "<div class='show-pixi-bar' data-role='navbar'><ul>"
+      + "<li><a href='#' id='profile-nav-btn' data-dtype='profile' data-mini='true' class='ui-btn-active'>Profile</a></li>"
+      + "<li><a href='#' id='contact-nav-btn' data-dtype='contact' data-mini='true'>Contact</a></li>";
+    
+    // update menu
+    if (data.fb_user == undefined) {
+      cstr += "<li><a href='#' id='prefs-nav-btn' data-dtype='prefs' data-mini='true'>Prefs</a></li></ul></div>";
+    } else {
+      cstr += "</ul></div>";
+    }
+
+    var arr = data.birth_date.split('-');
+    var user_str = "<table><tr><td>" + getPixiPic(data.photo, 'height:80px; width:80px;', 'smallImage') 
+      + "</td><td><span class='mleft10 pstr'>" + data.name + "</span><br />"
+      + "<a href='#popupPix1' class='mleft10 upload-btn' data-mini='true' data-role='button' data-inline='true' data-theme='b'"
+      + "data-rel='popup' data-position-to='window' data-transition='pop'>Upload</a>"
+      + "</td></tr></table>";
+
+    user_str += "<div id='edit-profile' class='sm-top'><table class='inv-descr'>";
+    user_str += showNameEmail(data, true) + showProfile(data);   
+    user_str += "</table><div class='sm-top center-wrapper'>"
+      + '<input type="submit" value="Save" data-theme="d" data-inline="true" id="edit-usr-btn"></div></div>';
+
+    // build page
+    $('#show-list-hdr').append(cstr).trigger("create");
+    $('#usr-prof').append(user_str).trigger('create');
+
+    loadGender("#gender", data.gender);  // load gender
+    loadYear("#birth_yr", 13, 90, arr[0]); // load year fld
+    loadMonth("#birth_mo", arr[1]); // load month fld
+    loadDays("#birth_dt", arr[1], arr[2]); // load month fld
+  }
+  else {
+    console.log('User page load failed');
+    PGproxy.navigator.notification.alert("Page load failed", function() {}, 'View User', 'Done');
+  }
 }
 
 // process invoice page display
@@ -453,4 +540,59 @@ function loadListView(data, resFlg) {
 
   // append items
   $container.append(item_str).listview('refresh');
+}
+
+// load year dropdown
+function loadYear(fld, minVal, maxVal, yr) {
+  var curYr = new Date().getFullYear(); 
+  var minYr = curYr - minVal;
+  var maxYr = curYr - maxVal;
+  var item_str = '<option default value="">' + 'Year' + '</option>';
+
+  // build option list
+  for (i = minYr; i > maxYr; i--) {
+    item_str += '<option value="'+ i + '">' + i + '</option>';
+   // $(fld).append($('<option />').val(i).html(i));
+  }
+
+  setSelectMenu(fld, item_str, yr);  // set option menu
+}
+
+// load month selectmenu
+function loadMonth(fld, curMonth) {
+  var arr = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var item_str = '<option default value="">' + 'Mon' + '</option>';
+
+  // build option list
+  for (var i = 1; i <= arr.length; i++) {
+    item_str += '<option value="'+ i + '">' + arr[i-1] + '</option>';
+  }
+
+  setSelectMenu(fld, item_str, parseInt(curMonth));  // set option menu
+}
+
+// load day selectmenu based on current month
+function loadDays(fld, curMonth, curDt) {
+  var dt_arr = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  var dt_str = '<option default value="">' + 'Day' + '</option>';
+
+  for (var j = 1; j <= dt_arr[curMonth-1]; j++) {
+    dt_str += '<option value="'+ j + '">' + j + '</option>';
+  }
+
+  setSelectMenu(fld, dt_str, curDt);  // set option menu
+}
+
+function setSelectMenu(fld, str, val) {
+  var dt_str = fld + " option[value='" + val + "']";
+
+  $(fld).append(str);
+  $(dt_str).attr("selected", "selected");
+  $(fld).selectmenu().selectmenu('refresh', true);
+}
+
+// load gender
+function loadGender(fld, val) {
+  var gen_str = '<option value="">Gender</option><option value="Male">Male</option><option value="Female">Female</option>';
+  setSelectMenu(fld, gen_str, val);  // set option menu
 }

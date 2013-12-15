@@ -108,6 +108,7 @@ a.signup-btn {
   margin:0; /*make the buttons flush to the top*/
 }
 .slide-menu { font-size: 10px!important; line-height: 14px!important;}
+.profile-txt { font-size: 12px!important; }
 textarea { width: 99%!important; height: 32px!important; }
 
 .show-pixi-bar li { line-height: 10px!important; font-size: 10px!important; font-weight: normal; }
