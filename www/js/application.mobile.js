@@ -61,7 +61,7 @@ $(document).on('pageinit', '#listapp', function() {
 
 // load pixi form data
 $(document).on('pageinit', '#profile-page', function() {
-  loadListPage('profile', 'user'); 
+  loadListPage('user', 'user'); 
   pixPopup("#popupPix1");  // load popup page
 });
 
@@ -253,10 +253,10 @@ $(document).on('click', '#profile-nav-btn, #contact-nav-btn, #prefs-nav-btn', fu
   resetActiveClass($this);
 
   // clear container
-  $('#user_form').html('');
+  $('#usr-prof').html('');
 
   // load page
-  loadListPage(postType, 'user');
+  loadListPage(sType, sType);
   return false;
 });
 
@@ -527,19 +527,6 @@ $(document).on('keyup', '#site_name', function (e, ui) {
     loadData(searchUrl, 'autocomplete', {search:text});
   }
 }); 
-
-// process results
-function loadResults(res, dFlg) {
-  var $sugList = $(".suggestions");
-  if (res !== undefined) {
-    var str = "";
-    for(var i=0, len=res.length; i<len; i++) {
-	str += "<li><a href='#' class='ac-item' data-site-id='" + res[i].id + "'>" + res[i].name + "</a></li>";
-    }
-    $sugList.html(str);
-  } 
-  uiLoading(false);
-}
 
 // process click on autocomplete site name 
 $(document).on('click', ".ac-item", function(e) {

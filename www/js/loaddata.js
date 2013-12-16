@@ -1,3 +1,5 @@
+var states_str = '';
+
 // load data based on given url & display type
 function loadData(listUrl, dType, params) {
   console.log('in loadData: ' + listUrl);
@@ -27,6 +29,9 @@ function loadData(listUrl, dType, params) {
       case 'autocomplete':
         loadResults(data, dFlg);
 	break;
+      case 'state':
+        loadStates(data, dFlg);
+	break;
       case 'pixi':
         loadPixiPage(data, dFlg);
 	break;
@@ -45,6 +50,9 @@ function loadData(listUrl, dType, params) {
       case 'user':
         loadUserPage(data, dFlg); 
 	break;
+      case 'contact':
+        loadContactPage(data, dFlg); 
+	break;
       default:
 	break;
     }
@@ -53,6 +61,19 @@ function loadData(listUrl, dType, params) {
   	uiLoading(false);
         console.log(b + '|' + c);
   });
+}
+
+// process results
+function loadResults(res, dFlg) {
+  var $sugList = $(".suggestions");
+  if (res !== undefined) {
+    var str = "";
+    for(var i=0, len=res.length; i<len; i++) {
+	str += "<li><a href='#' class='ac-item' data-site-id='" + res[i].id + "'>" + res[i].name + "</a></li>";
+    }
+    $sugList.html(str);
+  } 
+  uiLoading(false);
 }
 
 // set url for pixi list pages based on switch
@@ -79,7 +100,7 @@ function loadListPage(pgType, viewType) {
   case 'post':
     var pixiUrl = url + '/posts/sent.json' + token;
     break;
-  case 'profile':
+  case 'user':
     var pixiUrl = url + '/settings.json' + token;
     break;
   case 'contact':
@@ -275,9 +296,9 @@ function showNameEmail(data, showFlg) {
   var fname = '', lname = '', email = '';
 
   if (data !== undefined) {
-    fname = data.first_name;
-    lname = data.last_name;
-    email = data.email ;
+    fname = data.first_name || '';
+    lname = data.last_name || '';
+    email = data.email || '';
   }
 
   var name_str = "<tr><td>First Name* </td><td><input type='text' name='first_name' id='first_name' value='"
@@ -295,9 +316,8 @@ function showNameEmail(data, showFlg) {
 
 // load user profile if needed
 function showProfile(data) {
-  var prof_str = "<tr><td>Gender</td><td><select name='gender' id='gender' data-mini='true'></select></td></tr>";
-
-  prof_str += "<tr><td>Birth Date</td><td><div data-role='fieldcontain'><fieldset data-role='controlgroup' data-type='horizontal'>"
+  var prof_str = "<tr><td>Gender</td><td><select name='gender' id='gender' data-mini='true'></select></td></tr>"
+    + "<tr><td>Birth Date</td><td><div data-role='fieldcontain'><fieldset data-role='controlgroup' data-type='horizontal'>"
     + '<table><tr><td><select name="birth_mo" id="birth_mo" data-mini="true"></select></td>'
     + '<td><select name="birth_dt" id="birth_dt" data-mini="true"></select></td>'
     + '<td><select name="birth_yr" id="birth_yr" data-mini="true"></select><td></tr></table>'
@@ -310,8 +330,9 @@ function showProfile(data) {
 function loadUserPage(data, resFlg) {
   if (resFlg) {
     // set pixi header details
+    $('#show-list-hdr').html('');
     var cstr = "<div class='show-pixi-bar' data-role='navbar'><ul>"
-      + "<li><a href='#' id='profile-nav-btn' data-dtype='profile' data-mini='true' class='ui-btn-active'>Profile</a></li>"
+      + "<li><a href='#' id='profile-nav-btn' data-dtype='user' data-mini='true' class='ui-btn-active'>Profile</a></li>"
       + "<li><a href='#' id='contact-nav-btn' data-dtype='contact' data-mini='true'>Contact</a></li>";
     
     // update menu
@@ -326,11 +347,8 @@ function loadUserPage(data, resFlg) {
       + "</td><td><span class='mleft10 pstr'>" + data.name + "</span><br />"
       + "<a href='#popupPix1' class='mleft10 upload-btn' data-mini='true' data-role='button' data-inline='true' data-theme='b'"
       + "data-rel='popup' data-position-to='window' data-transition='pop'>Upload</a>"
-      + "</td></tr></table>";
-
-    user_str += "<div id='edit-profile' class='sm-top'><table class='inv-descr'>";
-    user_str += showNameEmail(data, true) + showProfile(data);   
-    user_str += "</table><div class='sm-top center-wrapper'>"
+      + "</td></tr></table><div id='edit-profile' class='sm-top'><table class='inv-descr'>"
+      + showNameEmail(data, true) + showProfile(data) + "</table><div class='sm-top center-wrapper'>"  
       + '<input type="submit" value="Save" data-theme="d" data-inline="true" id="edit-usr-btn"></div></div>';
 
     // build page
@@ -345,6 +363,44 @@ function loadUserPage(data, resFlg) {
   else {
     console.log('User page load failed');
     PGproxy.navigator.notification.alert("Page load failed", function() {}, 'View User', 'Done');
+  }
+}
+
+// process user contact page display
+function loadContactPage(data, resFlg) {
+  var addr, city, state, zip, hphone, mphone;
+
+  if (resFlg) {
+    if (data !== undefined) {
+      addr = data.contacts[0].address || '';
+      city = data.contacts[0].city || '';
+      state = data.contacts[0].state || '';
+      zip = data.contacts[0].zip || '';
+      hphone = data.contacts[0].home_phone || '';
+      mphone = data.contacts[0].mobile_phone || '';
+    }
+
+    var user_str = "<table class='inv-descr'><tr><td><label>Address*</label><input type='text' name='address' id='address' value='"
+      + addr + "' placeholder='Street' data-theme='a' class='profile-txt' /></td>"
+      + "<td></td><td><label>City*</label><input type='text' name='city' id='city' value='"
+      + city + "' placeholder='City' data-theme='a' class='profile-txt' /></td></tr>"
+      + "<tr><td><label>State/Province*</label><select name='state' id='state' data-mini='true'></select>"
+      + "</td><td></td><td><label>Zip* </label><input type='text' name='zip' id='zip' value='"
+      + zip + "' placeholder='Zip' data-theme='a' class='profile-txt' /></td></tr>"
+      + "<tr><td><label>Home Phone </label><input type='text' name='home_phone' id='home_phone' value='"
+      + hphone + "' placeholder='Home Phone' data-theme='a' class='profile-txt' /></td>"
+      + "<td></td><td><label>Mobile Phone </label><input type='text' name='mobile_phone' id='mobile_phone' value='"
+      + mphone + "' placeholder='Mobile Phone' data-theme='a' class='profile-txt' /></td></tr></table>"
+      + "<div class='sm-top center-wrapper'>"      
+      + '<input type="submit" value="Save" data-theme="d" data-inline="true" id="edit-usr-btn"></div>';
+
+    $('#usr-prof').append(user_str).trigger('create');
+    setState("#state", state);  // load state dropdown
+    setSelectMenu('#state', '', state);  // set option menu
+  }
+  else {
+    console.log('Contact page load failed');
+    PGproxy.navigator.notification.alert("Page load failed", function() {}, 'View Contact', 'Done');
   }
 }
 
@@ -529,12 +585,10 @@ function loadListView(data, resFlg) {
       });
     }
     else {
-      console.log('resFlg = true');
       item_str = '<li class="center-wrapper">No pixis found.</li>'
     }
   }
   else {
-    console.log('resFlg = false');
     item_str = '<li class="center-wrapper">No pixis found.</li>'
   }
 
@@ -554,7 +608,6 @@ function loadYear(fld, minVal, maxVal, yr) {
     item_str += '<option value="'+ i + '">' + i + '</option>';
    // $(fld).append($('<option />').val(i).html(i));
   }
-
   setSelectMenu(fld, item_str, yr);  // set option menu
 }
 
@@ -567,7 +620,6 @@ function loadMonth(fld, curMonth) {
   for (var i = 1; i <= arr.length; i++) {
     item_str += '<option value="'+ i + '">' + arr[i-1] + '</option>';
   }
-
   setSelectMenu(fld, item_str, parseInt(curMonth));  // set option menu
 }
 
@@ -579,10 +631,10 @@ function loadDays(fld, curMonth, curDt) {
   for (var j = 1; j <= dt_arr[curMonth-1]; j++) {
     dt_str += '<option value="'+ j + '">' + j + '</option>';
   }
-
   setSelectMenu(fld, dt_str, curDt);  // set option menu
 }
 
+// set dropdown selection and refresh menu
 function setSelectMenu(fld, str, val) {
   var dt_str = fld + " option[value='" + val + "']";
 
@@ -595,4 +647,24 @@ function setSelectMenu(fld, str, val) {
 function loadGender(fld, val) {
   var gen_str = '<option value="">Gender</option><option value="Male">Male</option><option value="Female">Female</option>';
   setSelectMenu(fld, gen_str, val);  // set option menu
+}
+
+// set state
+function setState(fld, val) {
+  var pixiUrl = url + '/states.json' + token;
+
+  if(states_str.length == 0) {
+    loadData(pixiUrl, 'state');
+  }
+}
+
+function loadStates(res, dFlg) {
+  console.log('in loadStates');
+  if (res !== undefined) {
+    states_str = '<option value="">State</option>';
+    for(var i=0, len=res.length; i<len; i++) {
+	states_str += "<option value='" + res[i].code + "'>" + res[i].state_name + "</option>";
+    }
+    setSelectMenu('#state', states_str, '');  // set option menu
+  } 
 }
