@@ -69,7 +69,10 @@ a.signup-btn {
 /*.ui-btn-inner, .ui-li {width: 100%!important;} */
 
 .cal-size { width: 80%!important; }
-#inv_amt, #inv_tax_total, #inv_total {background: $grayMediumLight;}
+.num-size { width: 25%!important; }
+#pixi_id { white-space:normal!important; }
+
+#inv_amt, #inv_tax_total, #inv_total {background: #ccc;}
 .ui-body-d { border: none!important; }
 
 .icon-gray > i {
@@ -304,6 +307,7 @@ li.plist { line-height: 14px!important; }
 
 .pstr { font-size: 1.05em; font-weight: bold; color: #026FB7; }
 .title-str { font-size: 1.25em; font-weight: bold; color: #026FB7; }
+.total-str { font-size: 1.75em; font-weight: bold; color: #026FB7; }
 
 .input-append { width: 100%!important; }
 
@@ -622,6 +626,16 @@ a.map-btn {
 
 .pay-tbl {
   line-height: 14px !important;
+}
+
+table.inv-tbl {
+	border: 1px solid #ccc;
+	padding: 5px;
+}
+
+table.inv-tbl th.bdr, td.bdr {
+	border: 1px solid #ccc;
+	padding: 5px;
 }
 
 table.items {

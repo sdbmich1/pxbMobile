@@ -48,6 +48,7 @@ c:\RoRDev\pxbMobile\platforms\android\assets\www\html\camera.html \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\html\comments.html \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\html\invoice.html \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\html\invoices.html \
+c:\RoRDev\pxbMobile\platforms\android\assets\www\html\invoice_form.html \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\html\listings.html \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\html\login.html \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\html\main.html \

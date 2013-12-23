@@ -44,6 +44,9 @@ function loadData(listUrl, dType, params) {
       case 'inv':
         loadInvList(data, dFlg); 
 	break;
+      case 'invedit':
+        loadInvForm(data, dFlg); 
+	break;
       case 'invpg':
         loadInvPage(data, dFlg); 
 	break;
@@ -52,6 +55,9 @@ function loadData(listUrl, dType, params) {
 	break;
       case 'contact':
         loadContactPage(data, dFlg); 
+	break;
+      case 'price':
+        setPrice(data, dFlg);
 	break;
       default:
 	break;
@@ -69,7 +75,7 @@ function loadResults(res, dFlg) {
   if (res !== undefined) {
     var str = "";
     for(var i=0, len=res.length; i<len; i++) {
-	str += "<li><a href='#' class='ac-item' data-site-id='" + res[i].id + "'>" + res[i].name + "</a></li>";
+	str += "<li><a href='#' class='ac-item' data-res-id='" + res[i].id + "'>" + res[i].name + "</a></li>";
     }
     $sugList.html(str);
   } 
@@ -405,6 +411,72 @@ function loadContactPage(data, resFlg) {
 }
 
 // process invoice page display
+function loadInvForm(data, resFlg) {
+  var dt = curDate();
+  var title_str, pixi_id = '', qty=1, prc = '', buyer='', subtotal='', sales_tax='', tax_total='', amount='', comment='';
+
+  if (resFlg) {
+    if (data !== undefined) {
+      dt = data.invoice.inv_dt;
+      pixi_id = data.invoice.pixi_id;
+      buyer = data.invoice.buyer_name;
+      qty = data.invoice.quantity;
+      prc = parseFloat(data.invoice.price).toFixed(2);
+      subtotal = parseFloat(data.invoice.subtotal).toFixed(2);
+      sales_tax = parseFloat(data.invoice.sales_tax).toFixed(2) || 0.0;
+      tax_total = parseFloat(data.invoice.tax_total).toFixed(2);
+      amount = parseFloat(data.invoice.amount).toFixed(2);
+      comment = data.invoice.comment;
+      title_str = "<span>Invoice #" + data.invoice.id + "</span>"; 
+    }
+    else {
+      title_str = "<span>Create Invoice</span>"; 
+    }
+
+    // load title
+    $('#inv-pg-title').html(title_str);
+    $('#inv-frm').html('');
+
+    var inv_str = "<form id='invoice-doc' data-ajax='false'><div class='mleft15'><table class='inv-descr'><tr><td>Date:</td><td>" + dt + "</td></tr>"
+      + "<tr><td>Bill To:</td><td><div data-role='fieldcontain' class='sm-top ui-hide-label'>"
+      + "<input type='text' name='buyer_name' id='buyer_name' class='' placeholder='Buyer Name' data-theme='a' value='" + buyer + "' /></div>"
+      + "<ul class='suggestions' data-role='listview' data-inset='true' data-icon='false'></ul></td></tr>"
+      + "<tr><td>Item:</td><td><div class='dd-list'><select name='pixi_id' id='pixi_id' data-mini='true'></div></select></td></tr>" 
+      + "<tr><td class='img-valign'>Quantity:</td><td><select name='quantity' id='inv_qty' class='mtop' data-mini='true'></select></td></tr>" 
+      + "<tr><td class='img-valign'>Price:</td><td><div data-role='fieldcontain' class='sm-top ui-hide-label'>"
+      + "<input type='text' name='price' id='inv_price' placeholder='Enter Price' class=' price' data-theme='a' value='" 
+      + prc + "' /></div></td></tr>" 
+      + "<tr class='sls-tax' style='display:none'><td class='img-valign'>Subtotal</td><td><div data-role='fieldcontain' class='sm-top ui-hide-label'>"
+      + "<input type='text' name='subtotal' id='inv_amt' class='price' readonly='true' data-theme='a' value='" 
+      + subtotal + "' /></div></td></tr>" 
+      + "<tr class='sls-tax' style='display:none'><td class='img-valign'>Sales Tax</td><td><div data-role='fieldcontain' class='sm-top ui-hide-label'>"
+      + "<input type='text' name='sales_tax' id='inv_tax' class='price' placeholder='Enter tax (if any)' data-theme='a' value='" 
+      + sales_tax + "' /></div></td></tr>" 
+      + "<tr class='sls-tax' style='display:none'><td class='img-valign'>Tax</td><td><div data-role='fieldcontain' class='sm-top ui-hide-label'>"
+      + "<input type='text' name='tax_total' id='inv_tax_total' class='price' readonly='true' data-theme='a' value='" + tax_total 
+      + "' /></div></td></tr>" 
+      + "<tr><td class='img-valign'>Amount Due</td><td><div data-role='fieldcontain' class='sm-top ui-hide-label'>"
+      + "<input type='text' name='amount' id='inv_total' class='total-str price' readonly='true' data-theme='a' value='" 
+      + amount + "' /></div></td></tr>" 
+      + "<tr><td>Comments:</td><td><div data-role='fieldcontain' class='sm-top ui-hide-label'>"
+      + "<input type='text' name='comment' id='comment' placeholder='Enter comments here...' data-theme='a' value='" 
+      + comment + "' /></div></td></tr>"
+      + "<input type='hidden' name='buyer_id' id='buyer_id' /></div></table></form>";
+
+    // build page
+    $('#inv-frm').append(inv_str).trigger('create');
+
+    // load drop down lists
+    setPixiList(usr.active_listings, '#pixi_id', pixi_id);
+    loadQty('#inv_qty', qty);
+  }
+  else {
+    console.log('Invoice page load failed');
+    PGproxy.navigator.notification.alert("Page load failed", function() {}, 'View Invoice', 'Done');
+  }
+}
+
+// process invoice page display
 function loadInvPage(data, resFlg) {
   if (resFlg) {
 
@@ -433,8 +505,9 @@ function loadInvPage(data, resFlg) {
     var tax_total = parseFloat(data.invoice.tax_total).toFixed(2);
     var fee = parseFloat(data.invoice.get_fee).toFixed(2);
     var total = parseFloat(data.invoice.get_fee + data.invoice.amount).toFixed(2);
+    console.log('fee = ' + fee);
 
-    inv_str += "<div class='mleft15'><div class='control-group inv-tbl'><table class='mtop inv inv-descr'>"
+    inv_str += "<div class='mleft10'><div class='control-group'><table class='mtop inv-tbl inv-descr'>"
       + "<th><div class='center-wrapper'>Qty</div></th><th><div class='center-wrapper'>Item</div></th>"
       + "<th><div class='center-wrapper'>Price</div></th><th><div class='center-wrapper'>Amount</div></th>"
       + "<tr><td class='width120'><div class='nav-right'>" + data.invoice.quantity + "</div></td>"
@@ -444,24 +517,30 @@ function loadInvPage(data, resFlg) {
       + "<tr class='sls-tax' style='display:none'><td></td><td><div class='nav-right'>Sales Tax</div></td>"
       + "<td class='width120'><div class='nav-right'>" + tax + "</div></td>"
       + "<td class='width120'><div class='nav-right'>" + tax_total + "</div></td></tr>"
-      + "<tr class='v-align'><td></td><td class='img-valign nav-right'>Fee</td>"
+      + "<tr class='v-align'><td></td><td class='img-valign mtop nav-right'>Fee</td>"
       + "<td><a href='#popupInfo' data-rel='popup' data-role='button' class='ui-icon-alt' data-inline='true' "
       + "data-transition='pop' data-icon='info' data-theme='a' data-iconpos='notext'>Learn more</a></td>"
-      + "<td class='img-valign nav-right'>" + fee + "</td></tr>"
+      + "<td class='img-valign mtop nav-right'>" + fee + "</td></tr>"
       + "<tr><td></td><td><div class='nav-right'>Amount Due</div></td><td></td>"
-      + "<td class='width120'><div class='order-total title-str nav-right'><h6>" + total + "</h6></div></td></tr></table>";
+      + "<td class='width120'><div class='order-total total-str nav-right'><h6>$" + total + "</h6></div></td></tr></table>";
 
     if (data.invoice.comment !== undefined) {
-      inv_str += "<div class='sm-top control-label'>Comments: " + data.invoice.comment + "</div>";
+      inv_str += "<div class='mtop inv-descr control-label'>Comments: " + data.invoice.comment + "</div>";
     }
     inv_str += "</div><div class='nav-right'>"
-      
-    if (data.invoice.seller_id == usr.id && data.invoice.status == 'unpaid') {
-      inv_str += "<table><tr><td><a href='../html/invoice_form.html' data-inv-id=" + data.invoice.id + "data-role='button' id='edit-inv-btn'"
-        + "data-theme='b'>Edit</a></td><td><a href='#' data-role='button' id='remove-inv-btn'>Remove</a></td><tr></table>";
+     
+    // if owned & unpaid display edit btns
+    if (data.invoice.seller_id == usr.id) {
+      if (data.invoice.status == 'unpaid') {
+        inv_str += "<table><tr><td><a href='#' data-inv-id='" + data.invoice.id + "' data-role='button' id='edit-inv-btn'"
+          + " data-theme='b'>Edit</a></td><td><a href='#' data-role='button' data-inv-id='" + data.invoice.id 
+	  + "' id='remove-inv-btn'>Remove</a></td><tr></table>";
+      }
     }
     else {
-      inv_str += "<a href='#' data-inv-id=" + data.invoice.id + " data-role='button' data-theme='b' id='pay-btn'>Pay</a>";
+      if (data.invoice.status == 'unpaid') {
+        inv_str += "<a href='#' data-inv-id=" + data.invoice.id + " data-role='button' data-theme='b' id='pay-btn'>Pay</a>";
+      }
     }
     inv_str += "</div></div>";
     $('#inv_details').append(inv_str).trigger("create");
@@ -643,7 +722,7 @@ function setSelectMenu(fld, str, val) {
   $(fld).selectmenu().selectmenu('refresh', true);
 }
 
-// load gender
+// load gender dropdown
 function loadGender(fld, val) {
   var gen_str = '<option value="">Gender</option><option value="Male">Male</option><option value="Female">Female</option>';
   setSelectMenu(fld, gen_str, val);  // set option menu
@@ -658,8 +737,21 @@ function setState(fld, val) {
   }
 }
 
+// load active pixi dropdown menu for invoices
+function setPixiList(res, fld, val) {
+  if (res !== undefined) {
+    var px_str = '<option value="">Select Pixi</option>';
+    for(var i=0, len=res.length; i<len; i++) {
+	px_str += "<option value='" + res[i].pixi_id + "'><span>" + res[i].title + "</span></option>";
+    }
+    setSelectMenu(fld, px_str, val);  // set option menu
+  } 
+  // set long names to wrap when displayed
+  $('.dd-list').find('span').each(function () { $(this).css("white-space", "normal"); });
+}
+
+// load states dropdown menu
 function loadStates(res, dFlg) {
-  console.log('in loadStates');
   if (res !== undefined) {
     states_str = '<option value="">State</option>';
     for(var i=0, len=res.length; i<len; i++) {
@@ -667,4 +759,31 @@ function loadStates(res, dFlg) {
     }
     setSelectMenu('#state', states_str, '');  // set option menu
   } 
+}
+
+// load quantity selectmenu 
+function loadQty(fld, val) {
+  var qty_str = '<option default value="">' + 'Qty' + '</option>';
+
+  for (var j = 1; j <= 99; j++) {
+    qty_str += '<option value="'+ j + '">' + j + '</option>';
+  }
+  setSelectMenu(fld, qty_str, val);  // set option menu
+}
+
+// set item price
+function setPrice(data, resFlg) {
+  if (resFlg) {
+    if (data !== undefined) {
+      $('#inv_price').val(data);
+      console.log('price = ' + data);
+    }
+    else {
+      $('#inv_price').val(0);
+    }
+  }
+  else {
+    console.log('Item price load failed');
+    PGproxy.navigator.notification.alert("Item price load failed", function() {}, 'Invoice', 'Done');
+  }
 }

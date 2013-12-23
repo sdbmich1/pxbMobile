@@ -9,7 +9,7 @@ var listPage = '../html/show_listing.html';
 var homePage = "../html/listings.html";
 var catPath = pxPath + 'category.json' ;
 var locPath = pxPath + 'location.json' ;
-var email, pwd, pid, token, usr, categories, deleteUrl, myPixiPage, 
+var email, pwd, pid, token, usr, categories, deleteUrl, myPixiPage, invFormType, pxFormType,
   postType = 'recv';
 
 // ajax setup
@@ -64,6 +64,36 @@ $(document).on('pageinit', '#profile-page', function() {
   loadListPage('user', 'user'); 
   pixPopup("#popupPix1");  // load popup page
 });
+
+$(document).on('pageinit', '#inv-form', function() {
+  setInvForm();
+});
+
+// set invoice form
+function setInvForm() {
+  var data;
+
+  switch(invFormType) {
+    case 'edit':
+      if(pid !== undefined) {
+        var invUrl = url + '/invoices/' + pid + '.json' + token;
+        loadData(invUrl, 'invedit');
+      }
+      else {
+        loadInvForm(data, true);
+      }
+      break;
+    case 'inv':
+      loadInvForm(data, true);
+      break;
+    case 'bank':
+      //loadBankAcct(data, true);
+      break;
+    default:
+      break;
+  }
+  $("#navpanel").panel("close");  // close menu panel
+}
 
 // load pixi form data
 $(document).on('pageinit', '#formapp', function() {
@@ -161,13 +191,14 @@ function postData(postUrl, fdata, dType) {
 
 // delete server data
 function deleteData(delUrl) {
+  console.log('delUrl = ' + delUrl);
   $.ajax({
     url: delUrl, 
     type: "post",
     dataType: "json",
     data: {"_method":"delete"},
     success: function(data) {
-        PGproxy.navigator.notification.alert('Item deleted.', function() {}, 'Delete', 'Done');
+        //PGproxy.navigator.notification.alert('Item deleted.', function() {}, 'Delete', 'Done');
     },
     fail: function (a, b, c) {
         PGproxy.navigator.notification.alert(b + '|' + c, function() {}, 'Delete', 'Done');
@@ -222,14 +253,52 @@ $(document).on('pagehide', 'div[data-role="page"]', function(event, ui) {
 });
 
 // process active btn
+$(document).on('click', '#bill-menu-btn', function(e) {
+  if(usr !== undefined) { 
+    if(usr.bank_accounts.length > 0){
+      invFormType = 'inv';  // set var
+    }
+    else {
+      invFormType = 'bank';  // set var
+    }
+  }
+  else {
+    invFormType = 'new';  // set var
+  }
+  console.log('invFormType = ' + invFormType);
+});
+
+// process active btn
+$(document).on('click', '#edit-inv-btn', function(e) {
+  pid = $(this).attr('data-inv-id');   // get inv id
+
+  invFormType = 'edit';  // set var
+  goToUrl('../html/invoice_form.html');
+  return false;
+});
+
+// process menu btn
 $(document).on('click', '#inv-menu-btn', function(e) {
   myPixiPage = 'sent';  // set var
   return false;
 });
 
-// process active btn
+// process menu btn
 $(document).on('click', '#pixis-menu-btn', function(e) {
   myPixiPage = 'active';  // set var
+  return false;
+});
+
+// process menu btn
+$(document).on('click', '#signout-menu-btn', function(e) {
+  var curToken = window.localStorage["token"];
+  var logoutUrl = url + '/api/v1/sessions/' + curToken + '.json';
+
+  // check if app exit
+  navigator.notification.confirm('Exit Pixiboard?', onExitConfirm, 'Exit', 'No, Yes');
+
+  // process request
+  deleteData(logoutUrl);
   return false;
 });
 
@@ -296,7 +365,7 @@ $(document).on('click', '#active-btn, #draft-btn, #sold-btn, #sent-inv-btn, #rec
   return false;
 });
 
-// confirm cancellation
+// submit new pixi to board
 $(document).on('click', '#submit-pixi-btn', function(e) {
   var sType = $('#px-status').attr('data-status-type');
 
@@ -323,6 +392,13 @@ $(document).on('click', '#remove-pixi-btn', function(e) {
   e.preventDefault();
   navigator.notification.confirm('Are you sure? Your data will be removed!', onRemoveConfirm, 'Cancel', 'No, Yes');
 });
+
+// process confirmation
+function onExitConfirm(button) {
+  if (button == 2) {
+    navigator.app.exitApp();
+  }
+}
 
 // process confirmation
 function onConfirm(button) {
@@ -429,8 +505,6 @@ function processPixiData(res) {
 
 // submit login form
 $(document).on("submit", "#loginForm", function(e) {
-  console.log('submit loginForm');
-
   handleLogin(); // process login
   return false;
 });
@@ -514,32 +588,49 @@ $(document).on('click', "#add-pixi-link", function (e) {
 });
 
 // add autocomplete for location fields
-$(document).on('keyup', '#site_name', function (e, ui) {
-  var nxtID = $(this).next();
-  var text = $(this).val();
-  var searchUrl = url + "/loc_name.json" + token;
+$(document).on('keyup', '#site_name, #buyer_name', function (e, ui) {
+  var $this = $(this);
+  if ($.mobile.activePage.attr("id") == 'formapp') {
+    var searchUrl = url + "/loc_name.json" + token;
+  }
+  else {
+    var searchUrl = url + "/buyer_name.json" + token;
+  }
+  processAutocomplete(searchUrl, $this);
+}); 
+
+// process autocomplete logic
+function processAutocomplete(url, $this) {
+  var nxtID = $this.next();
+  var text = $this.val();
   var $sugList = $(".suggestions");
 
   if(text.length < 3) {
     $sugList.html('');
   }
   else {
-    loadData(searchUrl, 'autocomplete', {search:text});
+    loadData(url, 'autocomplete', {search:text});
   }
-}); 
+}
 
 // process click on autocomplete site name 
 $(document).on('click', ".ac-item", function(e) {
   e.preventDefault();
 
-  var sid = $(this).attr("data-site-id");
+  var sid = $(this).attr("data-res-id");
   var sname = $(this).html();
   console.log('sid = ' + sid);
   console.log('sname = ' + sname);
 
   // set fld values
-  $('#site_id').val(sid);
-  $('#site_name').val(sname);
+  if ($.mobile.activePage.attr("id") == 'formapp') {
+    $('#site_id').val(sid);
+    $('#site_name').val(sname);
+  }
+  else {
+    $('#buyer_id').val(sid);
+    $('#buyer_name').val(sname);
+  }
   $('.suggestions').html('');  // clear list
 });
 
@@ -589,22 +680,28 @@ $(document).on("click", ".sl-menu", function(e) {
   e.preventDefault();
 
   href = $(this).attr("href");
-  if ( href !== undefined && href != '' ) {
-    goToUrl(href, false);
+  if ( href !== undefined && href !== '' ) {
+    // check for invoice form page
+    if ($.mobile.activePage.attr("id") == 'inv-form' && $(this).attr("id") == 'bill-menu-btn') {
+      setInvForm(); 
+    } 
+    else {
+      goToUrl(href, false);
+    }
   }
 });
 
 var menu = [
   { title: 'Home', href: homePage, icon: '../img/home_button_blue.png', id: 'home-menu-btn' },
-  { title: 'Send Bill', href: '../html/invoice.html', icon: '../img/162-receipt.png', id: 'bill-menu-btn' },
-  { title: 'PixiPay', href: '../html/payment.html', icon: '../img/rsz_money-bag-hi_blue-icon.png', id: 'pay-menu-btn' },
+  { title: 'Send Bill', href: '../html/invoice_form.html', icon: '../img/162-receipt.png', id: 'bill-menu-btn' },
+  { title: 'Pay Bill', href: '../html/payment.html', icon: '../img/rsz_money-bag-hi_blue-icon.png', id: 'pay-menu-btn' },
   { title: 'MY STUFF', href: '#', icon: '', id: 'menu-divider' },
   { title: 'My Pixis', href: '../html/pixis.html', icon: '../img/pixi_wings_blue.png', id: 'pixis-menu-btn' },
   { title: 'My Posts', href: '../html/posts.html', icon: '../img/09-chat-2.png', id: 'posts-menu-btn' },
   { title: 'My Invoices', href: '../html/invoices.html', icon: '../img/bill.png', id: 'inv-menu-btn' },
   { title: 'My Accounts', href: '../html/accounts.html', icon: '../img/190-bank.png', id: 'acct-menu-btn' },
   { title: 'Settings', href: '../html/user_form.html', icon: '../img/19-gear.png', id: 'settings-menu-btn' },
-  { title: 'Sign out', href: '../html/signout.html', icon: '../img/logout.png', id: 'signout-menu-btn' },
+  { title: 'Sign out', href: '../index.html', icon: '../img/logout.png', id: 'signout-menu-btn' },
 ];
 
 // show menu
@@ -623,8 +720,8 @@ $(document).on("pageshow", function(event) {
 
     // if user exists then toggle invoice-related items based on counts
     if(usr !== undefined) { 
-      if(usr.pixi_count < 1 && menu[i].id == 'bill-menu-btn') {
-        console.log('usr has no pixis');
+      if(usr.active_listings.length < 1 && menu[i].id == 'bill-menu-btn') {
+        console.log('usr has no active pixis');
         continue;
       }
 
@@ -674,4 +771,15 @@ function pixPopup(fld) {
 
   $(fld).append(pop_str).trigger('create');
   $(fld).popup({ history: false });  // clear popup history to prevent app exit
+}
+
+function curDate() {
+  var d = new Date();
+  var month = d.getMonth()+1;
+  var day = d.getDate();
+
+  var output = ((''+month).length<2 ? '0' : '') + month + '/' +
+        ((''+day).length<2 ? '0' : '') + day + '/' + d.getFullYear(); 
+
+  return output;
 }

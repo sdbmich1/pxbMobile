@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    </head>
+    <body>
+      <div id="inv-form" data-role="page" data-cache="never" data-theme='a' class='home-pg'>
+        <div data-role="panel" id="navpanel" data-theme="d" data-display="overlay" data-position="left">
+          <div data-role="controlgroup" data-corners="false">
+    	    <ul data-role='listview' data-icon="false" data-theme='e' class='mainMenu'></ul>
+          </div>
+        </div>    
+        <div data-role="header" data-theme="d">
+          <div class='pg-title center-wrapper' id='inv-pg-title'></div>
+	  <a href="#navpanel" id='list' data-theme="app-bar"><img src='../img/rsz_list-view_blue.png'></a>
+	  <a href='#' data-theme="app-loc" id='add-pixi-link'><img src='../img/rsz_camera-icon_blue.png'></a>
+	</div>  
+        <div class="app-content" data-role="content" data-theme='a' class='listpg'>
+          <div id="mleft15">
+	    <div id="form_errors" style="display:none" class="error"></div>
+	    <div id="inv-frm"></div>
+	      <table><tr>
+	      <td class='cal-size'><a href='#' id='px-cancel' data-role='button' data-inline='true' />Cancel</a></td>
+	      <td class='nav-right'>
+	        <input type="submit" value="Save" data-theme="d" data-inline="true" id="add-pixi-btn">
+	      </td></tr>
+	      </table>
+          </div>
+        </div>
+      </div>
+    </body>
+</html>
+
