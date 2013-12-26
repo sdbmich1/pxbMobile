@@ -6,5 +6,5 @@
 *~
 
 # Ignore platform specific files
-/platforms/android/bin
+platforms
 

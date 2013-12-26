@@ -307,7 +307,7 @@ li.plist { line-height: 14px!important; }
 
 .pstr { font-size: 1.05em; font-weight: bold; color: #026FB7; }
 .title-str { font-size: 1.25em; font-weight: bold; color: #026FB7; }
-.total-str { font-size: 1.75em; font-weight: bold; color: #026FB7; }
+.total-str { font-size: 1.75em; font-weight: bold; color: #026FB7; line-height: 24px;}
 
 .input-append { width: 100%!important; }
 

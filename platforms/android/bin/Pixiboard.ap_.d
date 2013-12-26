@@ -43,6 +43,7 @@ c:\RoRDev\pxbMobile\platforms\android\assets\www\css\images\icons-36-black.png \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\css\images\icons-36-white.png \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\css\themes\default \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\css\themes\default\jquery.mobile.theme-1.3.2.min.css \
+c:\RoRDev\pxbMobile\platforms\android\assets\www\html\accounts.html \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\html\advanced_search.html \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\html\camera.html \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\html\comments.html \
@@ -58,6 +59,7 @@ c:\RoRDev\pxbMobile\platforms\android\assets\www\html\pixis.html \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\html\posts.html \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\html\show_listing.html \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\html\signup.html \
+c:\RoRDev\pxbMobile\platforms\android\assets\www\html\transaction.html \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\html\user_form.html \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\img\09-chat-2.png \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\img\162-receipt.png \
@@ -82,8 +84,11 @@ c:\RoRDev\pxbMobile\platforms\android\assets\www\img\rsz_list-view_blue.png \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\img\rsz_money-bag-hi_blue-icon.png \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\img\rsz_photo-camera.png \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\img\rsz_photoalbum.png \
+c:\RoRDev\pxbMobile\platforms\android\assets\www\img\rsz_pixipay.png \
+c:\RoRDev\pxbMobile\platforms\android\assets\www\img\rsz_pixipay_wings_blue.png \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\img\rsz_px_word_logo.png \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\img\rsz_search_icon1_blue.png \
+c:\RoRDev\pxbMobile\platforms\android\assets\www\img\sm_pixipay.png \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\img\sm_px_word_logo.png \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\js\application.mobile.js \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\js\camera.js \

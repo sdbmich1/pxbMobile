@@ -65,8 +65,22 @@ $(document).on('pageinit', '#profile-page', function() {
   pixPopup("#popupPix1");  // load popup page
 });
 
+// load invoice form page
 $(document).on('pageinit', '#inv-form', function() {
   setInvForm();
+});
+
+// load bank account form page
+$(document).on('pageinit', '#acct-form', function() {
+  if (usr.bank_accounts.length < 1) {
+    var data;
+    loadBankAcct(data, true);
+  }
+  else {
+    var acct_id = usr.bank_accounts[0].id;
+    var invUrl = url + '/bank_accounts/' + acct_id + '.json' + token;
+    loadData(invUrl, 'bank');
+  }
 });
 
 // set invoice form
@@ -85,9 +99,6 @@ function setInvForm() {
       break;
     case 'inv':
       loadInvForm(data, true);
-      break;
-    case 'bank':
-      //loadBankAcct(data, true);
       break;
     default:
       break;
@@ -114,12 +125,9 @@ $(document).on('pageinit', '#formapp', function() {
 
 // build image string to display pix 
 function getPixiPic(pic, style, fld) {
-
-  // set fld id
-  fld = fld || '';
-
   var img_str = '<img style="' + style + '" src="' + url + pic + '"';
-  
+
+  fld = fld || '';  // set fld id
   if(fld.length > 0) {
     img_str += ' id="' + fld + '">'; }
   else {
@@ -277,6 +285,12 @@ $(document).on('click', '#edit-inv-btn', function(e) {
   return false;
 });
 
+// process pay btn
+$(document).on('click', '#pay-btn', function(e) {
+  goToUrl('../html/transaction.html');
+  return false;
+});
+
 // process menu btn
 $(document).on('click', '#inv-menu-btn', function(e) {
   myPixiPage = 'sent';  // set var
@@ -390,6 +404,16 @@ $(document).on('click', '#cancel-pixi-btn, #px-cancel', function(e) {
 // confirm removal
 $(document).on('click', '#remove-pixi-btn', function(e) {
   e.preventDefault();
+  navigator.notification.confirm('Are you sure? Your data will be removed!', onRemoveConfirm, 'Cancel', 'No, Yes');
+});
+
+// confirm removal
+$(document).on('click', '#rm-acct-btn', function(e) {
+  e.preventDefault();
+  acct_id = $(this).attr("data-acct-id");
+
+  // set url 
+  deleteUrl = url + '/bank_accounts/' + acct_id + '.json' + token;
   navigator.notification.confirm('Are you sure? Your data will be removed!', onRemoveConfirm, 'Cancel', 'No, Yes');
 });
 
@@ -658,6 +682,14 @@ $(document).on('click', ".inv-item", function(e) {
   }
 });
 
+// set data for txn form page
+$(document).on("pageinit", "#txn-form", function(event) {
+  var invUrl = url + '/invoices/' + pid + '.json' + token;
+  
+  // load inv data
+  loadData(invUrl, 'txn'); 
+});
+
 // parameter for show listing page
 $(document).on("pageinit", "#show_listing, #comment-page", function(event) {
   var pixiUrl = pxPath + pid + '.json' + token;
@@ -668,12 +700,16 @@ $(document).on("pageinit", "#show_listing, #comment-page", function(event) {
 
 // parameter for show listing page
 $(document).on("pageinit", "#show-invoice", function(event) {
-  var invUrl = url + '/invoices/' + pid + '.json' + token;
   $('#popupInfo').popup({ history: false });  // clear popup history to prevent app exit
+  getInvoice();
+});
+
+function getInvoice() {
+  var invUrl = url + '/invoices/' + pid + '.json' + token;
   
   // load inv data
   loadData(invUrl, 'invpg'); 
-});
+}
 
 // process menu click
 $(document).on("click", ".sl-menu", function(e) {
@@ -681,20 +717,26 @@ $(document).on("click", ".sl-menu", function(e) {
 
   href = $(this).attr("href");
   if ( href !== undefined && href !== '' ) {
+
     // check for invoice form page
     if ($.mobile.activePage.attr("id") == 'inv-form' && $(this).attr("id") == 'bill-menu-btn') {
       setInvForm(); 
     } 
-    else {
-      goToUrl(href, false);
+
+    if ($(this).attr("id") == 'pay-menu-btn') {
+      pid = usr.unpaid_received_invoices[0].id;
+      console.log('sl menu pid = ' + pid);
     }
+
+    // open page
+    goToUrl(href, false);
   }
 });
 
 var menu = [
   { title: 'Home', href: homePage, icon: '../img/home_button_blue.png', id: 'home-menu-btn' },
   { title: 'Send Bill', href: '../html/invoice_form.html', icon: '../img/162-receipt.png', id: 'bill-menu-btn' },
-  { title: 'Pay Bill', href: '../html/payment.html', icon: '../img/rsz_money-bag-hi_blue-icon.png', id: 'pay-menu-btn' },
+  { title: 'Pay Bill', href: '../html/invoice.html', icon: '../img/rsz_money-bag-hi_blue-icon.png', id: 'pay-menu-btn' },
   { title: 'MY STUFF', href: '#', icon: '', id: 'menu-divider' },
   { title: 'My Pixis', href: '../html/pixis.html', icon: '../img/pixi_wings_blue.png', id: 'pixis-menu-btn' },
   { title: 'My Posts', href: '../html/posts.html', icon: '../img/09-chat-2.png', id: 'posts-menu-btn' },
@@ -720,9 +762,15 @@ $(document).on("pageshow", function(event) {
 
     // if user exists then toggle invoice-related items based on counts
     if(usr !== undefined) { 
-      if(usr.active_listings.length < 1 && menu[i].id == 'bill-menu-btn') {
-        console.log('usr has no active pixis');
-        continue;
+      if(menu[i].id == 'bill-menu-btn') {
+        if (usr.active_listings.length < 1) {
+          console.log('usr has no active pixis');
+          continue;
+	}
+
+        if (usr.bank_accounts.length < 1) {
+	  menu[i].href = '../html/accounts.html';
+	}
       }
 
       if(usr.unpaid_invoice_count < 1 && menu[i].id == 'pay-menu-btn') {

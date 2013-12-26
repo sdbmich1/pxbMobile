@@ -50,6 +50,9 @@ function loadData(listUrl, dType, params) {
       case 'invpg':
         loadInvPage(data, dFlg); 
 	break;
+      case 'bank':
+        loadBankPage(data, dFlg); 
+	break;
       case 'user':
         loadUserPage(data, dFlg); 
 	break;
@@ -58,6 +61,9 @@ function loadData(listUrl, dType, params) {
 	break;
       case 'price':
         setPrice(data, dFlg);
+	break;
+      case 'txn':
+        loadTxnForm(data, dFlg, 'invoice'); 
 	break;
       default:
 	break;
@@ -349,7 +355,7 @@ function loadUserPage(data, resFlg) {
     }
 
     var arr = data.birth_date.split('-');
-    var user_str = "<table><tr><td>" + getPixiPic(data.photo, 'height:80px; width:80px;', 'smallImage') 
+    var user_str = "<table><tr><td>" + getPixiPic(data.photo, 'height:60px; width:60px;', 'smallImage') 
       + "</td><td><span class='mleft10 pstr'>" + data.name + "</span><br />"
       + "<a href='#popupPix1' class='mleft10 upload-btn' data-mini='true' data-role='button' data-inline='true' data-theme='b'"
       + "data-rel='popup' data-position-to='window' data-transition='pop'>Upload</a>"
@@ -372,32 +378,44 @@ function loadUserPage(data, resFlg) {
   }
 }
 
+// set address
+function showAddress(data, resFlg) {
+  var addr, city, state, zip, hphone, mphone;
+
+  if (data !== undefined) {
+    addr = data.contacts[0].address || '';
+    city = data.contacts[0].city || '';
+    state = data.contacts[0].state || '';
+    zip = data.contacts[0].zip || '';
+    hphone = data.contacts[0].home_phone || '';
+    mphone = data.contacts[0].mobile_phone || '';
+  }
+
+  var addr_str = "<tr><td><label>Address*</label><input type='text' name='address' id='address' value='"
+    + addr + "' placeholder='Street' data-theme='a' class='profile-txt' /></td>"
+    + "<td></td><td><label>City*</label><input type='text' name='city' id='city' value='"
+    + city + "' placeholder='City' data-theme='a' class='profile-txt' /></td></tr>"
+    + "<tr><td><label>State/Province*</label><select name='state' id='state' data-mini='true'></select>"
+    + "</td><td></td><td><label>Zip* </label><input type='text' name='zip' id='zip' value='"
+    + zip + "' placeholder='Zip' data-theme='a' class='profile-txt' /></td></tr>"
+    + "<tr><td><label>Home Phone </label><input type='text' name='home_phone' id='home_phone' value='"
+    + hphone + "' placeholder='Home Phone' data-theme='a' class='profile-txt' /></td>"
+    + "<td></td><td><label>Mobile Phone </label><input type='text' name='mobile_phone' id='mobile_phone' value='"
+    + mphone + "' placeholder='Mobile Phone' data-theme='a' class='profile-txt' /></td></tr>";
+
+  return addr_str;
+}
+
 // process user contact page display
 function loadContactPage(data, resFlg) {
-  var addr, city, state, zip, hphone, mphone;
+  var state;
 
   if (resFlg) {
     if (data !== undefined) {
-      addr = data.contacts[0].address || '';
-      city = data.contacts[0].city || '';
       state = data.contacts[0].state || '';
-      zip = data.contacts[0].zip || '';
-      hphone = data.contacts[0].home_phone || '';
-      mphone = data.contacts[0].mobile_phone || '';
     }
 
-    var user_str = "<table class='inv-descr'><tr><td><label>Address*</label><input type='text' name='address' id='address' value='"
-      + addr + "' placeholder='Street' data-theme='a' class='profile-txt' /></td>"
-      + "<td></td><td><label>City*</label><input type='text' name='city' id='city' value='"
-      + city + "' placeholder='City' data-theme='a' class='profile-txt' /></td></tr>"
-      + "<tr><td><label>State/Province*</label><select name='state' id='state' data-mini='true'></select>"
-      + "</td><td></td><td><label>Zip* </label><input type='text' name='zip' id='zip' value='"
-      + zip + "' placeholder='Zip' data-theme='a' class='profile-txt' /></td></tr>"
-      + "<tr><td><label>Home Phone </label><input type='text' name='home_phone' id='home_phone' value='"
-      + hphone + "' placeholder='Home Phone' data-theme='a' class='profile-txt' /></td>"
-      + "<td></td><td><label>Mobile Phone </label><input type='text' name='mobile_phone' id='mobile_phone' value='"
-      + mphone + "' placeholder='Mobile Phone' data-theme='a' class='profile-txt' /></td></tr></table>"
-      + "<div class='sm-top center-wrapper'>"      
+    var user_str = "<table class='inv-descr'>" + showAddress(data, resFlg) + "</table><div class='sm-top center-wrapper'>" 
       + '<input type="submit" value="Save" data-theme="d" data-inline="true" id="edit-usr-btn"></div>';
 
     $('#usr-prof').append(user_str).trigger('create');
@@ -414,6 +432,8 @@ function loadContactPage(data, resFlg) {
 function loadInvForm(data, resFlg) {
   var dt = curDate();
   var title_str, pixi_id = '', qty=1, prc = '', buyer='', subtotal='', sales_tax='', tax_total='', amount='', comment='';
+
+  uiLoading(true);
 
   if (resFlg) {
     if (data !== undefined) {
@@ -437,7 +457,7 @@ function loadInvForm(data, resFlg) {
     $('#inv-pg-title').html(title_str);
     $('#inv-frm').html('');
 
-    var inv_str = "<form id='invoice-doc' data-ajax='false'><div class='mleft15'><table class='inv-descr'><tr><td>Date:</td><td>" + dt + "</td></tr>"
+    var inv_str = "<form id='invoice-doc' data-ajax='false'><div class='mleft10'><table class='inv-descr'><tr><td>Date:</td><td>" + dt + "</td></tr>"
       + "<tr><td>Bill To:</td><td><div data-role='fieldcontain' class='sm-top ui-hide-label'>"
       + "<input type='text' name='buyer_name' id='buyer_name' class='' placeholder='Buyer Name' data-theme='a' value='" + buyer + "' /></div>"
       + "<ul class='suggestions' data-role='listview' data-inset='true' data-icon='false'></ul></td></tr>"
@@ -474,6 +494,7 @@ function loadInvForm(data, resFlg) {
     console.log('Invoice page load failed');
     PGproxy.navigator.notification.alert("Page load failed", function() {}, 'View Invoice', 'Done');
   }
+  uiLoading(false);
 }
 
 // process invoice page display
@@ -485,7 +506,7 @@ function loadInvPage(data, resFlg) {
     $('#inv-pg-title').append(title_str);
 
     // load inv header
-    var inv_str = "<div class='mleft15'><table class='inv-descr'><tr><td>Date: </td><td>" + data.invoice.inv_dt + "</td></tr><tr>"; 
+    var inv_str = "<div class='mleft10'><table class='inv-descr'><tr><td>Date: </td><td>" + data.invoice.inv_dt + "</td></tr><tr>"; 
 
     // display correct photo based on whether user is buyer or seller
     if(data.invoice.seller_id == usr.id) {
@@ -573,8 +594,7 @@ function loadInvList(data, resFlg) {
 
         item_str += "<li class='plist'>"
 	  + '<a href="#" ' + localUrl + ' class="pending_title inv-item" data-ajax="false">'  
-	  + getPixiPic(item.listing.photo_url, 'height:60px; width:60px;')
-	  + '<div class="pstr"><h6>' + item.short_title 
+	  + getPixiPic(item.listing.photo_url, 'height:60px; width:60px;') + '<div class="pstr"><h6>' + item.short_title 
 	  + '<span class="nav-right">$' + amt + '</span></h6></div>'
 	  + '<p>Invoice #' + item.id + ' - ' + inv_name + '<br />' + item.inv_dt + ' | ' + item.nice_status + '</p></a></li>';
       });
@@ -728,6 +748,12 @@ function loadGender(fld, val) {
   setSelectMenu(fld, gen_str, val);  // set option menu
 }
 
+// load acct type dropdown
+function loadAcctType(fld, val) {
+  var gen_str = '<option value="">Acct Type</option><option value="checking">Checking</option><option value="savings">Savings</option>';
+  setSelectMenu(fld, gen_str, val);  // set option menu
+}
+
 // set state
 function setState(fld, val) {
   var pixiUrl = url + '/states.json' + token;
@@ -785,5 +811,178 @@ function setPrice(data, resFlg) {
   else {
     console.log('Item price load failed');
     PGproxy.navigator.notification.alert("Item price load failed", function() {}, 'Invoice', 'Done');
+  }
+}
+
+// process bank account page
+function loadBankPage(data, resFlg) {
+  var title_str='';
+
+  // turn on spinner
+  uiLoading(true);
+
+  if (resFlg) {
+    if (data !== undefined) {
+      title_str = "<span>View Bank Account</span>"; 
+
+      // load title
+      $('#inv-pg-title').html(title_str);
+      $('#acct-frm').html('');
+
+      var inv_str = "<div id='data_error' style='display:none' class='error'></div>"
+        + "<div class='mleft10'><div class='sm-top'><table class='inv-descr'>"
+	+ "<tr><td>Bank Name: </td><td class='width30'></td><td>" + data.account.bank_name + "</td></tr>"
+	+ "<tr><td>Account #: </td><td class='width30'></td><td>" + data.account.acct_no + "</td></tr>"
+	+ "<tr><td>Account Name: </td><td class='width30'></td><td>" + data.account.acct_name + "</td></tr>"
+	+ "<tr><td>Description: </td><td class='width30'></td><td>" + data.account.description + "</td></tr>"
+	+ "<tr><td>Account Type: </td><td class='width30'></td><td>" + data.account.acct_type + "</td></tr></table></div>"
+	+ "<div class='mtop center-wrapper'><a href='#' id='rm-acct-btn' data-role='button' data-inline='true' data-acct-id='" 
+	+ data.account.id + "'>Remove</a></div></div>";
+
+      // build page
+      $('#acct-frm').append(inv_str).trigger('create');
+    }
+    else {
+      PGproxy.navigator.notification.alert("Bank account data not found.", function() {}, 'Bank Account', 'Done');
+    }
+  }
+  else {
+    console.log('Bank account page failed');
+    PGproxy.navigator.notification.alert("Page load failed", function() {}, 'Bank Account', 'Done');
+  }
+
+  // turn off spinner
+  uiLoading(false);
+}
+
+// process bank account form
+function loadBankAcct(data, resFlg) {
+  var title_str='', routing_no='', acct_no='', acct_name='', descr='', atype = '';
+
+  // turn on spinner
+  uiLoading(true);
+
+  if (resFlg) {
+    if (data !== undefined) {
+      title_str = "<span>Edit Bank Account</span>"; 
+    }
+    else {
+      title_str = "<span>Create Bank Account</span>"; 
+    }
+
+    // load title
+    $('#inv-pg-title').html(title_str);
+    $('#acct-frm').html('');
+
+    var inv_str = "<div id='data_error' style='display:none' class='error'></div>"
+      + "<div class='mleft10'><form id='bank-acct-form' data-ajax='false'><div class='sm-top'><table class='inv-descr'>"
+      + "<tr><td>Routing #</td><td><div data-role='fieldcontain' class='sm-top ui-hide-label'>"
+      + "<input type='text' name='routing_number' id='routing_number' placeholder='Routing Number' data-theme='a' value='" 
+      + routing_no + "' /></div></td></tr>"
+      + "<tr><td>Account #</td><td><div data-role='fieldcontain' class='sm-top ui-hide-label'>"
+      + "<input type='text' name='acct_number' id='acct_number' placeholder='Account Number' data-theme='a' value='" 
+      + acct_no + "' /></div></td></tr>"
+      + "<tr><td>Account Name</td><td><div data-role='fieldcontain' class='sm-top ui-hide-label'>"
+      + "<input type='text' name='acct_name' id='acct_name' placeholder='Account Name' data-theme='a' value='" 
+      + acct_name + "' /></div></td></tr>"
+      + "<tr><td>Description</td><td><div data-role='fieldcontain' class='sm-top ui-hide-label'>"
+      + "<input type='text' name='description' id='description' placeholder='Description' data-theme='a' value='" 
+      + descr + "' /></div></td></tr>"
+      + "<tr><td class='img-valign'>Account Type</td><td><select name='acct_type' id='acct_type' class='mtop'></select></td></tr></table>" 
+      + "<input type='hidden' name='user_id' id='user_id' value='" + usr.id + "' /><input type='hidden' name='token' id='pay_token' />" 
+      + "<input type='hidden' name='acct_no' id='acct_no' /></div></form>"
+      + "<div class='center-wrapper'><img src='../img/rsz_check_sample.gif'></div>"
+      + "<table><tr><td class='cal-size'><a href='#' id='px-cancel' data-role='button' data-inline='true' />Cancel</a></td></div>"
+      + "<td class='nav-right'><input type='submit' value='Save' data-theme='d' data-inline='true' id='add-acct-btn'></td></tr></table>";
+
+    // build page
+    $('#acct-frm').append(inv_str).trigger('create');
+
+    // load drop down lists
+    loadAcctType('#acct_type', atype);
+  }
+  else {
+    console.log('Load bank account failed.');
+    PGproxy.navigator.notification.alert("Bank account load failed", function() {}, 'Bank Account', 'Done');
+  }
+
+  // turn off spinner
+  uiLoading(false);
+}
+
+// load transaction form
+function loadTxnForm(data, resFlg, txnType, promoCode) {
+  var style = '', addr='', city='', state='', zip='', street='', total, alt_style;
+  var d = new Date();
+  var month = d.getMonth()+1;
+  var yr = d.getFullYear();
+
+  promoCode = promoCode || '';
+
+  if (resFlg) {
+    if (data !== undefined) {
+      var total = parseFloat(data.invoice.get_fee + data.invoice.amount).toFixed(2);
+      $('#txn-frm').html('');
+
+      // check for user address
+      if(usr.contacts.length > 0) {
+        addr = data.user.contacts[0];
+	street = addr.address;
+	city = addr.city;
+	state = addr.state;
+	zip = addr.zip;
+
+        if(addr.address !== undefined && addr.city !== undefined && addr.state !== undefined && addr.zip !== undefined) {
+	  alt_style = 'display:none';
+	  style = '';
+	} 
+	else {
+	  style = 'display:none';
+	  alt_style = '';
+	}
+      }
+
+      // build form string
+      var inv_str = "<div id='data_error' style='display:none' class='error'></div>"
+        + "<div class='mleft10'><form id='payment_form' data-ajax='false'>"
+        + "<div class='div-border'><table><tr><td class='cal-size title-str'>Total Due</td><td class='price title-str'>"
+	+ total + "</td></tr></table></div><div class='div-border'><table class='inv-descr addr-tbl' style='" + style + "'>"  
+	+ "<tr><td><strong>" + data.user.name + "</strong><br>" + street + "<br>" + city + ", " + state + " " + zip + "</td>"
+	+ "<td class='v-align price'><a href='#' id='edit-txn-addr' data-role='button' data-inline='true' data-mini='true' data-theme='b'>"
+	+ "Edit</a></td></tr></table><center><table class='inv-descr user-tbl' style='" + alt_style + "'>" 
+	+ "<tr><td><label>First Name* </label><input type='text' id='first_name' class='profile-txt' placeholder='First Name' "
+	+ "value='" + data.user.first_name + "' /></td><td></td>"
+	+ "<td><label>Last Name* </label><input type='text' id='last_name' class='profile-txt' placeholder='Last Name' value='" 
+	+ data.user.last_name + "' /></td></tr>" + showAddress(data.user, resFlg) + "</table></center>"
+	+ "<table class='mtop inv-descr'><tr><td class='cal-size'>Card #* <img src='../img/cc_logos.jpeg' class='cc-logo' />"
+        + "<input type='text' name=nil id='card_number' size=16 /></td></tr>"
+	+ "<tr><td><table><tr><td><div class='sm-top'>CVV*</div>"
+        + "<input type='text' name=nil id='card_code' maxlength=4 size=4 class='card-code' /></td>"
+	+ "<td></td><td><span class='neg-top'>Exp Mo</span><select name=nil id='card_month' data-mini='true'></select></td>"
+        + "<td><span class='neg-top'>Exp Yr</span><select name=nil id='card_year' data-mini='true'></select></td></tr></table></td></tr></table>"
+        + "<input type='hidden' name='token' id='pay_token' /><input type='hidden' id='user_id' value='" + usr.id + "' />"
+	+ "<input type='hidden' id='first_name' value='" + data.user.first_name + "' /><input type='hidden' id='last_name' value='" 
+	+ data.user.last_name + "' /><input type='hidden' id='email' value='" + data.user.email + "' />"
+	+ "<input type='hidden' id='transaction_type' value='" + txnType + "' /><input type='hidden' id='amt' value='" 
+	+ data.invoice.amount + "' /><input type='hidden' id='description' value='" + data.invoice.pixi_title + "' />"
+	+ "<input type='hidden' id='processing_fee' value='" + data.invoice.get_processing_fee + "' />"
+	+ "<input type='hidden' id='convenience_fee' value='" + data.invoice.convenience_fee + "' />"
+        + "<input type='hidden' id='promo_code' value='" + promoCode + "' />"
+        + "<table><tr><td class='cal-size'><a href='#' id='txn-prev-btn' data-role='button' data-inline='true' data-id='"
+	+ data.invoice.id + "'>Prev</a></td></div>"
+        + "<td class='nav-right'><input type='submit' value='Done!' data-theme='d' data-inline='true' id='payForm'></td></tr></table>"
+	+ "</form></div>"; 
+
+      // build page
+      $('#txn-frm').append(inv_str).trigger('create');
+      setState("#state", state);  // load state dropdown
+      setSelectMenu('#state', '', state);  // set option menu
+      loadYear("#card_year", -15, 0, yr+1); // load year fld
+      loadMonth("#card_month", month); // load month fld
+    }
+  }
+  else {
+    console.log('Load transaction failed');
+    PGproxy.navigator.notification.alert("Transaction load failed", function() {}, 'Transaction', 'Done');
   }
 }
