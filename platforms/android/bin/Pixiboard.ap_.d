@@ -57,6 +57,7 @@ c:\RoRDev\pxbMobile\platforms\android\assets\www\html\new_temp_listing.html \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\html\panel.html \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\html\pixis.html \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\html\posts.html \
+c:\RoRDev\pxbMobile\platforms\android\assets\www\html\register.html \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\html\show_listing.html \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\html\signup.html \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\html\transaction.html \
@@ -73,6 +74,7 @@ c:\RoRDev\pxbMobile\platforms\android\assets\www\img\home_button_blue.png \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\img\icon_facebook.png \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\img\logo.png \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\img\logout.png \
+c:\RoRDev\pxbMobile\platforms\android\assets\www\img\person_icon.jpg \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\img\pixi_wings_blue.png \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\img\rsz_blue-white-globe.png \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\img\rsz_camera-icon_blue.png \

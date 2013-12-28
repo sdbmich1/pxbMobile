@@ -417,6 +417,12 @@ $(document).on('click', '#rm-acct-btn', function(e) {
   navigator.notification.confirm('Are you sure? Your data will be removed!', onRemoveConfirm, 'Cancel', 'No, Yes');
 });
 
+// go back to login page
+$(document).on('click', '#login-btn', function(e) {
+  e.preventDefault();
+  goToUrl('../index.html');  // go to main board
+});
+
 // process confirmation
 function onExitConfirm(button) {
   if (button == 2) {
@@ -698,12 +704,31 @@ $(document).on("pageinit", "#show_listing, #comment-page", function(event) {
   loadData(pixiUrl, 'pixi'); 
 });
 
+// parameter for signup page
+$(document).on("pageinit", "#signup", function(event) {
+  var data;
+  loadUserPage(data, true);
+  pixPopup("#popupPix2");  // load popup page
+});
+
 // parameter for show listing page
 $(document).on("pageinit", "#show-invoice", function(event) {
   $('#popupInfo').popup({ history: false });  // clear popup history to prevent app exit
   getInvoice();
 });
 
+// process register click
+$(document).on("click", "#register-btn", function(e) {
+  console.log('register btn');
+  e.stopImmediatePropagation();
+  e.preventDefault();
+
+  // open page
+  goToUrl('./html/register.html');
+  return false;
+});
+
+// get invoice data
 function getInvoice() {
   var invUrl = url + '/invoices/' + pid + '.json' + token;
   
@@ -736,7 +761,7 @@ $(document).on("click", ".sl-menu", function(e) {
 var menu = [
   { title: 'Home', href: homePage, icon: '../img/home_button_blue.png', id: 'home-menu-btn' },
   { title: 'Send Bill', href: '../html/invoice_form.html', icon: '../img/162-receipt.png', id: 'bill-menu-btn' },
-  { title: 'Pay Bill', href: '../html/invoice.html', icon: '../img/rsz_money-bag-hi_blue-icon.png', id: 'pay-menu-btn' },
+  { title: 'Pay Bill', href: '../html/invoice.html', icon: '../img/rsz_pixipay_wings_blue.png', id: 'pay-menu-btn' },
   { title: 'MY STUFF', href: '#', icon: '', id: 'menu-divider' },
   { title: 'My Pixis', href: '../html/pixis.html', icon: '../img/pixi_wings_blue.png', id: 'pixis-menu-btn' },
   { title: 'My Posts', href: '../html/posts.html', icon: '../img/09-chat-2.png', id: 'posts-menu-btn' },

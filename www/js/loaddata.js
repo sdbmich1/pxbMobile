@@ -313,13 +313,13 @@ function showNameEmail(data, showFlg) {
     email = data.email || '';
   }
 
-  var name_str = "<tr><td>First Name* </td><td><input type='text' name='first_name' id='first_name' value='"
-    + fname + "' placeholder='First Name' data-theme='a' class='profile-txt' /></td></tr>"
-    + "<tr><td>Last Name* </td><td><input type='text' name='last_name' id='last_name' value='" + lname 
-    + "' placeholder='Last Name' class='profile-txt' data-theme='a' /></td></tr>" ;
+  var name_str = "<tr><td><level>First Name* </level></td><td><input type='text' name='first_name' id='first_name' value='"
+    + fname + "' placeholder='First Name' data-theme='a' class='profile-txt cal-size' /></td></tr>"
+    + "<tr><td><level>Last Name* </level></td><td><input type='text' name='last_name' id='last_name' value='" + lname 
+    + "' placeholder='Last Name' class='profile-txt cal-size' data-theme='a' /></td></tr>" ;
   
   if(showFlg) {
-    name_str += "<tr><td>Email* </td><td><input type='text' name='email' id='email' class='profile-txt' value='" 
+    name_str += "<tr><td><level>Email* </level></td><td><input type='text' name='email' id='email' class='profile-txt cal-size' value='" 
       + email + "' placeholder='Email' data-theme='a' /></td></tr>";
   }
 
@@ -328,8 +328,8 @@ function showNameEmail(data, showFlg) {
 
 // load user profile if needed
 function showProfile(data) {
-  var prof_str = "<tr><td>Gender</td><td><select name='gender' id='gender' data-mini='true'></select></td></tr>"
-    + "<tr><td>Birth Date</td><td><div data-role='fieldcontain'><fieldset data-role='controlgroup' data-type='horizontal'>"
+  var prof_str = "<tr><td><level>Gender</level></td><td><select name='gender' id='gender' data-mini='true'></select></td></tr>"
+    + "<tr><td><level>Birth Date</level></td><td><div data-role='fieldcontain'><fieldset data-role='controlgroup' data-type='horizontal'>"
     + '<table><tr><td><select name="birth_mo" id="birth_mo" data-mini="true"></select></td>'
     + '<td><select name="birth_dt" id="birth_dt" data-mini="true"></select></td>'
     + '<td><select name="birth_yr" id="birth_yr" data-mini="true"></select><td></tr></table>'
@@ -340,37 +340,59 @@ function showProfile(data) {
 
 // process user page display
 function loadUserPage(data, resFlg) {
+  var name_str='', photo, gender='', month='', dt='', yr='', btn_name, pwd_str='', popName; 
   if (resFlg) {
+
     // set pixi header details
     $('#show-list-hdr').html('');
     var cstr = "<div class='show-pixi-bar' data-role='navbar'><ul>"
       + "<li><a href='#' id='profile-nav-btn' data-dtype='user' data-mini='true' class='ui-btn-active'>Profile</a></li>"
       + "<li><a href='#' id='contact-nav-btn' data-dtype='contact' data-mini='true'>Contact</a></li>";
-    
-    // update menu
-    if (data.fb_user == undefined) {
-      cstr += "<li><a href='#' id='prefs-nav-btn' data-dtype='prefs' data-mini='true'>Prefs</a></li></ul></div>";
-    } else {
+
+    if (data !== undefined) {
+      var dt_arr = data.birth_date.split('-');
+      dt = dt_arr[2]; month = dt_arr[1]; yr = dt_arr[0];
+      gender = data.gender;
+      photo = getPixiPic(data.photo, 'height:60px; width:60px;', 'smallImage'); 
+      name_str = "<span class='mleft10 pstr'>" + data.name + "</span><br />";
+      popName = '#popupPix1';
+      btn_name = 'Save';
+
+      // update menu
+      if (data.fb_user == undefined) {
+        cstr += "<li><a href='#' id='prefs-nav-btn' data-dtype='prefs' data-mini='true'>Prefs</a></li></ul></div>";
+      } else {
+        cstr += "</ul></div>";
+      }
+
+      // build nav bar
+      $('#show-list-hdr').append(cstr).trigger("create");
+    } 
+    else {
       cstr += "</ul></div>";
+      photo = "<img src='../img/person_icon.jpg' style='height:60px; width:60px;' id='smallImage' />";
+      btn_name = 'Register';
+      popName = '#popupPix2';
+      pwd_str = "<tr><td><label>Password</label></td><td class='cal-size'><input type='password' name='password' id='password' placeholder='Password'" 
+        + " class='profile-txt' data-theme='a' /></td></tr>"
+        + "<tr><td><label>Confirm Password</label></td><td class='cal-size'><input type='password' name='password_confirmation'"
+	+ " id='password_confirmation' class='profile-txt' placeholder='Re-enter Password' data-theme='a' /></td></tr>";
     }
 
-    var arr = data.birth_date.split('-');
-    var user_str = "<table><tr><td>" + getPixiPic(data.photo, 'height:60px; width:60px;', 'smallImage') 
-      + "</td><td><span class='mleft10 pstr'>" + data.name + "</span><br />"
-      + "<a href='#popupPix1' class='mleft10 upload-btn' data-mini='true' data-role='button' data-inline='true' data-theme='b'"
+    var user_str = "<table><tr><td>" + photo + "</td><td>" + name_str
+      + "<a href='" + popName + "' class='mleft10 upload-btn' data-mini='true' data-role='button' data-inline='true' data-theme='b'"
       + "data-rel='popup' data-position-to='window' data-transition='pop'>Upload</a>"
-      + "</td></tr></table><div id='edit-profile' class='sm-top'><table class='inv-descr'>"
-      + showNameEmail(data, true) + showProfile(data) + "</table><div class='sm-top center-wrapper'>"  
-      + '<input type="submit" value="Save" data-theme="d" data-inline="true" id="edit-usr-btn"></div></div>';
+      + "</td></tr></table><div id='edit-profile' class='sm-top'><table class='rpad10 inv-descr'>"
+      + showNameEmail(data, true) + showProfile(data) + pwd_str + "</table><div class='sm-top center-wrapper'>"  
+      + "<input type='submit' value='" + btn_name + "' data-theme='d' data-inline='true' id='edit-usr-btn'></div></div>";
 
     // build page
-    $('#show-list-hdr').append(cstr).trigger("create");
     $('#usr-prof').append(user_str).trigger('create');
 
-    loadGender("#gender", data.gender);  // load gender
-    loadYear("#birth_yr", 13, 90, arr[0]); // load year fld
-    loadMonth("#birth_mo", arr[1]); // load month fld
-    loadDays("#birth_dt", arr[1], arr[2]); // load month fld
+    loadGender("#gender", gender);  // load gender
+    loadYear("#birth_yr", 13, 90, yr); // load year fld
+    loadMonth("#birth_mo", month); // load month fld
+    loadDays("#birth_dt", month, dt); // load month fld
   }
   else {
     console.log('User page load failed');
@@ -727,10 +749,12 @@ function loadDays(fld, curMonth, curDt) {
   var dt_arr = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
   var dt_str = '<option default value="">' + 'Day' + '</option>';
 
+  curMonth = curMonth || 1;
+
   for (var j = 1; j <= dt_arr[curMonth-1]; j++) {
     dt_str += '<option value="'+ j + '">' + j + '</option>';
   }
-  setSelectMenu(fld, dt_str, curDt);  // set option menu
+  setSelectMenu(fld, dt_str, parseInt(curDt));  // set option menu
 }
 
 // set dropdown selection and refresh menu
@@ -945,7 +969,7 @@ function loadTxnForm(data, resFlg, txnType, promoCode) {
       // build form string
       var inv_str = "<div id='data_error' style='display:none' class='error'></div>"
         + "<div class='mleft10'><form id='payment_form' data-ajax='false'>"
-        + "<div class='div-border'><table><tr><td class='cal-size title-str'>Total Due</td><td class='price title-str'>"
+        + "<div class='div-border'><table><tr><td class='cal-size title-str'>Total Due</td><td class='price title-str'>$"
 	+ total + "</td></tr></table></div><div class='div-border'><table class='inv-descr addr-tbl' style='" + style + "'>"  
 	+ "<tr><td><strong>" + data.user.name + "</strong><br>" + street + "<br>" + city + ", " + state + " " + zip + "</td>"
 	+ "<td class='v-align price'><a href='#' id='edit-txn-addr' data-role='button' data-inline='true' data-mini='true' data-theme='b'>"
