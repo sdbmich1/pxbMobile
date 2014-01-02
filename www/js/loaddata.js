@@ -12,14 +12,22 @@ function loadData(listUrl, dType, params) {
   params = params || {};
 
   // get data from server
-  $.getJSON(listUrl, params, function(data) {
-    if (data == undefined) {
-      dFlg = false; }
-    else {
-      dFlg = true; }
+  $.ajax({
+    url: listUrl, 
+    type: "get",
+    dataType: "json",
+    data: params,
+    contentType: "application/json",
+    success: function(data, status, xhr) {
+      //console.log('loadData success: ' + data);
 
-    // load data based on display type
-    switch (dType) {
+      if (data == undefined) {
+        dFlg = false; }
+      else {
+        dFlg = true; }
+
+      // load data based on display type
+      switch (dType) {
       case 'board':
         loadBoard(data, dFlg); 
 	break;
@@ -34,6 +42,9 @@ function loadData(listUrl, dType, params) {
 	break;
       case 'pixi':
         loadPixiPage(data, dFlg);
+	break;
+      case 'edit':
+        editPixiPage(data, dFlg);
 	break;
       case 'post':
         loadPosts(data, dFlg);
@@ -67,11 +78,13 @@ function loadData(listUrl, dType, params) {
 	break;
       default:
 	break;
-    }
-  }).fail(function (a, b, c) {
-        PGproxy.navigator.notification.alert(b + '|' + c, function() {}, 'Load Data', 'Done');
+      }
+    },
+    fail: function (a, b) {
+        PGproxy.navigator.notification.alert(a + '|' + b, function() {}, 'Load Data', 'Done');
   	uiLoading(false);
-        console.log(b + '|' + c);
+        console.log(a + '|' + b);
+    }
   });
 }
 
@@ -92,7 +105,7 @@ function loadResults(res, dFlg) {
 function loadListPage(pgType, viewType) {
   switch(pgType){
   case 'draft':
-    var pixiUrl = tmpPath + 'unposted.json' + token;
+    var pixiUrl = tmpPath + '/unposted.json' + token;
     break;
   case 'sold':
     var pixiUrl = pxPath + 'sold.json' + token;
@@ -125,6 +138,32 @@ function loadListPage(pgType, viewType) {
   loadData(pixiUrl, viewType); 
 }
 
+// edit pixi page 
+function editPixiPage(data, resFlg) {
+  if (resFlg) {
+    if (data !== undefined) {
+      var pic = getPixiPic(data.listing.pictures[0].photo_url, 'height:80px; width:80px;', 'smallImage'); 
+      $('#picture').html(pic);
+      $('#title').val(data.listing.title);
+      $('#site_id').val(data.listing.site_id);
+      $('#site_name').val(data.listing.site_name);
+      $('#price').val(data.listing.price);
+      $('#salary').val(data.listing.compensation);
+      $('#description').val(data.listing.description);
+      $('#event_start_date').val(data.listing.event_start_date);
+      $('#event_start_time').val(data.listing.event_start_time);
+      $('#event_end_date').val(data.listing.event_end_date);
+      $('#event_end_time').val(data.listing.event_end_time);
+      setSelectMenu('#category_id', '', data.listing.category_id);  // set option menu
+      loadYear("#yr_built", 0, 90, data.listing.year_built); // load year fld
+    }
+  }
+  else {
+    console.log('Edit pixi page failed');
+    PGproxy.navigator.notification.alert("Page load failed", function() {}, 'Edit Pixi', 'Done');
+  }
+}
+
 // process pixi page display
 function loadPixiPage(data, resFlg) {
   if (resFlg) {
@@ -141,21 +180,51 @@ function loadPixiPage(data, resFlg) {
   }
 }
 
+// open pixi success page
+function showPixiSuccess(data) {
+  console.log('in pixi success page');
+  if (data !== undefined) {
+    var txt = "Your pixi <span class='pstr'>" + data.med_title + "</span> has been submitted.</div>"
+    var detail_str = "<div class='mtop inv-descr'>Subject to approval, your pixi will be posted within the next hour. Thank you for your business.</div>"
+      + "<div class='mtop center-wrapper'><a href='#' id='px-done-btn' data-mini='true' data-role='button' data-inline='true'"
+      + " data-theme='d'>Done</a></div>";
+        
+    var pg_title = 'Pixi Submitted!';
+    $('#px-page-title').html(pg_title);
+    $('#post_form').hide();  // hide post form
+
+    // load title
+    var tstr = "<h4 class='mbot'>" + txt + "</h4>";
+    $('#list_title').html(tstr);
+    $('#seller-name').html('');
+
+    $('#pixi-details').html(detail_str).trigger('create');
+    $('.bx-slider').toggle();
+    $('#edit-pixi-details').toggle();
+    $('#pixi-footer-details').toggle();
+  }
+  else {
+    console.log('pixi success page failed');
+    PGproxy.navigator.notification.alert("Page load failed", function() {}, 'Pixi Submitted', 'Done');
+  }
+}
+
 // open pixi page
 function showPixiPage(data) {
-  var px_str = '';
+  var px_str = '', cstr='';
 
   // check if pixi is in temp status - if not show navbar else hide post form 
   if(pxPath.indexOf("temp_listing") < 0) {
 
     // set pixi header details
-    var cstr = "<div class='show-pixi-bar' data-role='navbar'><ul>"
+    cstr = "<div class='show-pixi-bar' data-role='navbar'><ul>"
       + "<li><a href='#' id='show-pixi' data-theme='d' class='ui-btn-active' data-pixi-id='" + pid + "' data-mini='true'>Details</a></li>"
       + "<li><a href='#' id='show-cmt' data-theme='d' data-mini='true' data-pixi-id='" + pid + "'>Comments (" + data.comments.length 
       + ")</a></li></ul></div>";
-    $('#show-list-hdr').append(cstr).trigger("create");
   } 
   else {
+    var pg_title = 'Review Your Pixi';
+    $('#px-page-title').html(pg_title);
     $('#post_form').hide();  // hide post form
   }
 
@@ -169,7 +238,7 @@ function showPixiPage(data) {
   $('#seller-name').append(seller_str);
 
   // load post values
-  $('#user_id').val(data.user.id);
+  $('#user_id').val(usr.id);
   $('#seller_id').val(data.listing.seller_id);
   $('#pixi_id').val(data.listing.pixi_id);
 
@@ -182,7 +251,7 @@ function showPixiPage(data) {
   $('.bxslider').append(px_str).bxSlider({ controls: false, pager: false, mode: 'fade' });
 
   // load details
-  var detail_str = "<span class='mtop inv-descr'>DETAILS:</span><br /><div class='inv-descr'>" + data.listing.summary + "<br />";
+  var detail_str = "<span class='mtop inv-descr'>DETAILS:</span><br /><div class='profile-txt'>" + data.listing.summary + "<br />";
   if(data.listing.price !== undefined) {
     var prc = parseFloat(data.listing.price).toFixed(2);
     detail_str += "<div class='mtop'>Price: <span class='pstr'>$" + prc + "</span></div></div>";
@@ -204,15 +273,22 @@ function showPixiPage(data) {
   if(data.listing.seller_id == usr.id) {
     var stat_str = "<div class='px-status' data-status-type='" + data.listing.status + "'></div>";
     $('#edit-pixi-details').append(stat_str);
+
+    $('#post_form').hide();  // hide post form
+    //$('#edit-pixi-btn').toggle();
       
-    $('#edit-tmp-pixi-btn').toggle();
-    $('#submit-pixi-btn').toggle();
+    if(pxPath.indexOf("temp_listing") > 0) {
+      $('#submit-pixi-btn').toggle();
+    }
 
     if(data.listing.status == 'edit') {
       $('#cancel-pixi-btn').toggle();
     } else {
       $('#remove-pixi-btn').toggle();
     }
+  }
+  else {
+    $('#show-list-hdr').append(cstr).trigger("create");
   }
   uiLoading(false);  // toggle spinner
 }
@@ -641,6 +717,7 @@ function loadBoard(data, resFlg) {
 
   if(resFlg) {
     usr = data.user;  // store user
+    myPixiPage = 'active';
 
     // load pixis
     $.each(data.listings, function(index, item) {
@@ -761,7 +838,9 @@ function loadDays(fld, curMonth, curDt) {
 function setSelectMenu(fld, str, val) {
   var dt_str = fld + " option[value='" + val + "']";
 
-  $(fld).append(str);
+  if(str.length > 0) {
+    $(fld).append(str);
+  }
   $(dt_str).attr("selected", "selected");
   $(fld).selectmenu().selectmenu('refresh', true);
 }
@@ -1009,4 +1088,19 @@ function loadTxnForm(data, resFlg, txnType, promoCode) {
     console.log('Load transaction failed');
     PGproxy.navigator.notification.alert("Transaction load failed", function() {}, 'Transaction', 'Done');
   }
+}
+
+// load dropdown list based on given url
+function loadList(list, fld, descr) {
+  var item_str = '<option value="">' + 'Select ' + descr + '</option>';
+  var len = list.length;
+  console.log('loadList = ' + list[0].name_title);
+
+  // load list as options for select
+  for (var i = 0; i < len; i++){
+    item_str += "<option value='" + list[i].id + "'>" + list[i].name_title + "</option>";
+  }  
+
+  // update field
+  $(fld).append(item_str).selectmenu().selectmenu('refresh', true);
 }

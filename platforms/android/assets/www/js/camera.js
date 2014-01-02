@@ -106,7 +106,7 @@ function onSuccess(r) {
   if(result['pixi_id'] !== undefined) {
     console.log('response pixi id = ' + result['pixi_id']);
     pid = result['pixi_id'];  // reset pid
-    pxPath = url + '/temp_listings/';
+    pxPath = tmpPath + '/';
     goToUrl('../html/show_listing.html', false);
   }
   uiLoading(false);

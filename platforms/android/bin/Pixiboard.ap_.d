@@ -47,6 +47,7 @@ c:\RoRDev\pxbMobile\platforms\android\assets\www\html\accounts.html \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\html\advanced_search.html \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\html\camera.html \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\html\comments.html \
+c:\RoRDev\pxbMobile\platforms\android\assets\www\html\done.html \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\html\invoice.html \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\html\invoices.html \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\html\invoice_form.html \

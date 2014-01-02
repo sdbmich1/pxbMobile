@@ -363,7 +363,7 @@ a.pixi-cat, .item-dt {font-size: 0.625em; line-height: 10px; vertical-align: mid
 .item-dt {padding: 2px 0 1px 0;}
 .width50 { width: 50%!important; }
 .width40 { width: 40%!important; }
-#description { height: 100px!important; }
+#description { height: 60px!important; }
 
 /* add event styling */
 #start-time hour { color: blue}

@@ -3,7 +3,7 @@
 var url = 'http://10.0.2.2:3000';
 var listPath = url + '/listings';
 var pixPath = url + '/pictures.json';
-var tmpPath = url + '/temp_listings/';
+var tmpPath = url + '/temp_listings';
 var pxPath = listPath + '/';
 var listPage = '../html/show_listing.html';
 var homePage = "../html/listings.html";
@@ -108,6 +108,17 @@ function setInvForm() {
 
 // load pixi form data
 $(document).on('pageinit', '#formapp', function() {
+
+  // if edit mode load pixi data
+  if (pxFormType == 'edit') {
+    var editUrl = url + '/editpixi' + '.json' + token;
+    loadData(editUrl, 'edit', {id:pid});
+  }
+  else {
+    loadYear("#yr_built", 0, 90, '0'); // load year fld
+  }
+
+  // load categories
   if (categories !== undefined) {
     loadList(categories, '#category_id', 'Category');
   }
@@ -119,7 +130,6 @@ $(document).on('pageinit', '#formapp', function() {
   }
 
   $("#category_id").trigger("change"); // update item
-  loadYear("#yr_built", 0, 90, '0'); // load year fld
   pixPopup("#popupPix");  // load popup page
 });
 
@@ -148,15 +158,30 @@ function putData(putUrl, fdata, dType) {
   $.ajax({
     url: putUrl, 
     type: "put",
-    contentType: 'application/json',
     dataType: "json",
-    data: JSON.stringify(fdata),
-    success: function(data) {
+    data: fdata,
+    contentType: "application/json",
+    success: function(data, status, xhr) {
+      console.log('putData success: ' + data);
+
+      // load data based on display type
+      switch (dType) {
+        case 'submit':
+          showPixiSuccess(data);
+	  break;
+        case 'pixi':
+          pxPath = tmpPath;
+          goToUrl(listPage);
+	  break;
+        default:
+          return data;
+	  break;
+      }
     },
-    fail: function (a, b, c) {
-        PGproxy.navigator.notification.alert(b + '|' + c, function() {}, 'Delete Data', 'Done');
+    fail: function (a, b) {
+        PGproxy.navigator.notification.alert(a + '|' + b, function() {}, 'Put Data', 'Done');
   	uiLoading(false);
-        console.log(b + '|' + c);
+        console.log(a + '|' + b);
     }
   });
 }
@@ -192,13 +217,13 @@ function postData(postUrl, fdata, dType) {
     }
   },"json").fail(function (a, b, c) {
   	uiLoading(false);
-        PGproxy.navigator.notification.alert(b + ' | ' + c, function() {}, 'Error', 'Done');
+        PGproxy.navigator.notification.alert(b + ' | ' + c, function() {}, 'Post Data', 'Done');
         console.log(b + ' | ' + c);
   });
 }
 
 // delete server data
-function deleteData(delUrl) {
+function deleteData(delUrl, dType) {
   console.log('delUrl = ' + delUrl);
   $.ajax({
     url: delUrl, 
@@ -206,12 +231,14 @@ function deleteData(delUrl) {
     dataType: "json",
     data: {"_method":"delete"},
     success: function(data) {
-        //PGproxy.navigator.notification.alert('Item deleted.', function() {}, 'Delete', 'Done');
+        if(dType !== 'exit') {
+          goToUrl(homePage);  // return home
+	}
     },
     fail: function (a, b, c) {
-        PGproxy.navigator.notification.alert(b + '|' + c, function() {}, 'Delete', 'Done');
+        PGproxy.navigator.notification.alert(a + '|' + b, function() {}, 'Delete', 'Done');
   	uiLoading(false);
-        console.log(b + '|' + c);
+        console.log(a + '|' + b);
     }
   });
 }
@@ -300,6 +327,7 @@ $(document).on('click', '#inv-menu-btn', function(e) {
 // process menu btn
 $(document).on('click', '#pixis-menu-btn', function(e) {
   myPixiPage = 'active';  // set var
+  togglePath();
   return false;
 });
 
@@ -312,7 +340,7 @@ $(document).on('click', '#signout-menu-btn', function(e) {
   navigator.notification.confirm('Exit Pixiboard?', onExitConfirm, 'Exit', 'No, Yes');
 
   // process request
-  deleteData(logoutUrl);
+  deleteData(logoutUrl, 'exit');
   return false;
 });
 
@@ -370,6 +398,10 @@ $(document).on('click', '#active-btn, #draft-btn, #sold-btn, #sent-inv-btn, #rec
   myPixiPage = $(this).attr('data-view'); 
   var dType = $(this).attr('data-dtype'); 
   console.log('myPixiPage = ' + myPixiPage);
+  console.log('dType = ' + dType);
+
+  // set correct path 
+  togglePath();
 
   // clear container
   $('#pixi-list').html('').listview('refresh');
@@ -383,27 +415,30 @@ $(document).on('click', '#active-btn, #draft-btn, #sold-btn, #sent-inv-btn, #rec
 $(document).on('click', '#submit-pixi-btn', function(e) {
   var sType = $('#px-status').attr('data-status-type');
 
-  if(sType == 'new') {
-    var submitUrl = url + '/temp_listings/' + pid + '.json' + '/submit' + token;
+  if(sType == 'edit') {
+    var submitUrl = url + '/resubmit' + '.json' + token;
   } 
   else {
-    var submitUrl = url + '/temp_listings/' + pid + '.json' + '/resubmit' + token;
+    var submitUrl = url + '/submit' + '.json' + token;
   }
 
-  //var fdata = $(this).parent().serialize();
-  putData(submitUrl, {}, 'pixi');
+  putData(submitUrl, {id:pid}, 'submit');
   return false;
 });
 
 // confirm cancellation
 $(document).on('click', '#cancel-pixi-btn, #px-cancel', function(e) {
   e.preventDefault();
+  console.log('in click cancel pixi btn');
   navigator.notification.confirm('Are you sure? All changes will be lost!', onConfirm, 'Cancel', 'No, Yes');
 });
 
 // confirm removal
 $(document).on('click', '#remove-pixi-btn', function(e) {
   e.preventDefault();
+  console.log('in click remove pixi btn');
+
+  deleteUrl = url + '/temp_listings/' + pid + '.json' + token;
   navigator.notification.confirm('Are you sure? Your data will be removed!', onRemoveConfirm, 'Cancel', 'No, Yes');
 });
 
@@ -440,7 +475,7 @@ function onConfirm(button) {
 // process confirmation
 function onRemoveConfirm(button) {
   if (button == 2) {
-    deleteData(deleteUrl);  // delete record
+    deleteData(deleteUrl, 'remove');  // delete record
   }
 }
 
@@ -517,8 +552,14 @@ $(document).on("click", "#add-pixi-btn", function(e) {
     event_start_time: $('#start-time').val(), event_end_time: $('#end-time').val(), start_date: new Date(), seller_id: usr.id };
 
   // push to server
-  uploadPhoto(imageURI, tmpPath + token, params);
+  if (pxFormType == 'edit') {
+    var pxUrl = tmpPath + '/' + pid + '.json' + token;
+  }
+  else {
+    var pxUrl = tmpPath + '.json' + token;
+  }
 
+  uploadPhoto(imageURI, pxUrl, params);
   return false;
 });
 
@@ -596,24 +637,16 @@ function checkPreAuth() {
   }
 }
 
-// load dropdown list based on given url
-function loadList(list, fld, descr) {
-  var item_str = '<option value="">' + 'Select ' + descr + '</option>';
-  var len = list.length;
-  console.log('loadList = ' + list[0].name_title);
-
-  // load list as options for select
-  for (var i = 0; i < len; i++){
-    item_str += "<option value='" + list[i].id + "'>" + list[i].name_title + "</option>";
-  }  
-
-  // update field
-  $(fld).append(item_str).selectmenu().selectmenu('refresh', true);
-}
-
 // open camera page
 $(document).on('click', "#add-pixi-link", function (e) {
-  console.log("add-pixi-link");
+  pxFormType = '';
+  goToUrl("../html/new_temp_listing.html", false);
+});
+
+
+// edit listing
+$(document).on('click', "#edit-pixi-btn", function (e) {
+  pxFormType = 'edit'; 
   goToUrl("../html/new_temp_listing.html", false);
 });
 
@@ -664,12 +697,26 @@ $(document).on('click', ".ac-item", function(e) {
   $('.suggestions').html('');  // clear list
 });
 
+// toggle pixi path
+function togglePath() {
+  if (myPixiPage == 'draft') {
+    pxPath = tmpPath + '/';
+  }
+  else {
+    pxPath = listPath + '/';
+  }
+}
+
 // process click on board pix
 $(document).on('click', ".bd-item", function(e) {
   e.preventDefault();
 
+  // reset vars
   pid = $(this).attr("data-pixi-id");
   console.log('pid = ' + pid);
+
+  // set correct path 
+  togglePath();
 
   if ( pid !== undefined && pid != '' ) {
     goToUrl(listPage);
@@ -735,6 +782,12 @@ function getInvoice() {
   // load inv data
   loadData(invUrl, 'invpg'); 
 }
+
+// process px done click
+$(document).on("click", "#px-done-btn", function(e) {
+  e.preventDefault();
+  goToUrl(homePage);
+});
 
 // process menu click
 $(document).on("click", ".sl-menu", function(e) {
@@ -830,12 +883,13 @@ $(document).on("click", "#show-cmt, #show-pixi", function(e) {
   if ($.mobile.activePage.attr("id") !== 'comment-page') 
     { goToUrl('../html/comments.html'); }  
   else
-    { goToUrl('../html/show_listing.html'); }  
+    { goToUrl(listPage); }  
  
   return false;
 });
 
 function pixPopup(fld) {
+  console.log('in pixPopup');
   var pop_str = '<ul data-role="listview" data-icon="false" data-inset="true" style="min-width:210px;" data-theme="a">'
     + '<li data-role="divider" data-theme="b">Choose Photo Source</li>'
     + '<li data-theme="a"><a href="#" id="camera"><img src="../img/rsz_camera_256.png">Camera</a></li>'
