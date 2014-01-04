@@ -239,7 +239,7 @@ function showPixiPage(data) {
 
   // load post values
   $('#user_id').val(usr.id);
-  $('#seller_id').val(data.listing.seller_id);
+  $('#recipient_id').val(data.listing.seller_id);
   $('#pixi_id').val(data.listing.pixi_id);
 
   // load pix
@@ -252,6 +252,7 @@ function showPixiPage(data) {
 
   // load details
   var detail_str = "<span class='mtop inv-descr'>DETAILS:</span><br /><div class='profile-txt'>" + data.listing.summary + "<br />";
+
   if(data.listing.price !== undefined) {
     var prc = parseFloat(data.listing.price).toFixed(2);
     detail_str += "<div class='mtop'>Price: <span class='pstr'>$" + prc + "</span></div></div>";
@@ -322,9 +323,11 @@ function loadPosts(data, resFlg) {
 	  item_str += "<form id='post-frm' method='post' data-ajax='false'>" 
 	    + '<div id="notice" style="display:none"></div><div id="form_errors"></div>'
 	    + "<div class='clear-all'><table><tr><td class='cal-size'><div data-role='fieldcontain' class='ui-hide-label'>"
-	    + "<input name='content' class='reply_content slide-menu' placeholder='Type reply message...' data-theme='a' /></div></td>"
+	    + "<input name='content' id='reply_content' class='slide-menu' placeholder='Type reply message...' data-theme='a' /></div></td>"
 	    + "<td><input type='submit' value='Send' data-theme='b' data-inline='true' id='reply-btn' data-mini='true'></td></tr></table>"
-	    + "</div></form>";
+            + "<input type='hidden' name='user_id' id='user_id' value='" + item.recipient_id + "' />"
+	    + "<input type='hidden' name='pixi_id' id='pixi_id' value='" + item.pixi_id + "' />"
+	    + "<input type='hidden' name='recipient_id' id='recipient_id' value='" + item.user_id + "' /></div></form>";
 	}
 	item_str += "</div><div class='clear-all'></div></li>";
       });
@@ -340,7 +343,7 @@ function loadPosts(data, resFlg) {
   }
 
   // render content
-  $('#mxboard').append(item_str).trigger("create");
+  $('#mxboard').html(item_str).trigger("create");
 }
 
 // open comment page
@@ -349,33 +352,42 @@ function showCommentPage(data) {
   var item_str = '<ol class="posts">';
   var post_dt;
 
+  uiLoading(true);  // toggle spinner
+
+  // clear page
+  $('#show-list-hdr').html('');
+  $('#comment-item').html('');
+  $('#content').html('').val('');
+
   // set pixi header details
   var cstr = "<div class='show-pixi-bar' data-role='navbar'><ul>"
     + "<li><a href='#' id='show-pixi' data-theme='d' data-pixi-id='" + pid + "' data-mini='true'>Details</a></li>"
     + "<li><a href='#' id='show-cmt' data-theme='d' class='ui-btn-active' data-mini='true' data-pixi-id='" + pid + "'>Comments (" 
     + data.comments.length + ")</a></li></ul></div>";
-  $('#show-list-hdr').append(cstr).trigger("create");
 
   // load post values
-  $('#user_id').val(data.user.id);
-  $('#pixi_id').val(data.listing.pixi_id);
+  $('#user_id').val(usr.id);
+  $('#pixi_id').val(pid);
 
   // load comments
   if (data.comments.length > 0) {
     $.each(data.comments, function(index, item) {
       post_dt = $.timeago(item.created_at); // set post dt
-      item_str += '<li id="' + item.id + '"><div class="cal-size no-left">'
+      item_str += '<li id="' + item.id + '"><div class="no-left">'
         + "<div class='sender'>" + getPixiPic(item.user.photo, 'height:30px; width:30px;') + " " + item.sender_name + " | <span class='timestamp'>"
 	+ "Posted " + post_dt + "</span></div><br /><span class='fcontent'>" + item.content + "</span></div></li>";
     });
     item_str += '</ol>';
   }
   else {
-    item_str = "<li class='center-wrapper'>No comments found.</li>";
+    item_str += "<li class='center-wrapper'>No comments found.</li></ol>";
   }
 
   // append content
+  $('#show-list-hdr').append(cstr).trigger("create");
   $('#comment-item').append(item_str);
+  $("#comment-btn").removeAttr("disabled");
+
   uiLoading(false);  // toggle spinner
 }
 

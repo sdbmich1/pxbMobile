@@ -206,10 +206,19 @@ function postData(postUrl, fdata, dType) {
     // load data based on display type
     switch (dType) {
       case 'login':
-        processLogin(res);
+        processLogin(res, dFlg);
 	break;
       case 'pixi':
         processPixiData(res);
+	break;
+      case 'post':
+        resetPost(dFlg);
+	break;
+      case 'comment':
+        showCommentPage(res);
+	break;
+      case 'reply':
+        loadPosts(res, dFlg);
 	break;
       default:
         return res;
@@ -434,22 +443,20 @@ $(document).on('click', '#cancel-pixi-btn, #px-cancel', function(e) {
 });
 
 // confirm removal
-$(document).on('click', '#remove-pixi-btn', function(e) {
-  e.preventDefault();
-  console.log('in click remove pixi btn');
-
-  deleteUrl = url + '/temp_listings/' + pid + '.json' + token;
-  navigator.notification.confirm('Are you sure? Your data will be removed!', onRemoveConfirm, 'Remove', 'No, Yes');
-});
-
-// confirm removal
-$(document).on('click', '#rm-acct-btn', function(e) {
+$(document).on('click', '#remove-pixi-btn, #rm-acct-btn', function(e) {
+  console.log('in click remove btn');
   e.preventDefault();
   acct_id = $(this).attr("data-acct-id");
 
   // set url 
-  deleteUrl = url + '/bank_accounts/' + acct_id + '.json' + token;
-  navigator.notification.confirm('Are you sure? Your data will be removed!', onRemoveConfirm, 'Cancel', 'No, Yes');
+  if(acct_id.length > 0) {
+    deleteUrl = url + '/bank_accounts/' + acct_id + '.json' + token;
+  }
+  else {
+    deleteUrl = url + '/temp_listings/' + pid + '.json' + token;
+  }
+
+  navigator.notification.confirm('Are you sure? Your data will be removed!', onRemoveConfirm, 'Remove', 'No, Yes');
 });
 
 // go back to login page
@@ -529,10 +536,87 @@ function uiLoading(bool) {
     $('body').removeClass('ui-loading');
 }
 
+// toggle contact buttons
+$(document).on('click', "#contact-btn", function (e) {
+  var txt =  $('#content').val();
+
+  if (txt.length > 0) {
+    uiLoading(true);
+    $(this).attr('disabled', 'disabled');
+
+    // store form data
+    var params = new Object();
+
+    // set params
+    params.post = { content: txt,  user_id: $('#user_id').val(), pixi_id: $('#pixi_id').val(), recipient_id: $('#recipient_id').val() };
+
+    // set path
+    var pxUrl = url + '/posts.json' + token;
+
+    // post data
+    postData(pxUrl, params, 'post');
+  }
+});
+
+// reset pixi page after successful post
+function resetPost (resFlg) {
+  $("#contact-btn").removeAttr("disabled");
+
+  if (resFlg) {
+    $("#content").html('').val('');
+    PGproxy.navigator.notification.alert("Your post was sent successfully.", function() {}, 'Post', 'Done');
+  }
+  else {
+    PGproxy.navigator.notification.alert("Your post was not delivered.", function() {}, 'Post', 'Done');
+  }
+  uiLoading(false);
+}
+
 // toggle comment & comment buttons
-$(document).on('click', "#comment-btn, #contact-btn", function (e) {
-  uiLoading(true);
-  $(this).parent().attr('disabled', 'disabled');
+$(document).on('click', "#comment-btn", function (e) {
+  var txt =  $('#content').val();
+
+  if (txt.length > 0) {
+    uiLoading(true);
+    $(this).attr('disabled', 'disabled');
+
+    // store form data
+    var params = new Object();
+
+    // set params
+    params.comment = { content: txt,  user_id: $('#user_id').val(), pixi_id: $('#pixi_id').val() };
+
+    // set path
+    var pxUrl = url + '/comments.json' + token;
+
+    // post data
+    postData(pxUrl, params, 'comment');
+  }
+});
+
+// process reply btn 
+$(document).on('click', "#reply-btn", function (e) {
+  var txt =  $('#reply_content').val();
+  var id = $(this).closest("li").attr('id');
+  console.log('reply btn li = ' + id);
+
+  if (txt.length > 0) {
+    uiLoading(true);
+    $(this).attr('disabled', 'disabled');
+
+    // store form data
+    var params = new Object();
+
+    // set params
+    params.id = id;
+    params.post = { content: txt, user_id: $('#user_id').val(), pixi_id: $('#pixi_id').val(), recipient_id: $('#recipient_id').val() };
+
+    // set path
+    var pxUrl = url + '/posts/reply.json' + token;
+
+    // post data
+    postData(pxUrl, params, 'reply');
+  }
 });
 
 // submit pixi form
@@ -599,25 +683,30 @@ function handleLogin() {
 }
 
 // complete login process
-function processLogin(res) {
-  
-  if(res.token.length > 0) {
-    console.log('login success');
+function processLogin(res, resFlg) {
+  if(resFlg) {
+    if(res.token.length > 0) {
+      console.log('login success');
 
-    //store credentials on device
-    window.localStorage["email"] = email;
-    window.localStorage["password"] = pwd;
-    window.localStorage["token"] = res.token;
+      //store credentials on device
+      window.localStorage["email"] = email;
+      window.localStorage["password"] = pwd;
+      window.localStorage["token"] = res.token;
 
-    // go to main board
-    goToUrl("./html/listings.html", false);
+      // go to main board
+      goToUrl("./html/listings.html", false);
+    }
+    else {
+      console.log('login failed');
+      $("#signin-btn").removeAttr("disabled");
+      PGproxy.navigator.notification.alert("No token found", function() {}, 'Login', 'Done');
+    }
   }
   else {
     console.log('login failed');
     $("#signin-btn").removeAttr("disabled");
-    PGproxy.navigator.notification.alert("Your login failed", function() {}, 'Login', 'Done');
+    PGproxy.navigator.notification.alert("Login failed", function() {}, 'Login', 'Done');
   }
-
   uiLoading(false);
 }
 
@@ -708,7 +797,7 @@ function togglePath() {
 }
 
 // process click on board pix
-$(document).on('click', ".bd-item", function(e) {
+$(document).on('click', ".bd-item, .pixi-link", function(e) {
   e.preventDefault();
 
   // reset vars
@@ -878,6 +967,7 @@ function parseBoolean(str) {
 
 // process menu click
 $(document).on("click", "#show-cmt, #show-pixi", function(e) {
+  uiLoading(true);  // toggle spinner
 
   // show pixi comments
   if ($.mobile.activePage.attr("id") !== 'comment-page') 
