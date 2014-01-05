@@ -430,7 +430,7 @@ function showProfile(data) {
 
 // process user page display
 function loadUserPage(data, resFlg) {
-  var name_str='', photo, gender='', month='', dt='', yr='', btn_name, pwd_str='', popName; 
+  var name_str='', photo, gender='', month='', dt='', yr='', btn_name, pwd_str='', popName, id_btn; 
   if (resFlg) {
 
     // set pixi header details
@@ -447,6 +447,7 @@ function loadUserPage(data, resFlg) {
       name_str = "<span class='mleft10 pstr'>" + data.name + "</span><br />";
       popName = '#popupPix1';
       btn_name = 'Save';
+      id_btn = 'edit-usr-btn';
 
       // update menu
       if (data.fb_user == undefined) {
@@ -462,6 +463,7 @@ function loadUserPage(data, resFlg) {
       cstr += "</ul></div>";
       photo = "<img src='../img/person_icon.jpg' style='height:60px; width:60px;' id='smallImage' />";
       btn_name = 'Register';
+      id_btn = 'signup-btn';
       popName = '#popupPix2';
       pwd_str = "<tr><td><label>Password</label></td><td class='cal-size'><input type='password' name='password' id='password' placeholder='Password'" 
         + " class='profile-txt' data-theme='a' /></td></tr>"
@@ -474,7 +476,7 @@ function loadUserPage(data, resFlg) {
       + "data-rel='popup' data-position-to='window' data-transition='pop'>Upload</a>"
       + "</td></tr></table><div id='edit-profile' class='sm-top'><table class='rpad10 inv-descr'>"
       + showNameEmail(data, true) + showProfile(data) + pwd_str + "</table><div class='sm-top center-wrapper'>"  
-      + "<input type='submit' value='" + btn_name + "' data-theme='d' data-inline='true' id='edit-usr-btn'></div></div>";
+      + "<input type='submit' value='" + btn_name + "' data-theme='d' data-inline='true' id='" + id_btn + "'></div></div>";
 
     // build page
     $('#usr-prof').append(user_str).trigger('create');

@@ -75,7 +75,9 @@ $(document).on('click', "#album", function(e){
 function setImage(imageURI) {
   console.log('in setImage');
   $("#smallImage").attr("src", imageURI);
-  $('#popupPix').popup("close");  // close pix popup
+   
+  var $popups = $(document).find('div[data-role="popup"]');
+  $popups.popup("close");  // close pix popup
 }
 
 // uploads image to server
@@ -107,7 +109,13 @@ function onSuccess(r) {
     console.log('response pixi id = ' + result['pixi_id']);
     pid = result['pixi_id'];  // reset pid
     pxPath = tmpPath + '/';
-    goToUrl('../html/show_listing.html', false);
+    goToUrl(listPage);
+  }
+
+  if(result.user.email !== undefined) {
+    console.log('response email = ' + result.user.email);
+    goToUrl('../index.html');  // go to login page
+    PGproxy.navigator.notification.alert("Signup successful. A confirmation email was sent to your account.", function() {}, 'Signup', 'Done');
   }
   uiLoading(false);
 }
@@ -117,6 +125,7 @@ function onFail(error) {
   PGproxy.navigator.notification.alert("An error has occurred: Code = " + error.code, function() {}, 'Upload', 'Done');
   console.log("upload error source " + error.source);
   console.log("upload error target " + error.target);
+  $("#signup-btn").removeAttr("disabled");
   uiLoading(false);
 }
 

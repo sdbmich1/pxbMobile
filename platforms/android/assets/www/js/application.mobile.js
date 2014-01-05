@@ -455,14 +455,13 @@ $(document).on('click', '#remove-pixi-btn, #rm-acct-btn', function(e) {
   else {
     deleteUrl = url + '/temp_listings/' + pid + '.json' + token;
   }
-
   navigator.notification.confirm('Are you sure? Your data will be removed!', onRemoveConfirm, 'Remove', 'No, Yes');
 });
 
 // go back to login page
 $(document).on('click', '#login-btn', function(e) {
   e.preventDefault();
-  goToUrl('../index.html');  // go to main board
+  goToUrl('../index.html');  // go to login page
 });
 
 // process confirmation
@@ -617,6 +616,26 @@ $(document).on('click', "#reply-btn", function (e) {
     // post data
     postData(pxUrl, params, 'reply');
   }
+});
+
+// user signup form
+$(document).on("click", "#signup-btn", function(e) {
+  console.log('in user signup form');
+  uiLoading(true);
+
+  $("#signup-btn").attr("disabled","disabled");
+
+  var dt = new Date($('#birth_mo').val() + '/' + $('#birth_dt').val() + '/' + $('#birth_yr').val());
+  var pxUrl = url + '/signup.json';
+  var imageURI = $('#smallImage').attr("src");
+  var params = new Object();
+
+  // set params
+  params.user = { first_name: $('#first_name').val(), last_name: $('#last_name').val(), gender: $('#gender').val(),
+    email: $('#email').val(), password: $('#password').val(), password_confirmation: $('#password_confirmation').val(), birth_date: dt }; 
+
+  uploadPhoto(imageURI, pxUrl, params);
+  return false;
 });
 
 // submit pixi form
@@ -967,6 +986,7 @@ function parseBoolean(str) {
 
 // process menu click
 $(document).on("click", "#show-cmt, #show-pixi", function(e) {
+  uiLoading(true);  // toggle spinner
 
   // show pixi comments
   if ($.mobile.activePage.attr("id") !== 'comment-page') 
