@@ -545,31 +545,39 @@ function loadContactPage(data, resFlg) {
 // process invoice page display
 function loadInvForm(data, resFlg) {
   var dt = curDate();
-  var title_str, pixi_id = '', qty=1, prc = '', buyer='', subtotal='', sales_tax='', tax_total='', amount='', comment='';
+  var sub_str, seller_id, title_str, pixi_id = '', qty='', prc = '', buyer='', subtotal='', sales_tax='', tax_total='', amount='', 
+    inv_id='', comment='', buyer_id='';
 
   uiLoading(true);
+  $('#inv-frm').html('');
+  $('#frm-submit').html('');
 
   if (resFlg) {
     if (data !== undefined) {
       dt = data.invoice.inv_dt;
       pixi_id = data.invoice.pixi_id;
+      inv_id = data.invoice.id;
       buyer = data.invoice.buyer_name;
+      buyer_id = data.invoice.buyer_id;
+      seller_id = data.invoice.seller_id;
       qty = data.invoice.quantity;
       prc = parseFloat(data.invoice.price).toFixed(2);
       subtotal = parseFloat(data.invoice.subtotal).toFixed(2);
       sales_tax = parseFloat(data.invoice.sales_tax).toFixed(2) || 0.0;
-      tax_total = parseFloat(data.invoice.tax_total).toFixed(2);
+      tax_total = parseFloat(data.invoice.tax_total).toFixed(2) || 0.0;
       amount = parseFloat(data.invoice.amount).toFixed(2);
       comment = data.invoice.comment;
       title_str = "<span>Invoice #" + data.invoice.id + "</span>"; 
+      sub_str = "<input type='submit' value='Send' data-theme='d' data-inline='true' id='add-inv-btn' data-inv-id='" + data.invoice.id + "' >";
     }
     else {
-      title_str = "<span>Create Invoice</span>"; 
+      seller_id = usr.id;
+      title_str = "<span>Send Invoice</span>"; 
+      sub_str = '<input type="submit" value="Send" data-theme="d" data-inline="true" id="add-inv-btn">';
     }
 
     // load title
     $('#inv-pg-title').html(title_str);
-    $('#inv-frm').html('');
 
     var inv_str = "<form id='invoice-doc' data-ajax='false'><div class='mleft10'><table class='inv-descr'><tr><td>Date:</td><td>" + dt + "</td></tr>"
       + "<tr><td>Bill To:</td><td><div data-role='fieldcontain' class='sm-top ui-hide-label'>"
@@ -578,27 +586,25 @@ function loadInvForm(data, resFlg) {
       + "<tr><td>Item:</td><td><div class='dd-list'><select name='pixi_id' id='pixi_id' data-mini='true'></div></select></td></tr>" 
       + "<tr><td class='img-valign'>Quantity:</td><td><select name='quantity' id='inv_qty' class='mtop' data-mini='true'></select></td></tr>" 
       + "<tr><td class='img-valign'>Price:</td><td><div data-role='fieldcontain' class='sm-top ui-hide-label'>"
-      + "<input type='text' name='price' id='inv_price' placeholder='Enter Price' class=' price' data-theme='a' value='" 
-      + prc + "' /></div></td></tr>" 
+      + "<input type='number' name='price' id='inv_price' placeholder='Enter Price' class=' price' data-theme='a' value='" + prc + "' /></div></td></tr>" 
       + "<tr class='sls-tax' style='display:none'><td class='img-valign'>Subtotal</td><td><div data-role='fieldcontain' class='sm-top ui-hide-label'>"
-      + "<input type='text' name='subtotal' id='inv_amt' class='price' readonly='true' data-theme='a' value='" 
-      + subtotal + "' /></div></td></tr>" 
+      + "<input type='text' name='subtotal' id='inv_amt' class='price' readonly='true' data-theme='a' value='" + subtotal + "' /></div></td></tr>" 
       + "<tr class='sls-tax' style='display:none'><td class='img-valign'>Sales Tax</td><td><div data-role='fieldcontain' class='sm-top ui-hide-label'>"
       + "<input type='text' name='sales_tax' id='inv_tax' class='price' placeholder='Enter tax (if any)' data-theme='a' value='" 
       + sales_tax + "' /></div></td></tr>" 
       + "<tr class='sls-tax' style='display:none'><td class='img-valign'>Tax</td><td><div data-role='fieldcontain' class='sm-top ui-hide-label'>"
-      + "<input type='text' name='tax_total' id='inv_tax_total' class='price' readonly='true' data-theme='a' value='" + tax_total 
-      + "' /></div></td></tr>" 
+      + "<input type='text' name='tax_total' id='inv_tax_total' class='price' readonly='true' data-theme='a' value='" + tax_total + "' /></div></td></tr>" 
       + "<tr><td class='img-valign'>Amount Due</td><td><div data-role='fieldcontain' class='sm-top ui-hide-label'>"
-      + "<input type='text' name='amount' id='inv_total' class='total-str price' readonly='true' data-theme='a' value='" 
-      + amount + "' /></div></td></tr>" 
+      + "<input type='text' name='amount' id='inv_total' class='total-str price' readonly='true' data-theme='a' value='" + amount + "' /></div></td></tr>" 
       + "<tr><td>Comments:</td><td><div data-role='fieldcontain' class='sm-top ui-hide-label'>"
       + "<input type='text' name='comment' id='comment' placeholder='Enter comments here...' data-theme='a' value='" 
-      + comment + "' /></div></td></tr>"
-      + "<input type='hidden' name='buyer_id' id='buyer_id' /></div></table></form>";
+      + comment + "' /></div></td></tr><input type='hidden' name='seller_id' id='seller_id' value='" + seller_id + "' />"
+      + "<input type='hidden' name='id' id='inv_id' value='" + inv_id + "' />"
+      + "<input type='hidden' name='buyer_id' id='buyer_id' value='" + buyer_id + "' /></div></table></form>";
 
     // build page
     $('#inv-frm').append(inv_str).trigger('create');
+    $('#frm-submit').append(sub_str).trigger('create');
 
     // load drop down lists
     setPixiList(usr.active_listings, '#pixi_id', pixi_id);
@@ -606,7 +612,7 @@ function loadInvForm(data, resFlg) {
   }
   else {
     console.log('Invoice page load failed');
-    PGproxy.navigator.notification.alert("Page load failed", function() {}, 'View Invoice', 'Done');
+    PGproxy.navigator.notification.alert("Page load failed", function() {}, 'Invoice Form', 'Done');
   }
   uiLoading(false);
 }
@@ -623,8 +629,8 @@ function loadInvPage(data, resFlg) {
     var inv_str = "<div class='mleft10'><table class='inv-descr'><tr><td>Date: </td><td>" + data.invoice.inv_dt + "</td></tr><tr>"; 
 
     // display correct photo based on whether user is buyer or seller
-    if(data.invoice.seller_id == usr.id) {
-      inv_str += "<td>From: </td><td>" + getPixiPic(data.invoice.seller.photo, 'height:30px; width:30px;') 
+    if(data.invoice.seller_id !== usr.id) {
+      inv_str += "<td>From: </td><td class='v-align'>" + getPixiPic(data.invoice.seller.photo, 'height:30px; width:30px;') 
         + ' ' + data.invoice.seller_name + "</td>";
     }
     else {
@@ -646,7 +652,7 @@ function loadInvPage(data, resFlg) {
       + "<th><div class='center-wrapper'>Qty</div></th><th><div class='center-wrapper'>Item</div></th>"
       + "<th><div class='center-wrapper'>Price</div></th><th><div class='center-wrapper'>Amount</div></th>"
       + "<tr><td class='width120'><div class='nav-right'>" + data.invoice.quantity + "</div></td>"
-      + "<td class='width360'>" + data.invoice.pixi_title + "</td>"
+      + "<td class='cal-size'>" + data.invoice.pixi_title + "</td>"
       + "<td class='width120'><div class='nav-right'>" + prc + "</div></td>"
       + "<td class='width120'><div class='nav-right'>" + subtotal + "</div></td></tr>"
       + "<tr class='sls-tax' style='display:none'><td></td><td><div class='nav-right'>Sales Tax</div></td>"
@@ -695,7 +701,7 @@ function loadInvList(data, resFlg) {
   if(resFlg) {
     if (data.invoices.length > 0) {
       $.each(data.invoices, function(index, item) {
-        var amt = parseFloat(item.amount).toFixed(2);
+        var amt = parseFloat(item.amount + item.get_fee).toFixed(2);
 
 	// set invoice name
 	if(myPixiPage == 'received') {
@@ -920,8 +926,8 @@ function loadQty(fld, val) {
 function setPrice(data, resFlg) {
   if (resFlg) {
     if (data !== undefined) {
-      $('#inv_price').val(data);
-      console.log('price = ' + data);
+      $('#inv_price').val(parseFloat(data).toFixed(2)); 
+      //console.log('price = ' + data);
     }
     else {
       $('#inv_price').val(0);

@@ -109,13 +109,13 @@ function onSuccess(r) {
     console.log('response pixi id = ' + result['pixi_id']);
     pid = result['pixi_id'];  // reset pid
     pxPath = tmpPath + '/';
-    goToUrl('../html/show_listing.html', false);
+    goToUrl(listPage);
   }
 
   if(result.user.email !== undefined) {
     console.log('response email = ' + result.user.email);
-    PGproxy.navigator.notification.alert("Signup successful. A confirmation email was sent to your account.", function() {}, 'Signup', 'Done');
     goToUrl('../index.html');  // go to login page
+    PGproxy.navigator.notification.alert("Signup successful. A confirmation email was sent to your account.", function() {}, 'Signup', 'Done');
   }
   uiLoading(false);
 }

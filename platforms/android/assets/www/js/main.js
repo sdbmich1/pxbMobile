@@ -273,25 +273,37 @@ function calc_amt(){
   var qty = $('#inv_qty').val();
   var price = $('#inv_price').val();
   var tax = $('#inv_tax').val();
+  var tax_total = 0;
 
   if (qty.length > 0 && price.length > 0) {
     var amt = parseInt(qty) * parseFloat(price);
-    $('#inv_amt').val(amt.toFixed(2)); 
+    $('#inv_amt').val(parseFloat(amt).toFixed(2)); 
 
     // calc tax
-    if (tax.length > 0) {
-      var tax_total = amt * parseFloat(tax)/100;
+    if(!isNaN(tax) && tax !== '') {
+      tax_total = amt * parseFloat(tax)/100;
     }
     else {
-      var tax_total = 0.0;
+      tax = 0;
     }
+    console.log('tax = ' + tax);
 
     // update tax total
-    $('#inv_tax_total').val(tax_total.toFixed(2)); 
+    $('#inv_tax_total').val(parseFloat(tax_total).toFixed(2)); 
+    $('#inv_tax').val(parseFloat(tax).toFixed(2));
 
     // set & update invoice total
-    var inv_total = amt + tax_total;
-    $('#inv_total').val(inv_total.toFixed(2)); 
+    if(isNaN(tax_total)) {
+      var inv_total = amt;
+      console.log('amt = ' + parseFloat(amt).toFixed(2)); 
+    }
+    else {
+      console.log('tax_total = ' + parseFloat(tax_total).toFixed(2)); 
+      var inv_total = amt + tax_total;
+    }
+
+    console.log('inv_total = ' + parseFloat(inv_total).toFixed(2)); 
+    $('#inv_total').val(parseFloat(inv_total).toFixed(2)); 
     $('#inv_price').val(parseFloat(price).toFixed(2)); 
   }
 }
@@ -308,6 +320,7 @@ $(document).on("change", "select[id*=pixi_id]", function() {
   
   // load price
   loadData(pixiUrl, 'price', {pixi_id:pid});
+  calc_amt();
 });
 
 // process url calls

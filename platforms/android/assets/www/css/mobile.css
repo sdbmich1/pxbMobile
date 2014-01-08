@@ -200,6 +200,8 @@ a[data-theme="app-search"].ui-btn-right {
   margin-top: 1px;
 }
 
+.v-top { vertical-align: top; }
+
 .icon-img {  height: 18px!important; width: 18px!important; }
 .list-img {  height: 80px!important; width: 80px!important; }
 #pg-hdr .ui-dialog > .ui-header { display : none } /*hide the whole header*/

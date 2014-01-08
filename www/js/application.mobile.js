@@ -169,6 +169,9 @@ function putData(putUrl, fdata, dType) {
         case 'submit':
           showPixiSuccess(data);
 	  break;
+        case 'inv':
+	  goToUrl('../html/invoices.html');
+	  break;
         case 'pixi':
           pxPath = tmpPath;
           goToUrl(listPage);
@@ -196,12 +199,7 @@ function postData(postUrl, fdata, dType) {
 
   // process post
   $.post(postUrl, fdata, function(res) {
-    if (res == undefined) {
-      dFlg = false;  // set flag
-    } 
-    else {
-      dFlg = true;  // set flag
-    }  
+    (res == undefined) ? dFlg = false : dFlg = true;  // set flag
 
     // load data based on display type
     switch (dType) {
@@ -213,6 +211,9 @@ function postData(postUrl, fdata, dType) {
 	break;
       case 'post':
         resetPost(dFlg);
+	break;
+      case 'inv':
+	goToUrl('../html/invoices.html');
 	break;
       case 'comment':
         showCommentPage(res);
@@ -310,15 +311,6 @@ $(document).on('click', '#bill-menu-btn', function(e) {
     invFormType = 'new';  // set var
   }
   console.log('invFormType = ' + invFormType);
-});
-
-// process active btn
-$(document).on('click', '#edit-inv-btn', function(e) {
-  pid = $(this).attr('data-inv-id');   // get inv id
-
-  invFormType = 'edit';  // set var
-  goToUrl('../html/invoice_form.html');
-  return false;
 });
 
 // process pay btn
@@ -446,7 +438,7 @@ $(document).on('click', '#cancel-pixi-btn, #px-cancel', function(e) {
 $(document).on('click', '#remove-pixi-btn, #rm-acct-btn', function(e) {
   console.log('in click remove btn');
   e.preventDefault();
-  acct_id = $(this).attr("data-acct-id");
+  var acct_id = $(this).attr("data-acct-id");
 
   // set url 
   if(acct_id.length > 0) {
@@ -605,8 +597,6 @@ $(document).on('click', "#reply-btn", function (e) {
 
     // store form data
     var params = new Object();
-
-    // set params
     params.id = id;
     params.post = { content: txt, user_id: $('#user_id').val(), pixi_id: $('#pixi_id').val(), recipient_id: $('#recipient_id').val() };
 
@@ -625,12 +615,12 @@ $(document).on("click", "#signup-btn", function(e) {
 
   $("#signup-btn").attr("disabled","disabled");
 
-  var dt = new Date($('#birth_mo').val() + '/' + $('#birth_dt').val() + '/' + $('#birth_yr').val());
   var pxUrl = url + '/signup.json';
   var imageURI = $('#smallImage').attr("src");
-  var params = new Object();
 
   // set params
+  var params = new Object();
+  var dt = new Date($('#birth_mo').val() + '/' + $('#birth_dt').val() + '/' + $('#birth_yr').val());
   params.user = { first_name: $('#first_name').val(), last_name: $('#last_name').val(), gender: $('#gender').val(),
     email: $('#email').val(), password: $('#password').val(), password_confirmation: $('#password_confirmation').val(), birth_date: dt }; 
 
@@ -638,12 +628,75 @@ $(document).on("click", "#signup-btn", function(e) {
   return false;
 });
 
+// process active btn
+$(document).on('click', '#edit-inv-btn', function(e) {
+  console.log('edit inv btn #1');
+  uiLoading(true);
+
+  //disable the button so we can't resubmit while we wait
+  $(this).attr("disabled","disabled");
+
+  invFormType = 'edit';  // set var
+  pid = $(this).attr('data-inv-id');   // get inv id
+
+  // open invoice page
+  goToUrl('../html/invoice_form.html');
+
+  // process invoice data
+  setInvForm();
+});
+
+// remove invoice form
+$(document).on("click", "#remove-inv-btn", function(e) {
+  console.log('in remove invoice-btn');
+  uiLoading(true);
+
+  //disable the button so we can't resubmit while we wait
+  $(this).attr("disabled","disabled");
+
+  // get invoice id
+  var inv_id = $(this).attr("data-inv-id");
+
+  if(inv_id.length > 0) {
+    deleteUrl = url + '/invoices/' + inv_id + '.json' + token;
+    navigator.notification.confirm('Are you sure? Your invoice will be removed!', onRemoveConfirm, 'Remove', 'No, Yes');
+  }
+});
+
+// submit invoice form
+$(document).on("click", "#add-inv-btn", function(e) {
+  console.log('in submit invoice-form');
+  var tot =  $('#inv_total').val();
+  var inv_id =  $('#inv_id').val();
+
+  if (tot.length > 0) {
+    uiLoading(true);
+    $("#add-inv-btn").attr("disabled","disabled");  // disable form submit button
+
+    // store form data
+    var params = new Object();
+    params.invoice = { amount: tot, buyer_id: $('#buyer_id').val(), pixi_id: $('#pixi_id').val(), seller_id: $('#seller_id').val(), 
+      quantity: $('#inv_qty').val(), price: $('#inv_price').val(), comment: $('#comment').val(), subtotal: $('#inv_amt').val(),
+      sales_tax: $('#inv_tax').val(), tax_total: $('#inv_tax_total').val() }; 
+
+    // post data
+    if (invFormType == 'edit') {
+      var pxUrl = url + '/invoices/' + inv_id + '.json' + token;
+      putData(pxUrl, JSON.stringify(params), 'inv');
+    }
+    else {
+      var pxUrl = url + '/invoices.json' + token;
+      postData(pxUrl, params, 'inv');
+    }
+  }
+});
+
 // submit pixi form
 $(document).on("click", "#add-pixi-btn", function(e) {
   console.log('in submit pixi-form');
   uiLoading(true);
 
-  $("#add-pixi-btn").attr("disabled","disabled");
+  $("#add-pixi-btn").attr("disabled","disabled");  // disable form submit button
 
   var imageURI = $('#smallImage').attr("src");
   var params = new Object();
@@ -884,8 +937,16 @@ $(document).on("click", "#register-btn", function(e) {
 });
 
 // get invoice data
-function getInvoice() {
-  var invUrl = url + '/invoices/' + pid + '.json' + token;
+function getInvoice(data) {
+  data = data || '';
+  console.log('get invoice data = ' + data);
+
+  if(data.length > 0) {
+    var invUrl = url + '/invoices/' + data.invoice.id + '.json' + token;
+  }
+  else {
+    var invUrl = url + '/invoices/' + pid + '.json' + token;
+  }
   
   // load inv data
   loadData(invUrl, 'invpg'); 
@@ -997,6 +1058,7 @@ $(document).on("click", "#show-cmt, #show-pixi", function(e) {
   return false;
 });
 
+// build popup dialog for use on multiple pages
 function pixPopup(fld) {
   console.log('in pixPopup');
   var pop_str = '<ul data-role="listview" data-icon="false" data-inset="true" style="min-width:210px;" data-theme="a">'
@@ -1009,6 +1071,7 @@ function pixPopup(fld) {
   $(fld).popup({ history: false });  // clear popup history to prevent app exit
 }
 
+// set current date
 function curDate() {
   var d = new Date();
   var month = d.getMonth()+1;
