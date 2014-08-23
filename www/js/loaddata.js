@@ -3,7 +3,7 @@ var states_str = '';
 // load data based on given url & display type
 function loadData(listUrl, dType, params) {
   console.log('in loadData: ' + listUrl);
-  var dFlg;
+  var dFlg, result;
 
   // turn on spinner
   uiLoading(true);
@@ -19,12 +19,8 @@ function loadData(listUrl, dType, params) {
     data: params,
     contentType: "application/json",
     success: function(data, status, xhr) {
-      //console.log('loadData success: ' + data);
-
-      if (data == undefined) {
-        dFlg = false; }
-      else {
-        dFlg = true; }
+      // set status flag
+      dFlg = (data == undefined) ? false : true;
 
       // load data based on display type
       switch (dType) {
@@ -32,13 +28,14 @@ function loadData(listUrl, dType, params) {
         loadBoard(data, dFlg); 
 	break;
       case 'list':
-	return data;
+	result = data;
 	break;
       case 'autocomplete':
         loadResults(data, dFlg);
 	break;
       case 'state':
-        loadStates(data, dFlg);
+        result = loadStates(data, dFlg);
+        setSelectMenu('#state', result, params);  // set option menu
 	break;
       case 'pixi':
         loadPixiPage(data, dFlg);
@@ -80,12 +77,13 @@ function loadData(listUrl, dType, params) {
 	break;
       }
     },
-    fail: function (a, b) {
-        PGproxy.navigator.notification.alert(a + '|' + b, function() {}, 'Load Data', 'Done');
+    fail: function (a, b, c) {
+        PGproxy.navigator.notification.alert(a.responseText, function() {}, 'Load Data', 'Done');
+        console.log(a.responseText + ' | ' + b + ' | ' + c);
   	uiLoading(false);
-        console.log(a + '|' + b);
     }
   });
+  return result;
 }
 
 // process results
@@ -231,7 +229,7 @@ function showPixiPage(data) {
   }
 
   // load title
-  var tstr = "<h4 class='mbot major_evnt'>" + data.listing.title + "</h4>"
+  var tstr = "<h4 class='mbot major_evnt'>" + data.listing.nice_title + "</h4>"
   $('#list_title').append(tstr);
 
   // load seller
@@ -493,7 +491,7 @@ function loadUserPage(data, resFlg) {
 }
 
 // set address
-function showAddress(data, resFlg) {
+function showAddress(data, resFlg, eFlg) {
   var addr, city, state, zip, hphone, mphone;
 
   if (data !== undefined) {
@@ -513,28 +511,35 @@ function showAddress(data, resFlg) {
     + "</td><td></td><td><label>Zip* </label><input type='text' name='zip' id='zip' value='"
     + zip + "' placeholder='Zip' data-theme='a' class='profile-txt' /></td></tr>"
     + "<tr><td><label>Home Phone </label><input type='text' name='home_phone' id='home_phone' value='"
-    + hphone + "' placeholder='Home Phone' data-theme='a' class='profile-txt' /></td>"
-    + "<td></td><td><label>Mobile Phone </label><input type='text' name='mobile_phone' id='mobile_phone' value='"
-    + mphone + "' placeholder='Mobile Phone' data-theme='a' class='profile-txt' /></td></tr>";
+    + hphone + "' placeholder='Home Phone' data-theme='a' class='profile-txt' /></td>";
+
+    if(eFlg) {
+      addr_str += "<td></td><td><label>Email* </label><input type='text' name='email' id='email' value='"
+        + usr.email + "' placeholder='Email' data-theme='a' class='profile-txt' /></td></tr>";
+    }
+    else {
+      addr_str += "<td></td><td><label>Mobile Phone </label><input type='text' name='mobile_phone' id='mobile_phone' value='"
+        + mphone + "' placeholder='Mobile Phone' data-theme='a' class='profile-txt' /></td></tr>";
+    }
 
   return addr_str;
 }
 
 // process user contact page display
 function loadContactPage(data, resFlg) {
-  var state;
+  var state='';
 
   if (resFlg) {
     if (data !== undefined) {
       state = data.contacts[0].state || '';
     }
 
-    var user_str = "<table class='inv-descr'>" + showAddress(data, resFlg) + "</table><div class='sm-top center-wrapper'>" 
+    var user_str = "<table class='inv-descr'>" + showAddress(data, resFlg, false) + "</table><div class='sm-top center-wrapper'>" 
       + '<input type="submit" value="Save" data-theme="d" data-inline="true" id="edit-usr-btn"></div>';
 
     $('#usr-prof').append(user_str).trigger('create');
     setState("#state", state);  // load state dropdown
-    setSelectMenu('#state', '', state);  // set option menu
+    $('#state').val(state);
   }
   else {
     console.log('Contact page load failed');
@@ -646,7 +651,6 @@ function loadInvPage(data, resFlg) {
     var tax_total = parseFloat(data.invoice.tax_total).toFixed(2);
     var fee = parseFloat(data.invoice.get_fee).toFixed(2);
     var total = parseFloat(data.invoice.get_fee + data.invoice.amount).toFixed(2);
-    console.log('fee = ' + fee);
 
     inv_str += "<div class='mleft10'><div class='control-group'><table class='mtop inv-tbl inv-descr'>"
       + "<th><div class='center-wrapper'>Qty</div></th><th><div class='center-wrapper'>Item</div></th>"
@@ -751,11 +755,10 @@ function loadBoard(data, resFlg) {
         item_str += '<div class="item"><div class="center-wrapper">'
 	  + '<a href="#" ' + localUrl + ' class="bd-item" data-ajax="false">'  
 	  + getPixiPic(item.pictures[0].photo_url, 'height:115px; width:115px;') + '</a>'
-	  + '<div class="sm-top mbdescr">' + item.title + '</div>'
+	  + '<div class="sm-top profile-txt mbdescr">' + item.nice_title + '</div>'
 	  + '<div class="sm-top mgdescr">' + '<div class="item-cat pixi-grey-bkgnd">' 
 	  + '<a href="' + catPath + token + '&cid=' + item.category_id + '"' + ' class="pixi-cat"' + ' data-cat-id=' + item.category_id + '>'
-	  + item.category_name + '</a></div>' 
-	  + '<div class="item-dt pixi-grey-bkgnd">' + post_dt + '</div></div></div></div>';
+	  + item.category_name + '</a></div><div class="item-dt pixi-grey-bkgnd">' + post_dt + '</div></div></div></div>';
     });
 
     // build masonry blocks for board
@@ -863,7 +866,7 @@ function setSelectMenu(fld, str, val) {
   if(str.length > 0) {
     $(fld).append(str);
   }
-  $(dt_str).attr("selected", "selected");
+  $(dt_str).prop("selected", true);
   $(fld).selectmenu().selectmenu('refresh', true);
 }
 
@@ -882,10 +885,7 @@ function loadAcctType(fld, val) {
 // set state
 function setState(fld, val) {
   var pixiUrl = url + '/states.json' + token;
-
-  if(states_str.length == 0) {
-    loadData(pixiUrl, 'state');
-  }
+  loadData(pixiUrl, 'state', val);
 }
 
 // load active pixi dropdown menu for invoices
@@ -903,13 +903,16 @@ function setPixiList(res, fld, val) {
 
 // load states dropdown menu
 function loadStates(res, dFlg) {
+  var val = $('#state').val();
+
   if (res !== undefined) {
     states_str = '<option value="">State</option>';
     for(var i=0, len=res.length; i<len; i++) {
 	states_str += "<option value='" + res[i].code + "'>" + res[i].state_name + "</option>";
     }
-    setSelectMenu('#state', states_str, '');  // set option menu
+    setSelectMenu('#state', states_str, val);  // set option menu
   } 
+  return states_str;
 }
 
 // load quantity selectmenu 
@@ -1002,22 +1005,19 @@ function loadBankAcct(data, resFlg) {
     var inv_str = "<div id='data_error' style='display:none' class='error'></div>"
       + "<div class='mleft10'><form id='bank-acct-form' data-ajax='false'><div class='sm-top'><table class='inv-descr'>"
       + "<tr><td>Routing #</td><td><div data-role='fieldcontain' class='sm-top ui-hide-label'>"
-      + "<input type='text' name='routing_number' id='routing_number' placeholder='Routing Number' data-theme='a' value='" 
+      + "<input type='number' name='routing_number' id='routing_number' placeholder='Routing Number' data-theme='a' value='" 
       + routing_no + "' /></div></td></tr>"
       + "<tr><td>Account #</td><td><div data-role='fieldcontain' class='sm-top ui-hide-label'>"
-      + "<input type='text' name='acct_number' id='acct_number' placeholder='Account Number' data-theme='a' value='" 
-      + acct_no + "' /></div></td></tr>"
+      + "<input type='number' name='acct_number' id='acct_number' placeholder='Account Number' data-theme='a' value='" + acct_no + "' /></div></td></tr>"
       + "<tr><td>Account Name</td><td><div data-role='fieldcontain' class='sm-top ui-hide-label'>"
-      + "<input type='text' name='acct_name' id='acct_name' placeholder='Account Name' data-theme='a' value='" 
-      + acct_name + "' /></div></td></tr>"
+      + "<input type='text' name='acct_name' id='acct_name' placeholder='Account Name' data-theme='a' value='" + acct_name + "' /></div></td></tr>"
       + "<tr><td>Description</td><td><div data-role='fieldcontain' class='sm-top ui-hide-label'>"
-      + "<input type='text' name='description' id='description' placeholder='Description' data-theme='a' value='" 
-      + descr + "' /></div></td></tr>"
-      + "<tr><td class='img-valign'>Account Type</td><td><select name='acct_type' id='acct_type' class='mtop'></select></td></tr></table>" 
-      + "<input type='hidden' name='user_id' id='user_id' value='" + usr.id + "' /><input type='hidden' name='token' id='pay_token' />" 
+      + "<input type='text' name='description' id='bank_acct_descr' placeholder='Description' data-theme='a' value='" + descr + "' /></div></td></tr>"
+      + "<tr><td class='img-valign'>Account Type</td><td><select name='acct_type' id='acct_type' data-mini='true' class='mtop'></select></td></tr>"
+      + "</table><input type='hidden' name='user_id' id='user_id' value='" + usr.id + "' /><input type='hidden' name='token' id='pay_token' />" 
       + "<input type='hidden' name='acct_no' id='acct_no' /></div></form>"
       + "<div class='center-wrapper'><img src='../img/rsz_check_sample.gif'></div>"
-      + "<table><tr><td class='cal-size'><a href='#' id='px-cancel' data-role='button' data-inline='true' />Cancel</a></td></div>"
+      + "<table><tr><td class='cal-size'><a href='#' id='px-cancel' data-role='button' data-inline='true'>Cancel</a></td></div>"
       + "<td class='nav-right'><input type='submit' value='Save' data-theme='d' data-inline='true' id='add-acct-btn'></td></tr></table>";
 
     // build page
@@ -1035,9 +1035,57 @@ function loadBankAcct(data, resFlg) {
   uiLoading(false);
 }
 
+// load transaction page
+function loadTxnPage(data, resFlg, txnType) {
+  console.log('in Transaction page');
+
+  // turn on spinner
+  uiLoading(true);
+
+  if (resFlg) {
+    if (data !== undefined) {
+      var txn = data.transaction;
+
+      // clear page
+      $('#txn-frm').html('');
+      $('#form_errors').html('');
+
+      var photo = getPixiPic(txn.photo, 'height:60px; width:60px;', 'smallImage'); 
+      var name_str = "<span class='mleft10 pstr'>" + txn.buyer_name + "</span><br />";
+      var total = parseFloat(txn.amt).toFixed(2);
+      var descr = txn.description + ((txnType == 'invoice') ? " from " + txn.seller_name : '');
+
+      var txn_str = "<table><tr><td>" + photo + "</td><td>" + name_str + "</td></tr></table>"
+        + "<table class='inv-descr'><tr><td class='cal-size'>Confirmation #:</td><td></td><td>" + txn.confirmation_no + "</td></tr>";
+
+      if (txn.amt > 0) {
+        txn_str += "<tr><td class='width240'>Payment Type: </td><td></td><td>" + txn.payment_type + "</td></tr>"
+	  + "<tr><td class='width240'>Card #:</td><td></td><td>************" + txn.credit_card_no + "</td></tr>"
+	  + "<tr><td class='width240'>Amount:</td><td></td><td>$" + total + "</td></tr>";
+      }
+
+      txn_str += "<tr><td class='width240'>Date: </td><td></td><td>" + txn.txn_dt + "</td></tr>" 
+        + "<tr><td class='width240'>Name: </td><td></td><td>" + txn.buyer_name + "</td></tr>" 
+	+ "<tr><td class='width240'>Email: </td><td></td><td>" + txn.email + "<br></td></tr>" 
+	+ "<tr><td class='width240'>Description: </td><td></td><td>" + descr + "<br></td></tr></table>"
+	+ "<div class='clear-all'></div><div class='mtop center-wrapper'>" 
+	+ "<a href='#' data-role='button' data-inline='true' data-theme='d' id='done-btn'>Done</a></div>";
+
+      // build page
+      $('#txn-frm').append(txn_str).trigger('create');
+    }
+  }
+  else {
+    console.log('Transaction page load failed');
+    PGproxy.navigator.notification.alert("Transaction page failed", function() {}, 'Transaction', 'Done');
+  }
+  uiLoading(false);
+}
+
 // load transaction form
 function loadTxnForm(data, resFlg, txnType, promoCode) {
-  var style = '', addr='', city='', state='', zip='', street='', total, alt_style;
+  var style = '', city='', state='', zip='', street='', total, alt_style, id_str, acct;
+  var card_no, card_type, exp_dt, token='';
   var d = new Date();
   var month = d.getMonth()+1;
   var yr = d.getFullYear();
@@ -1046,62 +1094,87 @@ function loadTxnForm(data, resFlg, txnType, promoCode) {
 
   if (resFlg) {
     if (data !== undefined) {
-      var total = parseFloat(data.invoice.get_fee + data.invoice.amount).toFixed(2);
+      var prc_fee = data.invoice.get_processing_fee, conv_fee = data.invoice.get_convenience_fee;
+
       $('#txn-frm').html('');
+      $('#form_errors').html('');
+
+      // set account
+      if(data.user.card_accounts.length > 0) {
+        acct = data.user.card_accounts[0];
+	card_no = acct.card_no; exp_dt = acct.expiration_month + '/' + acct.expiration_year; card_type = acct.card_type, token = acct.token;
+	card_edit_style = 'display:none'; card_show_style = '';
+      }
+      else {
+	card_show_style = 'display:none'; card_edit_style = '';
+      }
 
       // check for user address
-      if(usr.contacts.length > 0) {
+      if(data.user.contacts.length > 0) {
         addr = data.user.contacts[0];
-	street = addr.address;
-	city = addr.city;
-	state = addr.state;
-	zip = addr.zip;
+	state = addr.state; zip = addr.zip; city = addr.city; street = addr.address;
 
         if(addr.address !== undefined && addr.city !== undefined && addr.state !== undefined && addr.zip !== undefined) {
-	  alt_style = 'display:none';
-	  style = '';
+	  alt_style = 'display:none'; style = '';
 	} 
 	else {
-	  style = 'display:none';
-	  alt_style = '';
+	  style = 'display:none'; alt_style = '';
 	}
+      }
+
+      // set vars based on txn type
+      if (txnType == 'invoice') {
+        total = parseFloat(data.invoice.get_fee + data.invoice.amount).toFixed(2);
+	var pixi_title = data.invoice.pixi_title, idNum = data.invoice.id, class_name = "inv-item";
+	id_str = "data-inv-id='";
+      }
+      else {
+        total = parseFloat(data.get_fee + data.amount).toFixed(2);
+	var pixi_title = data.title, idNum = data.pixi_id, class_name = 'bd-item';
+	id_str = "data-pixi-id='";
       }
 
       // build form string
       var inv_str = "<div id='data_error' style='display:none' class='error'></div>"
-        + "<div class='mleft10'><form id='payment_form' data-ajax='false'>"
+        + "<div id='inv-item' class='mleft10' data-qty='" + data.invoice.quantity + "' data-prc='" + data.invoice.price + "' data-pixi_id='"
+	+ data.invoice.pixi_id + "'><form id='payment_form' data-ajax='false'>"
         + "<div class='div-border'><table><tr><td class='cal-size title-str'>Total Due</td><td class='price title-str'>$"
 	+ total + "</td></tr></table></div><div class='div-border'><table class='inv-descr addr-tbl' style='" + style + "'>"  
-	+ "<tr><td><strong>" + data.user.name + "</strong><br>" + street + "<br>" + city + ", " + state + " " + zip + "</td>"
+	+ "<tr><td class='cal-size'><strong>" + data.user.name + "</strong><br>" + street + "<br>" + city + ", " + state + " " + zip + "</td>"
 	+ "<td class='v-align price'><a href='#' id='edit-txn-addr' data-role='button' data-inline='true' data-mini='true' data-theme='b'>"
-	+ "Edit</a></td></tr></table><center><table class='inv-descr user-tbl' style='" + alt_style + "'>" 
-	+ "<tr><td><label>First Name* </label><input type='text' id='first_name' class='profile-txt' placeholder='First Name' "
+	+ "Change</a></td></tr></table><center><table class='inv-descr user-tbl' style='" + alt_style + "'>" 
+	+ "<tr><td><label>First Name* </label><input type='text' name='first_name' id='first_name' class='profile-txt' placeholder='First Name' "
 	+ "value='" + data.user.first_name + "' /></td><td></td>"
-	+ "<td><label>Last Name* </label><input type='text' id='last_name' class='profile-txt' placeholder='Last Name' value='" 
-	+ data.user.last_name + "' /></td></tr>" + showAddress(data.user, resFlg) + "</table></center>"
-	+ "<table class='mtop inv-descr'><tr><td class='cal-size'>Card #* <img src='../img/cc_logos.jpeg' class='cc-logo' />"
-        + "<input type='text' name=nil id='card_number' size=16 /></td></tr>"
-	+ "<tr><td><table><tr><td><div class='sm-top'>CVV*</div>"
-        + "<input type='text' name=nil id='card_code' maxlength=4 size=4 class='card-code' /></td>"
-	+ "<td></td><td><span class='neg-top'>Exp Mo</span><select name=nil id='card_month' data-mini='true'></select></td>"
-        + "<td><span class='neg-top'>Exp Yr</span><select name=nil id='card_year' data-mini='true'></select></td></tr></table></td></tr></table>"
-        + "<input type='hidden' name='token' id='pay_token' /><input type='hidden' id='user_id' value='" + usr.id + "' />"
+	+ "<td><label>Last Name* </label><input type='text' name='last_name' id='last_name' class='profile-txt' placeholder='Last Name' value='" 
+	+ data.user.last_name + "' /></td></tr>" + showAddress(data.user, resFlg, true) + "</table></center>"
+	+ "<table class='mtop inv-descr card-dpl' style='" + card_show_style + "'>"  
+	+ "<tr><td class='cal-size mbot'>Card Info:<br>" + card_type + "<br>************" + card_no + "<br>Exp: " + exp_dt + "</td>"
+	+ "<td class='v-align price'><a href='#' id='edit-card-btn' data-role='button' data-inline='true' data-mini='true' data-theme='b'>"
+	+ "Change</a></td></tr></table>"
+	+ "<table class='mtop inv-descr card-tbl' style='" + card_edit_style + "'><tr><td class='cal-size'><label>Card #* </label>"
+	+ "<img src='../img/cc_logos.jpeg' class='cc-logo' />"
+        + "<input type='number' name='card_number' id='card_number' size=16 class='profile-txt' /></td></tr><tr><td><table><tr><td><label>CVV*"
+        + "</label><input type='number' name='cvv' id='card_code' maxlength=4 size=4 class='card-code profile-txt' /></td>"
+	+ "<td></td><td><label>Exp Mo</label><select name='card_month' id='card_month' data-mini='true'></select></td>"
+        + "<td><label>Exp Yr</label><select name='card_year' id='card_year' data-mini='true'></select></td></tr></table></td></tr></table>"
+	+ "<input type='hidden' id='user_id' value='" + usr.id + "' />"
+	+ "<input type='hidden' id='token' name='token' value='" + token + "' />"
 	+ "<input type='hidden' id='first_name' value='" + data.user.first_name + "' /><input type='hidden' id='last_name' value='" 
-	+ data.user.last_name + "' /><input type='hidden' id='email' value='" + data.user.email + "' />"
-	+ "<input type='hidden' id='transaction_type' value='" + txnType + "' /><input type='hidden' id='amt' value='" 
-	+ data.invoice.amount + "' /><input type='hidden' id='description' value='" + data.invoice.pixi_title + "' />"
-	+ "<input type='hidden' id='processing_fee' value='" + data.invoice.get_processing_fee + "' />"
-	+ "<input type='hidden' id='convenience_fee' value='" + data.invoice.convenience_fee + "' />"
+	+ data.user.last_name + "' /><input type='hidden' name='transaction_type' id='transaction_type' value='" + txnType + "' />"
+	+ "<input type='hidden' name='amt' id='amt' value='" 
+	+ data.invoice.amount + "' /><input type='hidden' id='description' value='" + pixi_title + "' />"
+	+ "<input type='hidden' id='processing_fee' value='" + prc_fee + "' />"
+	+ "<input type='hidden' id='convenience_fee' value='" + conv_fee + "' />"
         + "<input type='hidden' id='promo_code' value='" + promoCode + "' />"
-        + "<table><tr><td class='cal-size'><a href='#' id='txn-prev-btn' data-role='button' data-inline='true' data-id='"
-	+ data.invoice.id + "'>Prev</a></td></div>"
+        + "<table><tr><td class='cal-size'><a href='#' id='txn-prev-btn' class='" + class_name + "' data-role='button' data-inline='true' " + id_str
+	+ idNum + "'>Prev</a></td></div>"
+	
         + "<td class='nav-right'><input type='submit' value='Done!' data-theme='d' data-inline='true' id='payForm'></td></tr></table>"
 	+ "</form></div>"; 
 
       // build page
       $('#txn-frm').append(inv_str).trigger('create');
       setState("#state", state);  // load state dropdown
-      setSelectMenu('#state', '', state);  // set option menu
       loadYear("#card_year", -15, 0, yr+1); // load year fld
       loadMonth("#card_month", month); // load month fld
     }

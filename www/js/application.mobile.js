@@ -8,9 +8,9 @@ var pxPath = listPath + '/';
 var listPage = '../html/show_listing.html';
 var homePage = "../html/listings.html";
 var catPath = pxPath + 'category.json' ;
-var locPath = pxPath + 'location.json' ;
+var locPath = pxPath + 'local.json' ;
 var email, pwd, pid, token, usr, categories, deleteUrl, myPixiPage, invFormType, pxFormType,
-  postType = 'recv';
+  addr, postType = 'recv';
 
 // ajax setup
 $(function(){
@@ -87,21 +87,12 @@ $(document).on('pageinit', '#acct-form', function() {
 function setInvForm() {
   var data;
 
-  switch(invFormType) {
-    case 'edit':
-      if(pid !== undefined) {
-        var invUrl = url + '/invoices/' + pid + '.json' + token;
-        loadData(invUrl, 'invedit');
-      }
-      else {
-        loadInvForm(data, true);
-      }
-      break;
-    case 'inv':
-      loadInvForm(data, true);
-      break;
-    default:
-      break;
+  if(invFormType == 'edit' && pid !== undefined) {
+    var invUrl = url + '/invoices/' + pid + '.json' + token;
+    loadData(invUrl, 'invedit');
+  }
+  else {
+    loadInvForm(data, true);
   }
   $("#navpanel").panel("close");  // close menu panel
 }
@@ -181,10 +172,10 @@ function putData(putUrl, fdata, dType) {
 	  break;
       }
     },
-    fail: function (a, b) {
-        PGproxy.navigator.notification.alert(a + '|' + b, function() {}, 'Put Data', 'Done');
+    fail: function (a, b, c) {
+        PGproxy.navigator.notification.alert(a.responseText, function() {}, 'Put Data', 'Done');
+        console.log(a.responseText + ' | ' + b + ' | ' + c);
   	uiLoading(false);
-        console.log(a + '|' + b);
     }
   });
 }
@@ -192,14 +183,14 @@ function putData(putUrl, fdata, dType) {
 // post data based on given url & data type
 function postData(postUrl, fdata, dType) {
   console.log('in postData: ' + postUrl);
-  var dFlg;
+  var dFlg, data;
 
   // turn on spinner
   uiLoading(true);
 
   // process post
   $.post(postUrl, fdata, function(res) {
-    (res == undefined) ? dFlg = false : dFlg = true;  // set flag
+    dFlg = (res == undefined) ? false : true;  // set flag
 
     // load data based on display type
     switch (dType) {
@@ -218,8 +209,14 @@ function postData(postUrl, fdata, dType) {
       case 'comment':
         showCommentPage(res);
 	break;
+      case 'bank':
+        invFormType == 'new' ? loadInvForm(data, true) : loadBankPage(res, dFlg); 
+	break;
       case 'reply':
         loadPosts(res, dFlg);
+	break;
+      case 'card':
+        loadTxnPage(res, dFlg, 'invoice');
 	break;
       default:
         return res;
@@ -227,8 +224,8 @@ function postData(postUrl, fdata, dType) {
     }
   },"json").fail(function (a, b, c) {
   	uiLoading(false);
-        PGproxy.navigator.notification.alert(b + ' | ' + c, function() {}, 'Post Data', 'Done');
-        console.log(b + ' | ' + c);
+        PGproxy.navigator.notification.alert(a.responseText, function() {}, 'Post Data', 'Done');
+        console.log(a.responseText + ' | ' + b + ' | ' + c);
   });
 }
 
@@ -246,9 +243,9 @@ function deleteData(delUrl, dType) {
 	}
     },
     fail: function (a, b, c) {
-        PGproxy.navigator.notification.alert(a + '|' + b, function() {}, 'Delete', 'Done');
+        PGproxy.navigator.notification.alert(a.responseText, function() {}, 'Delete Data', 'Done');
+        console.log(a.responseText + ' | ' + b + ' | ' + c);
   	uiLoading(false);
-        console.log(a + '|' + b);
     }
   });
 }
@@ -338,7 +335,7 @@ $(document).on('click', '#signout-menu-btn', function(e) {
   var logoutUrl = url + '/api/v1/sessions/' + curToken + '.json';
 
   // check if app exit
-  navigator.notification.confirm('Exit Pixiboard?', onExitConfirm, 'Exit', 'No, Yes');
+  navigator.notification.confirm('Close App?', onExitConfirm, 'Exit', 'No, Yes');
 
   // process request
   deleteData(logoutUrl, 'exit');
@@ -358,8 +355,8 @@ function resetActiveClass($this) {
 
 // process list btn click
 $(document).on('click', '#profile-nav-btn, #contact-nav-btn, #prefs-nav-btn', function(e) {
-  var sType = $(this).attr('data-dtype'); 
   var $this = $(this);
+  var sType = $this.attr('data-dtype'); 
 
   // reset active class
   resetActiveClass($this);
@@ -396,8 +393,8 @@ $(document).on('click', '#active-btn, #draft-btn, #sold-btn, #sent-inv-btn, #rec
   resetActiveClass($this);
 
   // set var to active item
-  myPixiPage = $(this).attr('data-view'); 
-  var dType = $(this).attr('data-dtype'); 
+  myPixiPage = $this.attr('data-view'); 
+  var dType = $this.attr('data-dtype'); 
   console.log('myPixiPage = ' + myPixiPage);
   console.log('dType = ' + dType);
 
@@ -415,13 +412,8 @@ $(document).on('click', '#active-btn, #draft-btn, #sold-btn, #sent-inv-btn, #rec
 // submit new pixi to board
 $(document).on('click', '#submit-pixi-btn', function(e) {
   var sType = $('#px-status').attr('data-status-type');
-
-  if(sType == 'edit') {
-    var submitUrl = url + '/resubmit' + '.json' + token;
-  } 
-  else {
-    var submitUrl = url + '/submit' + '.json' + token;
-  }
+  var path = (sType == 'edit') ? '/resubmit' : '/submit'; 
+  var submitUrl = url + path + '.json' + token;
 
   putData(submitUrl, {id:pid}, 'submit');
   return false;
@@ -430,7 +422,6 @@ $(document).on('click', '#submit-pixi-btn', function(e) {
 // confirm cancellation
 $(document).on('click', '#cancel-pixi-btn, #px-cancel', function(e) {
   e.preventDefault();
-  console.log('in click cancel pixi btn');
   navigator.notification.confirm('Are you sure? All changes will be lost!', onConfirm, 'Cancel', 'No, Yes');
 });
 
@@ -514,9 +505,14 @@ $(document).on('click', '.edit-prof-btn', function(e) {
   $('#edit-profile').toggle();
 });
 
-// toggle profile state
+// toggle credit card address display
 $(document).on('click', '#edit-txn-addr', function(e) {
   $('.user-tbl, .addr-tbl').toggle();
+});
+
+// toggle credit card info display
+$(document).on('click', '#edit-card-btn', function(e) {
+  $('.card-tbl, .card-dpl').toggle();
 });
 
 // toggle spinner
@@ -691,6 +687,28 @@ $(document).on("click", "#add-inv-btn", function(e) {
   }
 });
 
+// submit bank account form
+$(document).on("click", "#add-acct-btn", function(e) {
+  console.log('in submit bank account-form');
+
+  var acct_no =  $('#acct_number').val();
+  var rte_no =  $('#routing_number').val();
+
+  if (acct_no.length > 0 && rte_no.length > 0) {
+    uiLoading(true);
+    $("#add-acct-btn").attr("disabled","disabled");  // disable form submit button
+
+    // store form data
+    var params = new Object();
+    params.bank_account = { user_id: $('#user_id').val(), acct_number: $('#acct_number').val(), routing_number: $('#routing_number').val(), 
+      acct_name: $('#acct_name').val(), acct_type: $('#acct_type').val(), description: $('#bank_acct_descr').val() }; 
+
+    // post data
+    var pxUrl = url + '/bank_accounts.json' + token;
+    postData(pxUrl, params, 'bank');
+  }
+});
+
 // submit pixi form
 $(document).on("click", "#add-pixi-btn", function(e) {
   console.log('in submit pixi-form');
@@ -759,6 +777,9 @@ function processLogin(res, resFlg) {
   if(resFlg) {
     if(res.token.length > 0) {
       console.log('login success');
+
+      // set user
+      usr = res.user;
 
       //store credentials on device
       window.localStorage["email"] = email;
@@ -953,7 +974,7 @@ function getInvoice(data) {
 }
 
 // process px done click
-$(document).on("click", "#px-done-btn", function(e) {
+$(document).on("click", "#px-done-btn, #done-btn", function(e) {
   e.preventDefault();
   goToUrl(homePage);
 });
@@ -970,6 +991,12 @@ $(document).on("click", ".sl-menu", function(e) {
       setInvForm(); 
     } 
 
+    // set flg for navigation after acct creation
+    if ($(this).attr("id") == 'bill-menu-btn') {
+      invFormType = (usr.bank_accounts.length < 1) ? 'new' : 'inv';
+    }
+
+    // set to most recent unpaid invoice
     if ($(this).attr("id") == 'pay-menu-btn') {
       pid = usr.unpaid_received_invoices[0].id;
       console.log('sl menu pid = ' + pid);
@@ -989,12 +1016,12 @@ var menu = [
   { title: 'My Posts', href: '../html/posts.html', icon: '../img/09-chat-2.png', id: 'posts-menu-btn' },
   { title: 'My Invoices', href: '../html/invoices.html', icon: '../img/bill.png', id: 'inv-menu-btn' },
   { title: 'My Accounts', href: '../html/accounts.html', icon: '../img/190-bank.png', id: 'acct-menu-btn' },
-  { title: 'Settings', href: '../html/user_form.html', icon: '../img/19-gear.png', id: 'settings-menu-btn' },
+  { title: 'My Settings', href: '../html/user_form.html', icon: '../img/19-gear.png', id: 'settings-menu-btn' },
   { title: 'Sign out', href: '../index.html', icon: '../img/logout.png', id: 'signout-menu-btn' },
 ];
 
 // show menu
-$(document).on("pageshow", function(event) {
+$(document).on("pagebeforeshow", function(event) {
   var items = '', // menu items list
     ul = $(".mainMenu:empty");  // get "every" mainMenu that has not yet been processed
   
@@ -1010,7 +1037,7 @@ $(document).on("pageshow", function(event) {
     // if user exists then toggle invoice-related items based on counts
     if(usr !== undefined) { 
       if(menu[i].id == 'bill-menu-btn') {
-        if (usr.active_listings.length < 1) {
+        if (usr.pixi_count < 1) {
           console.log('usr has no active pixis');
           continue;
 	}

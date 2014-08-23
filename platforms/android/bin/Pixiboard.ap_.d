@@ -111,9 +111,11 @@ c:\RoRDev\pxbMobile\platforms\android\assets\www\js\jquery.ui.autocomplete.html.
 c:\RoRDev\pxbMobile\platforms\android\assets\www\js\loaddata.js \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\js\main.js \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\js\masonry.pkgd.min.js \
+c:\RoRDev\pxbMobile\platforms\android\assets\www\js\payment.js \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\js\pginit.js \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\js\phonegap.js \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\js\pixipage.js \
+c:\RoRDev\pxbMobile\platforms\android\assets\www\js\transaction.js \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\plugins\org.apache.cordova.camera \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\plugins\org.apache.cordova.dialogs \
 c:\RoRDev\pxbMobile\platforms\android\assets\www\plugins\org.apache.cordova.file \

@@ -228,5 +228,17 @@ module.exports = [
             "navigator.notification"
         ]
     }
-]
+];
+module.exports.metadata = 
+// TOP OF METADATA
+{
+    "org.apache.cordova.geolocation": "0.3.2",
+    "org.apache.cordova.camera": "0.2.3",
+    "org.apache.cordova.file": "0.2.4",
+    "org.apache.cordova.file-transfer": "0.3.3",
+    "org.apache.cordova.splashscreen": "0.2.3",
+    "org.apache.cordova.network-information": "0.2.3",
+    "org.apache.cordova.dialogs": "0.2.3"
+}
+// BOTTOM OF METADATA
 });

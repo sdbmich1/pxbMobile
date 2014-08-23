@@ -21,6 +21,19 @@ function hideComp(){
   }  
 }
 
+// check form for blank fields
+function allFilled(list) {
+  var filled = true;
+  var flds = list.split(', ');
+
+  $.each(flds, function(index, item) {
+    if($(item).val() == '') {
+      filled = false; 
+    }
+  });
+  return filled;
+}
+
 $(function (){
   // when the #category id field changes
   $(document).on("change", "select[id*=category_id]", function(evt){
@@ -316,7 +329,7 @@ $(document).on("change", "#inv_qty, #inv_price, #inv_tax", function(){
 // get pixi price based selection of pixi ID
 $(document).on("change", "select[id*=pixi_id]", function() {
   var pid = $(this).val();
-  var pixiUrl = url + '/invoices/get_pixi_price.json' + token;
+  var pixiUrl = url + '/listings/get_pixi_price.json' + token;
   
   // load price
   loadData(pixiUrl, 'price', {pixi_id:pid});
